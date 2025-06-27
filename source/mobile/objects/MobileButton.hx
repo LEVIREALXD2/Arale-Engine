@@ -158,7 +158,7 @@ class TypedMobileButton<T:FlxSprite> extends FlxSprite implements IFlxInput
 	public var parentAlpha(default, set):Float = 1;
 
 	/**
-	 * CUSTOM BUTTON RETURN (FOR EASIER LUA SUPPORT).
+	 * Custom Button Return (For Easier Lua Support).
 	**/
 	public var returnedButton:String;
 

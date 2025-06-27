@@ -12,7 +12,7 @@ import openfl.geom.Matrix;
  * @author Mihai Alexandru (M.A. Jigsaw)
  * @modifier KralOyuncu 2010x (ArkoseLabs)
  */
-@:build(mobile.macros.ButtonMacro.createExtraHitboxButtons(30))
+@:build(mobile.macros.ButtonMacro.createExtraButtons(30))
 class Hitbox extends FlxSpriteGroup
 {
 	public var buttonLeft:MobileButton = new MobileButton(0, 0);
@@ -37,34 +37,47 @@ class Hitbox extends FlxSpriteGroup
 			if (!MobileData.hitboxModes.exists(Custom))
 				throw 'The Custom Hitbox File doesn\'t exists.';
 
-			for (buttonData in MobileData.hitboxModes.get(Custom).buttons)
+			var currentHint = MobileData.hitboxModes.get(Custom).hints;
+			if (MobileData.hitboxModes.get(Custom).none != null) currentHint = MobileData.hitboxModes.get(Custom).none;
+			if (ClientPrefs.extraKeys == 1 && MobileData.hitboxModes.get(Custom).single != null) currentHint = MobileData.hitboxModes.get(Custom).single;
+			if (ClientPrefs.extraKeys == 2 && MobileData.hitboxModes.get(Custom).double != null) currentHint = MobileData.hitboxModes.get(Custom).double;
+			if (ClientPrefs.extraKeys == 3 && MobileData.hitboxModes.get(Custom).triple != null) currentHint = MobileData.hitboxModes.get(Custom).triple;
+			if (ClientPrefs.extraKeys == 4 && MobileData.hitboxModes.get(Custom).quad != null) currentHint = MobileData.hitboxModes.get(Custom).quad;
+			for (buttonData in currentHint)
 			{
-				var location = ClientPrefs.hitboxLocation;
 				var buttonX = buttonData.x;
 				var buttonY = buttonData.y;
 				var buttonWidth = buttonData.width;
 				var buttonHeight = buttonData.height;
+				var buttonColor = buttonData.color;
 				var customReturn = buttonData.returnKey;
+				var location = ClientPrefs.hitboxLocation;
 				switch (location) {
 					case 'Top':
 						if (buttonData.topX != null) buttonX = buttonData.topX;
 						if (buttonData.topY != null) buttonY = buttonData.topY;
 						if (buttonData.topWidth != null) buttonWidth = buttonData.topWidth;
 						if (buttonData.topHeight != null) buttonHeight = buttonData.topHeight;
+						if (buttonData.topColor != null) buttonColor = buttonData.topColor;
+						if (buttonData.topReturnKey != null) customReturn = buttonData.topReturnKey;
 					case 'Middle':
 						if (buttonData.middleX != null) buttonX = buttonData.middleX;
 						if (buttonData.middleY != null) buttonY = buttonData.middleY;
 						if (buttonData.middleWidth != null) buttonWidth = buttonData.middleWidth;
 						if (buttonData.middleHeight != null) buttonHeight = buttonData.middleHeight;
+						if (buttonData.middleColor != null) buttonColor = buttonData.middleColor;
+						if (buttonData.middleReturnKey != null) customReturn = buttonData.middleReturnKey;
 					case 'Bottom':
 						if (buttonData.bottomX != null) buttonX = buttonData.bottomX;
 						if (buttonData.bottomY != null) buttonY = buttonData.bottomY;
 						if (buttonData.bottomWidth != null) buttonWidth = buttonData.bottomWidth;
 						if (buttonData.bottomHeight != null) buttonHeight = buttonData.bottomHeight;
+						if (buttonData.bottomColor != null) buttonColor = buttonData.bottomColor;
+						if (buttonData.bottomReturnKey != null) customReturn = buttonData.bottomReturnKey;
 				}
 
 				Reflect.setField(this, buttonData.button,
-					createHint(buttonX, buttonY, buttonWidth, buttonHeight, CoolUtil.colorFromString(buttonData.color), customReturn));
+					createHint(buttonX, buttonY, buttonWidth, buttonHeight, CoolUtil.colorFromString(buttonColor), customReturn));
 				add(Reflect.field(this, buttonData.button));
 			}
 		}

@@ -159,7 +159,13 @@ typedef MobileButtonsData =
 
 typedef CustomHitboxData =
 {
-	buttons:Array<HitboxData>
+	hints:Array<HitboxData>, //support old jsons
+	//Shitty but works (as said, if it works don't touch)
+	none:Array<HitboxData>,
+	single:Array<HitboxData>,
+	double:Array<HitboxData>,
+	triple:Array<HitboxData>,
+	quad:Array<HitboxData>
 }
 
 typedef HitboxData =
@@ -177,16 +183,22 @@ typedef HitboxData =
 	topY:Null<Float>,
 	topWidth:Null<Int>,
 	topHeight:Null<Int>,
+	topColor:String,
+	topReturnKey:String,
 	//Middle
 	middleX:Null<Float>,
 	middleY:Null<Float>,
 	middleWidth:Null<Int>,
 	middleHeight:Null<Int>,
+	middleColor:String,
+	middleReturnKey:String,
 	//Bottom
 	bottomX:Null<Float>,
 	bottomY:Null<Float>,
 	bottomWidth:Null<Int>,
-	bottomHeight:Null<Int>
+	bottomHeight:Null<Int>,
+	bottomColor:String,
+	bottomReturnKey:String
 }
 
 typedef ButtonsData =

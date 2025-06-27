@@ -4,6 +4,7 @@ import lime.ui.Haptic;
 import flixel.util.FlxSave;
 import mobile.backend.TouchFunctions;
 import mobile.objects.MobileControls.ControlsGroup;
+import mobile.objects.MobileControls.Config;
 import FunkinLua.CustomSubstate;
 #if android
 import android.widget.Toast as AndroidToast;
@@ -11,6 +12,8 @@ import android.widget.Toast as AndroidToast;
 
 class MobileFunctions
 {
+	static var config:Config = new Config('saved-controls');
+
 	public static function implement(funk:FunkinLua)
 	{
 		#if LUA_ALLOWED
@@ -39,7 +42,7 @@ class MobileFunctions
 		});
 		#end
 
-		#if LUAVPAD_ALLOWED
+		#if LUAMPAD_ALLOWED
 		//OMG
 		Lua_helper.add_callback(lua, 'mobilePadPressed', function(buttonPostfix:String):Bool
 		{
@@ -95,16 +98,26 @@ class MobileFunctions
 			PlayState.instance.reloadControls(cValue);
 		});
 
-		//backwards support
-		Lua_helper.add_callback(lua, "changeMobileControls", function(?mode:String):Void
+		Lua_helper.add_callback(lua, 'getCurMobilecMode', function():String
 		{
-			FunkinLua.luaTrace("changeMobileControls is deprecated! Use changeHitboxMode or changeMobilePadButtons instead", false, true, FlxColor.YELLOW);
-			PlayState.instance.reloadControls(null, mode);
+			var curMode:String = '${MobileControls.mode}';
+			return curMode;
 		});
 
-		Lua_helper.add_callback(lua, "changeHitboxMode", function(?mode:String):Void
+		//better support
+		Lua_helper.add_callback(lua, "changeMobileControls", function(?cValue:Int, ?mode:String, ?action:String):Void
 		{
-			PlayState.instance.reloadControls(null, mode);
+			if (mode == null) mode = "NONE";
+			if (action == null) action = "NONE";
+			PlayState.instance.reloadControls(cValue, mode, action);
+		});
+
+		Lua_helper.add_callback(lua, "setMobileControlsPosition", function(?x:Float, ?y:Float):Void
+		{
+			if (MusicBeatState.mobilec != null) {
+				if (x != null) MusicBeatState.mobilec.x = x;
+				if (y != null) MusicBeatState.mobilec.y = y;
+			}
 		});
 
 		Lua_helper.add_callback(lua, "reloadMobileControls", function():Void
@@ -112,9 +125,9 @@ class MobileFunctions
 			PlayState.instance.reloadControls();
 		});
 
-		Lua_helper.add_callback(lua, "addMobileControls", function(?cValue:Int, ?mode:String):Void
+		Lua_helper.add_callback(lua, "addMobileControls", function(?cValue:Int, ?mode:String, ?action:String):Void
 		{
-			PlayState.instance.addControls(cValue, mode);
+			PlayState.instance.addControls(cValue, mode, action);
 		});
 
 		Lua_helper.add_callback(lua, "removeMobileControls", function():Void

@@ -79,7 +79,7 @@ using StringTools;
 
 class PlayState extends MusicBeatState
 {
-	#if LUAVPAD_ALLOWED
+	#if LUAMPAD_ALLOWED
 	public var luaMobilePad:MobilePad; //trust me, you'll never need to access this directly
 	#end
 	public static var STRUM_X = 42;
@@ -5039,7 +5039,7 @@ class PlayState extends MusicBeatState
 		}
 		FlxAnimationController.globalSpeed = 1;
 		FlxG.sound.music.pitch = 1;
-		#if LUAVPAD_ALLOWED
+		#if LUAMPAD_ALLOWED
 		if (luaMobilePad != null)
 			luaMobilePad = FlxDestroyUtil.destroy(luaMobilePad);
 		#end
@@ -5372,7 +5372,7 @@ class PlayState extends MusicBeatState
 	var curLight:Int = -1;
 	var curLightEvent:Int = -1;
 
-	#if LUAVPAD_ALLOWED
+	#if LUAMPAD_ALLOWED
 	public function makeLuaMobilePad(DPad:String, Action:String)
 	{
 		if(members.contains(luaMobilePad)) return;
@@ -5424,16 +5424,16 @@ class PlayState extends MusicBeatState
 	}
 
 	//Lua Stuff for Mobile Controls
-	public function reloadControls(?customControllerValue:Int, ?mode:String)
+	public function reloadControls(?customControllerValue:Int, ?mode:String, ?action:String)
 	{
 		removeMobileControls();
-		addMobileControls(customControllerValue, mode);
+		addMobileControls(customControllerValue, mode, action);
 		if (customControllerValue <= 3 && customControllerValue >= 0) MusicBeatState.mobilec.alpha = ClientPrefs.mobilePadAlpha;
 	}
 
-	public function addControls(?customControllerValue:Int, ?mode:String)
+	public function addControls(?customControllerValue:Int, ?mode:String, ?action:String)
 	{
-		addMobileControls(customControllerValue, mode);
+		addMobileControls(customControllerValue, mode, action);
 		if (customControllerValue <= 3 && customControllerValue >= 0) MusicBeatState.mobilec.alpha = ClientPrefs.mobilePadAlpha;
 	}
 

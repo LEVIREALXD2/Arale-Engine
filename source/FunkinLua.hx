@@ -3445,24 +3445,25 @@ class FunkinLua {
 			var Extra2:Bool = (MusicBeatState.mobilec.newhbox.buttonExtra2.returnedButton == null);
 			var Extra3:Bool = (MusicBeatState.mobilec.newhbox.buttonExtra3.returnedButton == null);
 			var Extra4:Bool = (MusicBeatState.mobilec.newhbox.buttonExtra4.returnedButton == null);
+			key = key.toUpperCase();
 
-			if (key.toUpperCase() == ClientPrefs.extraKeyReturn1.toUpperCase() && extraControl.buttonExtra1 != null && Reflect.getProperty(extraControl.buttonExtra1, type) && Extra1)
+			if (key == ClientPrefs.extraKeyReturn1.toUpperCase() && extraControl.buttonExtra1 != null && Reflect.getProperty(extraControl.buttonExtra1, type) && Extra1)
 				return true;
-			if (key.toUpperCase() == ClientPrefs.extraKeyReturn2.toUpperCase() && extraControl.buttonExtra2 != null && Reflect.getProperty(extraControl.buttonExtra2, type) && Extra2)
+			if (key == ClientPrefs.extraKeyReturn2.toUpperCase() && extraControl.buttonExtra2 != null && Reflect.getProperty(extraControl.buttonExtra2, type) && Extra2)
 				return true;
-			if (key.toUpperCase() == ClientPrefs.extraKeyReturn3.toUpperCase() && extraControl.buttonExtra3 != null && Reflect.getProperty(extraControl.buttonExtra3, type) && Extra3)
+			if (key == ClientPrefs.extraKeyReturn3.toUpperCase() && extraControl.buttonExtra3 != null && Reflect.getProperty(extraControl.buttonExtra3, type) && Extra3)
 				return true;
-			if (key.toUpperCase() == ClientPrefs.extraKeyReturn4.toUpperCase() && extraControl.buttonExtra4 != null && Reflect.getProperty(extraControl.buttonExtra4, type) && Extra4)
+			if (key == ClientPrefs.extraKeyReturn4.toUpperCase() && extraControl.buttonExtra4 != null && Reflect.getProperty(extraControl.buttonExtra4, type) && Extra4)
 				return true;
 		} else {
 			var extraControl = MusicBeatState.mobilec.current;
-			if (key.toUpperCase() == ClientPrefs.extraKeyReturn1.toUpperCase() && extraControl.buttonExtra1 != null && Reflect.getProperty(extraControl.buttonExtra1, type))
+			if (key == ClientPrefs.extraKeyReturn1.toUpperCase() && extraControl.buttonExtra1 != null && Reflect.getProperty(extraControl.buttonExtra1, type))
 				return true;
-			if (key.toUpperCase() == ClientPrefs.extraKeyReturn2.toUpperCase() && extraControl.buttonExtra2 != null && Reflect.getProperty(extraControl.buttonExtra2, type))
+			if (key == ClientPrefs.extraKeyReturn2.toUpperCase() && extraControl.buttonExtra2 != null && Reflect.getProperty(extraControl.buttonExtra2, type))
 				return true;
-			if (key.toUpperCase() == ClientPrefs.extraKeyReturn3.toUpperCase() && extraControl.buttonExtra3 != null && Reflect.getProperty(extraControl.buttonExtra3, type))
+			if (key == ClientPrefs.extraKeyReturn3.toUpperCase() && extraControl.buttonExtra3 != null && Reflect.getProperty(extraControl.buttonExtra3, type))
 				return true;
-			if (key.toUpperCase() == ClientPrefs.extraKeyReturn4.toUpperCase() && extraControl.buttonExtra4 != null && Reflect.getProperty(extraControl.buttonExtra4, type))
+			if (key == ClientPrefs.extraKeyReturn4.toUpperCase() && extraControl.buttonExtra4 != null && Reflect.getProperty(extraControl.buttonExtra4, type))
 				return true;
 		}
 		return null;
@@ -3557,7 +3558,7 @@ class CustomSubstate extends MusicBeatSubstate
 
 	public static function insertLuaMpad(?pos:Int = -1)
 	{
-		#if LUAVPAD_ALLOWED
+		#if LUAMPAD_ALLOWED
 		if(instance != null)
 		{
 			var tagObject:FlxObject = PlayState.instance.luaMobilePad;

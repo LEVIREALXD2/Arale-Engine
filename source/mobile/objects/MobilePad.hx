@@ -6,9 +6,8 @@ import openfl.display.BitmapData;
 import openfl.utils.Assets;
 
 //More button support (Some buttons doesn't have a texture)
-@:build(mobile.macros.ButtonMacro.createVPadButtons(["A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z","SELECTOR"]))
-@:build(mobile.macros.ButtonMacro.createExtraVPadButtons(30)) //Psych Extended Allows to Create 30 Extra Button with Json for now
-@:access(mobile.objects.MobileButton)
+@:build(mobile.macros.ButtonMacro.createButtons(["A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z","SELECTOR"]))
+@:build(mobile.macros.ButtonMacro.createExtraButtons(30)) //Psych Extended Allows to Create 30 Extra Button with Json for now
 class MobilePad extends FlxTypedSpriteGroup<MobileButton> {
 	//DPad
 	public var buttonLeft:MobileButton = new MobileButton(0, 0);
@@ -22,10 +21,6 @@ class MobilePad extends FlxTypedSpriteGroup<MobileButton> {
 	public var buttonRight2:MobileButton = new MobileButton(0, 0);
 	public var buttonDown2:MobileButton = new MobileButton(0, 0);
 
-	public var buttonCEUp:MobileButton = new MobileButton(0, 0);
-	public var buttonCEDown:MobileButton = new MobileButton(0, 0);
-	public var buttonCEG:MobileButton = new MobileButton(0, 0);
-	
 	public var dPad:FlxTypedSpriteGroup<MobileButton>;
 	public var actions:FlxTypedSpriteGroup<MobileButton>;
 	public var createdButtons:Array<String> = ["A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z","SELECTOR","Left","Up","Right","Down","Left2","Up2","Right2","Down2"];
