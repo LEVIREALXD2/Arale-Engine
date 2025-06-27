@@ -122,7 +122,7 @@ class MobileControls extends FlxSpriteGroup {
 			case DUO:
 				initControler(3, CustomMode, CustomAction);
 			case HITBOX:
-				if(ClientPrefs.hitboxmode == 'Classic') initControler(4);
+				if(ClientPrefs.data.hitboxmode == 'Classic') initControler(4);
 				else initControler(5, CustomMode);
 			case KEYBOARD:
 				// nothing
@@ -154,7 +154,7 @@ class MobileControls extends FlxSpriteGroup {
 				add(vpad);
 				vpad = extendConfig.loadcustom(vpad);
 			case 4:
-				hbox = new HitboxOld(0.75, ClientPrefs.globalAntialiasing);
+				hbox = new HitboxOld(0.75, ClientPrefs.data.antialiasing);
 				add(hbox);
 			case 5:
 				if (CustomMode != null || CustomMode != "NONE") newhbox = new Hitbox(CustomMode);
@@ -206,7 +206,7 @@ class CurrentManager {
 	public var buttonExtra4:MobileButton;
 
 	public function new(control:MobileControls){
-		if(MobileControls.mode == HITBOX && ClientPrefs.hitboxmode != 'Classic') {
+		if(MobileControls.mode == HITBOX && ClientPrefs.data.hitboxmode != 'Classic') {
 			buttonLeft = control.newhbox.buttonLeft;
 			buttonDown = control.newhbox.buttonDown;
 			buttonUp = control.newhbox.buttonUp;
@@ -215,14 +215,14 @@ class CurrentManager {
 			buttonExtra2 = control.newhbox.buttonExtra2;
 			buttonExtra3 = control.newhbox.buttonExtra3;
 			buttonExtra4 = control.newhbox.buttonExtra4;
-		} else if(MobileControls.mode == HITBOX && ClientPrefs.hitboxmode == 'Classic') { //Classic Hitbox Now Support Shift & Space Buttons
+		} else if(MobileControls.mode == HITBOX && ClientPrefs.data.hitboxmode == 'Classic') { //Classic Hitbox Now Support Shift & Space Buttons
 			buttonLeft = control.hbox.buttonLeft;
 			buttonDown = control.hbox.buttonDown;
 			buttonUp = control.hbox.buttonUp;
 			buttonRight = control.hbox.buttonRight;
 			buttonExtra1 = control.hbox.buttonExtra1;
 			buttonExtra2 = control.hbox.buttonExtra2;
-		} else if (ClientPrefs.hitboxmode != 'Classic' && MobileControls.mode != KEYBOARD) {
+		} else if (ClientPrefs.data.hitboxmode != 'Classic' && MobileControls.mode != KEYBOARD) {
 			buttonLeft = control.vpad.buttonLeft;
 			buttonDown = control.vpad.buttonDown;
 			buttonUp = control.vpad.buttonUp;

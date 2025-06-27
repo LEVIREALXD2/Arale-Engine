@@ -61,7 +61,7 @@ class CreditsState extends MusicBeatState
 			{
 				if(leMods.length > 1 && leMods[0].length > 0) {
 					var modSplit:Array<String> = leMods[i].split('|');
-					if(!Paths.ignoreModFolders.contains(modSplit[0].toLowerCase()) && !modsAdded.contains(modSplit[0]))
+					if(!Mods.ignoreModFolders.contains(modSplit[0].toLowerCase()) && !modsAdded.contains(modSplit[0]))
 					{
 						if(modSplit[1] == '1')
 							pushModCreditsToList(modSplit[0]);
@@ -72,7 +72,7 @@ class CreditsState extends MusicBeatState
 			}
 		}
 
-		var arrayOfFolders:Array<String> = Paths.getModDirectories();
+		var arrayOfFolders:Array<String> = Mods.getModDirectories();
 		arrayOfFolders.push('');
 		for (folder in arrayOfFolders)
 		{
@@ -129,7 +129,7 @@ class CreditsState extends MusicBeatState
 			if(isSelectable) {
 				if(creditsStuff[i][5] != null)
 				{
-					Paths.currentModDirectory = creditsStuff[i][5];
+					Mods.currentModDirectory = creditsStuff[i][5];
 				}
 
 				var icon:AttachedSprite = new AttachedSprite('credits/' + creditsStuff[i][1]);
@@ -139,7 +139,7 @@ class CreditsState extends MusicBeatState
 				// using a FlxGroup is too much fuss!
 				iconArray.push(icon);
 				add(icon);
-				Paths.currentModDirectory = '';
+				Mods.currentModDirectory = '';
 
 				if(curSelected == -1) curSelected = i;
 			}

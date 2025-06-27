@@ -109,7 +109,7 @@ class MobileData
 		if(mods)
 		{
 			// Global mods first
-			for(mod in Paths.getGlobalMods())
+			for(mod in Mods.getGlobalMods())
 			{
 				var folder:String = Paths.mods(mod + '/' + fileToFind);
 				if(FileSystem.exists(folder) && !foldersToCheck.contains(folder)) foldersToCheck.push(folder);
@@ -120,9 +120,9 @@ class MobileData
 			if(FileSystem.exists(folder) && !foldersToCheck.contains(folder)) foldersToCheck.push(Paths.mods(fileToFind));
 
 			// And lastly, the loaded mod's folder
-			if(Paths.currentModDirectory != null && Paths.currentModDirectory.length > 0)
+			if(Mods.currentModDirectory != null && Mods.currentModDirectory.length > 0)
 			{
-				var folder:String = Paths.mods(Paths.currentModDirectory + '/' + fileToFind);
+				var folder:String = Paths.mods(Mods.currentModDirectory + '/' + fileToFind);
 				if(FileSystem.exists(folder) && !foldersToCheck.contains(folder)) foldersToCheck.push(folder);
 			}
 		}

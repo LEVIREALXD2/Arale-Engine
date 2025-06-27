@@ -32,6 +32,7 @@ import flixel.math.FlxMath;
 import flixel.util.FlxSave;
 import flixel.addons.transition.FlxTransitionableState;
 import flixel.system.FlxAssets.FlxShader;
+import psychlua.FlxAnimateFunctions;
 
 #if mobile
 import mobile.psychlua.Functions;
@@ -75,10 +76,10 @@ class FunkinLua {
 	public var scriptName:String = '';
 	public var closed:Bool = false;
 	#if TOUCH_CONTROLS
-	public var extra1:String = ClientPrefs.extraKeyReturn1.toUpperCase();
-	public var extra2:String = ClientPrefs.extraKeyReturn2.toUpperCase();
-	public var extra3:String = ClientPrefs.extraKeyReturn3.toUpperCase();
-	public var extra4:String = ClientPrefs.extraKeyReturn4.toUpperCase();
+	public var extra1:String = ClientPrefs.data.extraKeyReturn1.toUpperCase();
+	public var extra2:String = ClientPrefs.data.extraKeyReturn2.toUpperCase();
+	public var extra3:String = ClientPrefs.data.extraKeyReturn3.toUpperCase();
+	public var extra4:String = ClientPrefs.data.extraKeyReturn4.toUpperCase();
 	#end
 
 	#if hscript
@@ -142,9 +143,8 @@ class FunkinLua {
 		set('isStoryMode', PlayState.isStoryMode);
 		set('difficulty', PlayState.storyDifficulty);
 
-		var difficultyName:String = CoolUtil.difficulties[PlayState.storyDifficulty];
-		set('difficultyName', difficultyName);
-		set('difficultyPath', Paths.formatToSongPath(difficultyName));
+		set('difficultyName', Difficulty.getString());
+		set('difficultyPath', Paths.formatToSongPath(Difficulty.getString()));
 		set('weekRaw', PlayState.storyWeek);
 		set('week', WeekData.weeksList[PlayState.storyWeek]);
 		set('seenCutscene', PlayState.seenCutscene);
@@ -206,22 +206,22 @@ class FunkinLua {
 		set('gfName', PlayState.SONG.gfVersion);
 
 		// Some settings, no jokes
-		set('downscroll', ClientPrefs.downScroll);
-		set('middlescroll', ClientPrefs.middleScroll);
-		set('framerate', ClientPrefs.framerate);
-		set('ghostTapping', ClientPrefs.ghostTapping);
-		set('hideHud', ClientPrefs.hideHud);
-		set('timeBarType', ClientPrefs.timeBarType);
-		set('scoreZoom', ClientPrefs.scoreZoom);
-		set('cameraZoomOnBeat', ClientPrefs.camZooms);
-		set('flashingLights', ClientPrefs.flashing);
-		set('noteOffset', ClientPrefs.noteOffset);
-		set('healthBarAlpha', ClientPrefs.healthBarAlpha);
-		set('noResetButton', ClientPrefs.noReset);
-		set('lowQuality', ClientPrefs.lowQuality);
-		set('shadersEnabled', ClientPrefs.shaders);
+		set('downscroll', ClientPrefs.data.downScroll);
+		set('middlescroll', ClientPrefs.data.middleScroll);
+		set('framerate', ClientPrefs.data.framerate);
+		set('ghostTapping', ClientPrefs.data.ghostTapping);
+		set('hideHud', ClientPrefs.data.hideHud);
+		set('timeBarType', ClientPrefs.data.timeBarType);
+		set('scoreZoom', ClientPrefs.data.scoreZoom);
+		set('cameraZoomOnBeat', ClientPrefs.data.camZooms);
+		set('flashingLights', ClientPrefs.data.flashing);
+		set('noteOffset', ClientPrefs.data.noteOffset);
+		set('healthBarAlpha', ClientPrefs.data.healthBarAlpha);
+		set('noResetButton', ClientPrefs.data.noReset);
+		set('lowQuality', ClientPrefs.data.lowQuality);
+		set('shadersEnabled', ClientPrefs.data.shaders);
 		set('scriptName', scriptName);
-		set('currentModDirectory', Paths.currentModDirectory);
+		set('currentModDirectory', Mods.currentModDirectory);
 
 		#if windows
 		set('buildTarget', 'windows');
@@ -264,7 +264,7 @@ class FunkinLua {
 
 		// shader shit
 		Lua_helper.add_callback(lua, "initLuaShader", function(name:String, glslVersion:Int = 120) {
-			if(!ClientPrefs.shaders) return false;
+			if(!ClientPrefs.data.shaders) return false;
 
 			#if (!flash && MODS_ALLOWED && sys)
 			return initLuaShader(name, glslVersion);
@@ -275,7 +275,7 @@ class FunkinLua {
 		});
 		
 		Lua_helper.add_callback(lua, "setSpriteShader", function(obj:String, shader:String) {
-			if(!ClientPrefs.shaders) return false;
+			if(!ClientPrefs.data.shaders) return false;
 
 			#if (!flash && MODS_ALLOWED && sys)
 			if(!PlayState.instance.runtimeShaders.exists(shader) && !initLuaShader(shader))
@@ -1648,7 +1648,7 @@ class FunkinLua {
 			PlayState.changedDifficulty = false;
 			PlayState.chartingMode = false;
 			PlayState.instance.transitioning = true;
-			WeekData.loadTheFirstEnabledMod();
+			Mods.loadTopMod();
 			return true;
 		});
 		Lua_helper.add_callback(lua, "getSongPosition", function() {
@@ -1811,7 +1811,7 @@ class FunkinLua {
 			{
 				leSprite.loadGraphic(Paths.image(image));
 			}
-			leSprite.antialiasing = ClientPrefs.globalAntialiasing;
+			leSprite.antialiasing = ClientPrefs.data.antialiasing;
 			PlayState.instance.modchartSprites.set(tag, leSprite);
 			leSprite.active = true;
 		});
@@ -1821,7 +1821,7 @@ class FunkinLua {
 			var leSprite:ModchartSprite = new ModchartSprite(x, y);
 
 			loadFrames(leSprite, image, spriteType);
-			leSprite.antialiasing = ClientPrefs.globalAntialiasing;
+			leSprite.antialiasing = ClientPrefs.data.antialiasing;
 			PlayState.instance.modchartSprites.set(tag, leSprite);
 		});
 
@@ -2840,6 +2840,7 @@ class FunkinLua {
 			return list;
 		});
 
+		#if flxanimate FlxAnimateFunctions.implement(this); #end
 		#if android AndroidFunctions.implement(this); #end
 		#if mobile MobileFunctions.implement(this); #end
 
@@ -2963,7 +2964,7 @@ class FunkinLua {
 	
 	function initLuaShader(name:String, ?glslVersion:Int = 120)
 	{
-		if(!ClientPrefs.shaders) return false;
+		if(!ClientPrefs.data.shaders) return false;
 
 		#if (!flash && sys)
 		if(PlayState.instance.runtimeShaders.exists(name))
@@ -2973,10 +2974,10 @@ class FunkinLua {
 		}
 
 		var foldersToCheck:Array<String> = [Paths.mods('shaders/')];
-		if(Paths.currentModDirectory != null && Paths.currentModDirectory.length > 0)
-			foldersToCheck.insert(0, Paths.mods(Paths.currentModDirectory + '/shaders/'));
+		if(Mods.currentModDirectory != null && Mods.currentModDirectory.length > 0)
+			foldersToCheck.insert(0, Paths.mods(Mods.currentModDirectory + '/shaders/'));
 
-		for(mod in Paths.getGlobalMods())
+		for(mod in Mods.getGlobalMods())
 			foldersToCheck.insert(0, Paths.mods(mod + '/shaders/'));
 		
 		for (folder in foldersToCheck)
@@ -3407,7 +3408,7 @@ class FunkinLua {
 		}
 
 		for (num in 1...5){
-			if (ClientPrefs.extraKeys >= num && key == Reflect.field(ClientPrefs, 'extraKeyReturn' + num)){
+			if (ClientPrefs.data.extraKeys >= num && key == Reflect.field(ClientPrefs.data, 'extraKeyReturn' + num)){
 				if (MusicBeatState.mobilec.newhbox != null) {
 					extraControl = Reflect.getProperty(MusicBeatState.mobilec.newhbox, 'buttonExtra' + num);
 				}
@@ -3447,23 +3448,23 @@ class FunkinLua {
 			var Extra4:Bool = (MusicBeatState.mobilec.newhbox.buttonExtra4.returnedButton == null);
 			key = key.toUpperCase();
 
-			if (key == ClientPrefs.extraKeyReturn1.toUpperCase() && extraControl.buttonExtra1 != null && Reflect.getProperty(extraControl.buttonExtra1, type) && Extra1)
+			if (key == ClientPrefs.data.extraKeyReturn1.toUpperCase() && extraControl.buttonExtra1 != null && Reflect.getProperty(extraControl.buttonExtra1, type) && Extra1)
 				return true;
-			if (key == ClientPrefs.extraKeyReturn2.toUpperCase() && extraControl.buttonExtra2 != null && Reflect.getProperty(extraControl.buttonExtra2, type) && Extra2)
+			if (key == ClientPrefs.data.extraKeyReturn2.toUpperCase() && extraControl.buttonExtra2 != null && Reflect.getProperty(extraControl.buttonExtra2, type) && Extra2)
 				return true;
-			if (key == ClientPrefs.extraKeyReturn3.toUpperCase() && extraControl.buttonExtra3 != null && Reflect.getProperty(extraControl.buttonExtra3, type) && Extra3)
+			if (key == ClientPrefs.data.extraKeyReturn3.toUpperCase() && extraControl.buttonExtra3 != null && Reflect.getProperty(extraControl.buttonExtra3, type) && Extra3)
 				return true;
-			if (key == ClientPrefs.extraKeyReturn4.toUpperCase() && extraControl.buttonExtra4 != null && Reflect.getProperty(extraControl.buttonExtra4, type) && Extra4)
+			if (key == ClientPrefs.data.extraKeyReturn4.toUpperCase() && extraControl.buttonExtra4 != null && Reflect.getProperty(extraControl.buttonExtra4, type) && Extra4)
 				return true;
 		} else {
 			var extraControl = MusicBeatState.mobilec.current;
-			if (key == ClientPrefs.extraKeyReturn1.toUpperCase() && extraControl.buttonExtra1 != null && Reflect.getProperty(extraControl.buttonExtra1, type))
+			if (key == ClientPrefs.data.extraKeyReturn1.toUpperCase() && extraControl.buttonExtra1 != null && Reflect.getProperty(extraControl.buttonExtra1, type))
 				return true;
-			if (key == ClientPrefs.extraKeyReturn2.toUpperCase() && extraControl.buttonExtra2 != null && Reflect.getProperty(extraControl.buttonExtra2, type))
+			if (key == ClientPrefs.data.extraKeyReturn2.toUpperCase() && extraControl.buttonExtra2 != null && Reflect.getProperty(extraControl.buttonExtra2, type))
 				return true;
-			if (key == ClientPrefs.extraKeyReturn3.toUpperCase() && extraControl.buttonExtra3 != null && Reflect.getProperty(extraControl.buttonExtra3, type))
+			if (key == ClientPrefs.data.extraKeyReturn3.toUpperCase() && extraControl.buttonExtra3 != null && Reflect.getProperty(extraControl.buttonExtra3, type))
 				return true;
-			if (key == ClientPrefs.extraKeyReturn4.toUpperCase() && extraControl.buttonExtra4 != null && Reflect.getProperty(extraControl.buttonExtra4, type))
+			if (key == ClientPrefs.data.extraKeyReturn4.toUpperCase() && extraControl.buttonExtra4 != null && Reflect.getProperty(extraControl.buttonExtra4, type))
 				return true;
 		}
 		return null;
@@ -3485,7 +3486,7 @@ class ModchartSprite extends FlxSprite
 	public function new(?x:Float = 0, ?y:Float = 0)
 	{
 		super(x, y);
-		antialiasing = ClientPrefs.globalAntialiasing;
+		antialiasing = ClientPrefs.data.antialiasing;
 	}
 }
 

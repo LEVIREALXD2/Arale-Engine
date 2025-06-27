@@ -27,7 +27,7 @@ class MobileOptionsSubState extends BaseOptionsMenu
 	#if android
 	var storageTypes:Array<String> = ["EXTERNAL_DATA", "EXTERNAL", "EXTERNAL_EX", "EXTERNAL_NF", "EXTERNAL_OBB", "EXTERNAL_MEDIA", "EXTERNAL_ONLINE"];
 	var externalPaths:Array<String> = StorageUtil.checkExternalPaths(true);
-	final lastStorageType:String = ClientPrefs.storageType;
+	final lastStorageType:String = ClientPrefs.data.storageType;
 	#end
 
 	var HitboxTypes:Array<String>;
@@ -47,8 +47,7 @@ class MobileOptionsSubState extends BaseOptionsMenu
 	var option:Option = new Option('MobilePad Alpha:',
 		'Changes MobilePad Alpha -cool feature',
 		'mobilePadAlpha',
-		'percent',
-		0.6);
+		'percent');
 	option.scrollSpeed = 1.6;
 	option.minValue = 0;
 	option.maxValue = 1;
@@ -64,8 +63,7 @@ class MobileOptionsSubState extends BaseOptionsMenu
 	var option:Option = new Option('Extra Controls',
 		"Allow Extra Controls",
 		'extraKeys',
-		'float',
-		2);
+		'float');
 	option.scrollSpeed = 1.6;
 	option.minValue = 0;
 	option.maxValue = 4;
@@ -77,7 +75,6 @@ class MobileOptionsSubState extends BaseOptionsMenu
 		"Choose Extra Control Location",
 		'hitboxLocation',
 		'string',
-		'Bottom',
 		['Bottom', 'Top', 'Middle']);
 	addOption(option);
 
@@ -87,7 +84,6 @@ class MobileOptionsSubState extends BaseOptionsMenu
 		"Choose your Hitbox Style! -mariomaster",
 		'hitboxmode',
 		'string',
-		'New',
 		HitboxTypes);
 	addOption(option);
 
@@ -95,22 +91,19 @@ class MobileOptionsSubState extends BaseOptionsMenu
 		"Choose how your hitbox should look like.",
 		'hitboxtype',
 		'string',
-		'Gradient',
 		['Gradient', 'No Gradient' , 'No Gradient (Old)']);
 	addOption(option);
 
 	var option:Option = new Option('Hitbox Hint',
 		'Hitbox Hint -I hate this',
 		'hitboxhint',
-		'bool',
-		false);
+		'bool');
 	addOption(option);
 
 	var option:Option = new Option('Hitbox Opacity', //mariomaster was here again -I won't remove this because... Y'know This is here on almost 1 year
 		'Changes hitbox opacity -omg',
 		'hitboxalpha',
-		'float',
-		0.7);
+		'float');
 	option.scrollSpeed = 1.6;
 	option.minValue = 0.0;
 	option.maxValue = 1;
@@ -123,8 +116,7 @@ class MobileOptionsSubState extends BaseOptionsMenu
 	var option:Option = new Option('Wide Screen Mode',
 		'If checked, The game will stetch to fill your whole screen. (WARNING: Can result in bad visuals & break some mods that resizes the game/cameras)',
 		'wideScreen',
-		'bool',
-		false);
+		'bool');
 	option.onChange = () -> FlxG.scaleMode = new MobileScaleMode();
 	addOption(option);
 	#end
@@ -134,7 +126,6 @@ class MobileOptionsSubState extends BaseOptionsMenu
 		'Which folder Psych Engine should use?',
 		'storageType',
 		'string',
-		null,
 		storageTypes);
 		addOption(option);
 	#end
@@ -145,7 +136,7 @@ class MobileOptionsSubState extends BaseOptionsMenu
 	#if android
 	function onStorageChange():Void
 	{
-		File.saveContent(lime.system.System.applicationStorageDirectory + 'storagetype.txt', ClientPrefs.storageType);
+		File.saveContent(lime.system.System.applicationStorageDirectory + 'storagetype.txt', ClientPrefs.data.storageType);
 	}
 	#end
 
@@ -153,7 +144,7 @@ class MobileOptionsSubState extends BaseOptionsMenu
 		super.destroy();
 
 		#if android
-		if (ClientPrefs.storageType != lastStorageType) {
+		if (ClientPrefs.data.storageType != lastStorageType) {
 			onStorageChange();
 			ClientPrefs.saveSettings();
 			CoolUtil.showPopUp('Storage Type has been changed and you needed restart the game!!\nPress OK to close the game.', 'Notice!');
@@ -206,7 +197,7 @@ class MobileOptionsSubState extends BaseOptionsMenu
 		if(mods)
 		{
 			// Global mods first
-			for(mod in Paths.getGlobalMods())
+			for(mod in Mods.getGlobalMods())
 			{
 				var folder:String = Paths.mods(mod + '/' + fileToFind);
 				if(FileSystem.exists(folder) && !foldersToCheck.contains(folder)) foldersToCheck.push(folder);
@@ -217,9 +208,9 @@ class MobileOptionsSubState extends BaseOptionsMenu
 			if(FileSystem.exists(folder) && !foldersToCheck.contains(folder)) foldersToCheck.push(Paths.mods(fileToFind));
 
 			// And lastly, the loaded mod's folder
-			if(Paths.currentModDirectory != null && Paths.currentModDirectory.length > 0)
+			if(Mods.currentModDirectory != null && Mods.currentModDirectory.length > 0)
 			{
-				var folder:String = Paths.mods(Paths.currentModDirectory + '/' + fileToFind);
+				var folder:String = Paths.mods(Mods.currentModDirectory + '/' + fileToFind);
 				if(FileSystem.exists(folder) && !foldersToCheck.contains(folder)) foldersToCheck.push(folder);
 			}
 		}

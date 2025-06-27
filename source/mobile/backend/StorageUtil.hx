@@ -23,7 +23,7 @@ class StorageUtil
 		var daPath:String = '';
 		#if android
 		if (!FileSystem.exists(rootDir + 'storagetype.txt'))
-			File.saveContent(rootDir + 'storagetype.txt', ClientPrefs.storageType);
+			File.saveContent(rootDir + 'storagetype.txt', ClientPrefs.data.storageType);
 		var curStorageType:String = File.getContent(rootDir + 'storagetype.txt');
 		daPath = force ? StorageType.fromStrForce(curStorageType) : StorageType.fromStr(curStorageType);
 		daPath = Path.addTrailingSlash(daPath);
@@ -158,7 +158,7 @@ class StorageUtil
 enum abstract StorageType(String) from String to String
 {
     final forcedPath = '/storage/emulated/0/';
-	final packageNameLocal = 'com.kraloyuncu.psychengine063';
+	final packageNameLocal = 'com.kraloyuncu.psychextendedrebase';
 	final fileLocalONLINE = 'PsychOnline';
 	final fileLocal = 'PsychEngine';
 	final fileLocalNF = 'NF Engine';

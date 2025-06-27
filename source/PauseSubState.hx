@@ -19,7 +19,7 @@ class PauseSubState extends MusicBeatSubstate
 	var grpMenuShit:FlxTypedGroup<Alphabet>;
 
 	var menuItems:Array<String> = [];
-	#if debug_build
+	#if debugBuild
 	var menuItemsOG:Array<String> = ['Resume', 'Restart Song', 'Skip Time', 'End Song', 'Toggle Botplay', 'Toggle Practice Mode', 'Change Difficulty' #if mobile, 'Chart Editor' #end, 'Exit to menu'];
 	#else
 	var menuItemsOG:Array<String> = ['Resume', 'Restart Song', 'Change Difficulty' #if mobile, 'Chart Editor' #end, 'Exit to menu'];
@@ -39,13 +39,13 @@ class PauseSubState extends MusicBeatSubstate
 	public function new(x:Float, y:Float)
 	{
 		super();
-		if(CoolUtil.difficulties.length < 2) menuItemsOG.remove('Change Difficulty'); //No need to change difficulty if there is only one!
+		if(Difficulty.list.length < 2) menuItemsOG.remove('Change Difficulty'); //No need to change difficulty if there is only one!
 
 		if(PlayState.chartingMode)
 		{
 			menuItemsOG.insert(2, 'Leave Charting Mode');
 			
-			#if !debug_build
+			#if !debugBuild
 			var num:Int = 0;
 			if(!PlayState.instance.startingSong)
 			{
@@ -59,8 +59,8 @@ class PauseSubState extends MusicBeatSubstate
 		}
 		menuItems = menuItemsOG;
 
-		for (i in 0...CoolUtil.difficulties.length) {
-			var diff:String = '' + CoolUtil.difficulties[i];
+		for (i in 0...Difficulty.list.length) {
+			var diff:String = Difficulty.getString(i);
 			difficultyChoices.push(diff);
 		}
 		difficultyChoices.push('BACK');
@@ -70,7 +70,7 @@ class PauseSubState extends MusicBeatSubstate
 		if(songName != null) {
 			pauseMusic.loadEmbedded(Paths.music(songName), true, true);
 		} else if (songName != 'None') {
-			pauseMusic.loadEmbedded(Paths.music(Paths.formatToSongPath(ClientPrefs.pauseMusic)), true, true);
+			pauseMusic.loadEmbedded(Paths.music(Paths.formatToSongPath(ClientPrefs.data.pauseMusic)), true, true);
 		}
 		pauseMusic.volume = 0;
 		pauseMusic.play(false, FlxG.random.int(0, Std.int(pauseMusic.length / 2)));
@@ -89,8 +89,7 @@ class PauseSubState extends MusicBeatSubstate
 		levelInfo.updateHitbox();
 		add(levelInfo);
 
-		var levelDifficulty:FlxText = new FlxText(20, 15 + 32, 0, "", 32);
-		levelDifficulty.text += CoolUtil.difficultyString();
+		var levelDifficulty:FlxText = new FlxText(20, 15 + 32, 0, Difficulty.getString().toUpperCase(), 32);
 		levelDifficulty.scrollFactor.set();
 		levelDifficulty.setFormat(Paths.font('vcr.ttf'), 32);
 		levelDifficulty.updateHitbox();
@@ -140,13 +139,13 @@ class PauseSubState extends MusicBeatSubstate
 		cameras = [FlxG.cameras.list[FlxG.cameras.list.length - 1]];
 		
 		#if TOUCH_CONTROLS
-		#if debug_build
+		#if debugBuild
 		addMobilePad("FULL", "A");
 		#else
 		if (PlayState.chartingMode)
-		    addMobilePad("FULL", "A");
+			addMobilePad("FULL", "A");
 		else
-		    addMobilePad("UP_DOWN", "A");
+			addMobilePad("UP_DOWN", "A");
 		#end
 		addMobilePadCamera();
 		#end
@@ -207,7 +206,7 @@ class PauseSubState extends MusicBeatSubstate
 				}
 		}
 
-		if (accepted && (cantUnpause <= 0 || !ClientPrefs.controllerMode))
+		if (accepted && (cantUnpause <= 0 || !ClientPrefs.data.controllerMode))
 		{
 			if (menuItems == difficultyChoices)
 			{
@@ -275,7 +274,7 @@ class PauseSubState extends MusicBeatSubstate
 					PlayState.deathCounter = 0;
 					PlayState.seenCutscene = false;
 
-					WeekData.loadTheFirstEnabledMod();
+					Mods.loadTopMod();
 					if(PlayState.isStoryMode) {
 						MusicBeatState.switchState(new StoryMenuState());
 					} else {

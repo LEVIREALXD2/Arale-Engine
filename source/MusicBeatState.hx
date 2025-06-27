@@ -52,7 +52,7 @@ class MusicBeatState extends FlxUIState
 		controls.setMobilePadUI(mobilePad, DPad, Action);
 		trackedinputsUI = controls.trackedInputsUI;
 		controls.trackedInputsUI = [];
-		mobilePad.alpha = ClientPrefs.mobilePadAlpha;
+		mobilePad.alpha = ClientPrefs.data.mobilePadAlpha;
 	}
 
 	public function removeMobilePad() {
@@ -217,7 +217,7 @@ class MusicBeatState extends FlxUIState
 	{
 		var lastChange = Conductor.getBPMFromSeconds(Conductor.songPosition);
 
-		var shit = ((Conductor.songPosition - ClientPrefs.noteOffset) - lastChange.songTime) / lastChange.stepCrochet;
+		var shit = ((Conductor.songPosition - ClientPrefs.data.noteOffset) - lastChange.songTime) / lastChange.stepCrochet;
 		curDecStep = lastChange.stepTime + shit;
 		curStep = lastChange.stepTime + Math.floor(shit);
 	}
@@ -246,11 +246,12 @@ class MusicBeatState extends FlxUIState
 	{
 		if(nextState == null)
 			nextState = FlxG.state;
-		FlxG.state.openSubState(new CustomFadeTransition(0.6, false));
-		if(nextState == FlxG.state)
-			CustomFadeTransition.finishCallback = function() FlxG.resetState();
-		else
-			CustomFadeTransition.finishCallback = function() FlxG.switchState(nextState);
+
+			FlxG.state.openSubState(new CustomFadeTransition(0.6, false));
+			if(nextState == FlxG.state)
+				CustomFadeTransition.finishCallback = function() FlxG.resetState();
+			else
+				CustomFadeTransition.finishCallback = function() FlxG.switchState(nextState);
 	}
 
 	public static function getState():MusicBeatState {

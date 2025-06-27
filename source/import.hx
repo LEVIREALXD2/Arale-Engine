@@ -8,6 +8,22 @@ import sys.io.*;
 import js.html.*;
 #end
 
+// FlxAnimate
+#if flxanimate
+import flxanimate.*;
+import flxanimate.PsychFlxAnimate as FlxAnimate;
+#end
+
+import options.BaseModOptionsMenu;
+#if MODS_ALLOWED
+import backend.Mods;
+#end
+
+#if ACHIEVEMENTS_ALLOWED
+import backend.Achievements;
+import objects.AchievementPopup;
+#end
+
 // Mobile Things
 #if TOUCH_CONTROLS
 import mobile.flixel.*;

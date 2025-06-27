@@ -17,7 +17,6 @@ import flixel.tweens.FlxEase;
 import flixel.tweens.FlxTween;
 import flixel.util.FlxColor;
 import lime.app.Application;
-import Achievements;
 import editors.MasterEditorMenu;
 import flixel.input.keyboard.FlxKey;
 
@@ -50,9 +49,9 @@ class MainMenuState extends MusicBeatState
 	override function create()
 	{
 		#if MODS_ALLOWED
-		Paths.pushGlobalMods();
+		Mods.pushGlobalMods();
 		#end
-		WeekData.loadTheFirstEnabledMod();
+		Mods.loadTopMod();
 
 		#if desktop
 		// Updating Discord Rich Presence
@@ -79,7 +78,7 @@ class MainMenuState extends MusicBeatState
 		bg.setGraphicSize(Std.int(bg.width * 1.175));
 		bg.updateHitbox();
 		bg.screenCenter();
-		bg.antialiasing = ClientPrefs.globalAntialiasing;
+		bg.antialiasing = ClientPrefs.data.antialiasing;
 		add(bg);
 
 		camFollow = new FlxObject(0, 0, 1, 1);
@@ -93,7 +92,7 @@ class MainMenuState extends MusicBeatState
 		magenta.updateHitbox();
 		magenta.screenCenter();
 		magenta.visible = false;
-		magenta.antialiasing = ClientPrefs.globalAntialiasing;
+		magenta.antialiasing = ClientPrefs.data.antialiasing;
 		magenta.color = 0xFFfd719b;
 		add(magenta);
 		
@@ -123,7 +122,7 @@ class MainMenuState extends MusicBeatState
 			var scr:Float = (optionShit.length - 4) * 0.135;
 			if(optionShit.length < 6) scr = 0;
 			menuItem.scrollFactor.set(0, scr);
-			menuItem.antialiasing = ClientPrefs.globalAntialiasing;
+			menuItem.antialiasing = ClientPrefs.data.antialiasing;
 			//menuItem.setGraphicSize(Std.int(menuItem.width * 0.58));
 			menuItem.updateHitbox();
 		}
@@ -144,16 +143,14 @@ class MainMenuState extends MusicBeatState
 		changeItem();
 
 		#if ACHIEVEMENTS_ALLOWED
-		Achievements.loadAchievements();
+		// Unlocks "Freaky on a Friday Night" achievement if it's a Friday and between 18:00 PM and 23:59 PM
 		var leDate = Date.now();
-		if (leDate.getDay() == 5 && leDate.getHours() >= 18) {
-			var achieveID:Int = Achievements.getAchievementIndex('friday_night_play');
-			if(!Achievements.isAchievementUnlocked(Achievements.achievementsStuff[achieveID][2])) { //It's a friday night. WEEEEEEEEEEEEEEEEEE
-				Achievements.achievementsMap.set(Achievements.achievementsStuff[achieveID][2], true);
-				giveAchievement();
-				ClientPrefs.saveSettings();
-			}
-		}
+		if (leDate.getDay() == 5 && leDate.getHours() >= 18)
+			Achievements.unlock('friday_night_play');
+
+		#if MODS_ALLOWED
+		Achievements.reloadList();
+		#end
 		#end
 		
 		#if TOUCH_CONTROLS
@@ -162,15 +159,6 @@ class MainMenuState extends MusicBeatState
 
 		super.create();
 	}
-
-	#if ACHIEVEMENTS_ALLOWED
-	// Unlocks "Freaky on a Friday Night" achievement
-	function giveAchievement() {
-		add(new AchievementObject('friday_night_play', camAchievement));
-		FlxG.sound.play(Paths.sound('confirmMenu'), 0.7);
-		trace('Giving achievement "friday_night_play"');
-	}
-	#end
 
 	var selectedSomethin:Bool = false;
 
@@ -215,7 +203,7 @@ class MainMenuState extends MusicBeatState
 					selectedSomethin = true;
 					FlxG.sound.play(Paths.sound('confirmMenu'));
 
-					if(ClientPrefs.flashing) FlxFlicker.flicker(magenta, 1.1, 0.15, false);
+					if(ClientPrefs.data.flashing) FlxFlicker.flicker(magenta, 1.1, 0.15, false);
 
 					menuItems.forEach(function(spr:FlxSprite)
 					{
@@ -245,8 +233,10 @@ class MainMenuState extends MusicBeatState
 									case 'mods':
 										MusicBeatState.switchState(new ModsMenuState());
 									#end
+									#if ACHIEVEMENTS_ALLOWED
 									case 'awards':
 										MusicBeatState.switchState(new AchievementsMenuState());
+									#end
 									case 'credits':
 										MusicBeatState.switchState(new CreditsState());
 									case 'options':

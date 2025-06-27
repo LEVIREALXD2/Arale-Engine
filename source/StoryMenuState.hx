@@ -3,23 +3,12 @@ package;
 #if desktop
 import Discord.DiscordClient;
 #end
-import flixel.FlxG;
-import flixel.FlxSprite;
-import flixel.FlxSubState;
 import flixel.addons.transition.FlxTransitionableState;
-import flixel.graphics.frames.FlxAtlasFrames;
-import flixel.group.FlxGroup.FlxTypedGroup;
+import flixel.FlxSubState;
 import flixel.group.FlxGroup;
-import flixel.math.FlxMath;
-import flixel.text.FlxText;
-import flixel.tweens.FlxTween;
-import flixel.util.FlxColor;
-import flixel.util.FlxTimer;
 import lime.net.curl.CURLCode;
 import flixel.graphics.FlxGraphic;
 import WeekData;
-
-using StringTools;
 
 class StoryMenuState extends MusicBeatState
 {
@@ -54,8 +43,21 @@ class StoryMenuState extends MusicBeatState
 		Paths.clearStoredMemory();
 		Paths.clearUnusedMemory();
 
+		super.create();
+
 		PlayState.isStoryMode = true;
 		WeekData.reloadWeekFiles(true);
+
+		if(WeekData.weeksList.length < 1)
+		{
+			FlxTransitionableState.skipNextTransIn = true;
+			persistentUpdate = false;
+			MusicBeatState.switchState(new ErrorState("NO WEEKS ADDED FOR STORY MODE\n\nPress ACCEPT to go to the Week Editor Menu.\nPress BACK to return to Main Menu.",
+				function() MusicBeatState.switchState(new editors.WeekEditorState()),
+				function() MusicBeatState.switchState(new MainMenuState())));
+			return;
+		}
+
 		if(curWeek >= WeekData.weeksList.length) curWeek = 0;
 		persistentUpdate = persistentDraw = true;
 
@@ -75,7 +77,7 @@ class StoryMenuState extends MusicBeatState
 		var ui_tex = Paths.getSparrowAtlas('campaign_menu_UI_assets');
 		var bgYellow:FlxSprite = new FlxSprite(0, 56).makeGraphic(FlxG.width, 386, 0xFFF9CF51);
 		bgSprite = new FlxSprite(0, 56);
-		bgSprite.antialiasing = ClientPrefs.globalAntialiasing;
+		bgSprite.antialiasing = ClientPrefs.data.antialiasing;
 
 		grpWeekText = new FlxTypedGroup<MenuItem>();
 		add(grpWeekText);
@@ -108,7 +110,7 @@ class StoryMenuState extends MusicBeatState
 				grpWeekText.add(weekThing);
 
 				weekThing.screenCenter(X);
-				weekThing.antialiasing = ClientPrefs.globalAntialiasing;
+				weekThing.antialiasing = ClientPrefs.data.antialiasing;
 				// weekThing.updateHitbox();
 
 				// Needs an offset thingie
@@ -119,7 +121,7 @@ class StoryMenuState extends MusicBeatState
 					lock.animation.addByPrefix('lock', 'lock');
 					lock.animation.play('lock');
 					lock.ID = i;
-					lock.antialiasing = ClientPrefs.globalAntialiasing;
+					lock.antialiasing = ClientPrefs.data.antialiasing;
 					grpLocks.add(lock);
 				}
 				num++;
@@ -143,18 +145,18 @@ class StoryMenuState extends MusicBeatState
 		leftArrow.animation.addByPrefix('idle', "arrow left");
 		leftArrow.animation.addByPrefix('press', "arrow push left");
 		leftArrow.animation.play('idle');
-		leftArrow.antialiasing = ClientPrefs.globalAntialiasing;
+		leftArrow.antialiasing = ClientPrefs.data.antialiasing;
 		difficultySelectors.add(leftArrow);
 
-		CoolUtil.difficulties = CoolUtil.defaultDifficulties.copy();
+		Difficulty.resetList();
 		if(lastDifficultyName == '')
 		{
-			lastDifficultyName = CoolUtil.defaultDifficulty;
+			lastDifficultyName = Difficulty.getDefault();
 		}
-		curDifficulty = Math.round(Math.max(0, CoolUtil.defaultDifficulties.indexOf(lastDifficultyName)));
-		
+		curDifficulty = Math.round(Math.max(0, Difficulty.defaultList.indexOf(lastDifficultyName)));
+
 		sprDifficulty = new FlxSprite(0, leftArrow.y);
-		sprDifficulty.antialiasing = ClientPrefs.globalAntialiasing;
+		sprDifficulty.antialiasing = ClientPrefs.data.antialiasing;
 		difficultySelectors.add(sprDifficulty);
 
 		rightArrow = new FlxSprite(leftArrow.x + 376, leftArrow.y);
@@ -162,7 +164,7 @@ class StoryMenuState extends MusicBeatState
 		rightArrow.animation.addByPrefix('idle', 'arrow right');
 		rightArrow.animation.addByPrefix('press', "arrow push right", 24, false);
 		rightArrow.animation.play('idle');
-		rightArrow.antialiasing = ClientPrefs.globalAntialiasing;
+		rightArrow.antialiasing = ClientPrefs.data.antialiasing;
 		difficultySelectors.add(rightArrow);
 
 		add(bgYellow);
@@ -170,7 +172,7 @@ class StoryMenuState extends MusicBeatState
 		add(grpWeekCharacters);
 
 		var tracksSprite:FlxSprite = new FlxSprite(FlxG.width * 0.07, bgSprite.y + 425).loadGraphic(Paths.image('Menu_Tracks'));
-		tracksSprite.antialiasing = ClientPrefs.globalAntialiasing;
+		tracksSprite.antialiasing = ClientPrefs.data.antialiasing;
 		add(tracksSprite);
 
 		txtTracklist = new FlxText(FlxG.width * 0.05, tracksSprite.y + 60, 0, "", 32);
@@ -184,26 +186,27 @@ class StoryMenuState extends MusicBeatState
 
 		changeWeek();
 		changeDifficulty();
-		
-		#if TOUCH_CONTROLS
-        addMobilePad("FULL", "A_B_X_Y");
-        #end
 
-		super.create();
+		#if TOUCH_CONTROLS addMobilePad("NONE", "B_X_Y"); #end
 	}
 
 	override function closeSubState() {
+		super.closeSubState();
 		persistentUpdate = true;
 		changeWeek();
 		#if TOUCH_CONTROLS
 		removeMobilePad();
-		addMobilePad("FULL", "A_B_X_Y");
+		addMobilePad("NONE", "B_X_Y");
 		#end
-		super.closeSubState();
 	}
 
 	override function update(elapsed:Float)
 	{
+		super.update(elapsed);
+
+		if(WeekData.weeksList.length < 1)
+			return;
+		
 		// scoreText.setFormat('VCR OSD Mono', 32);
 		lerpScore = Math.floor(FlxMath.lerp(lerpScore, intendedScore, CoolUtil.boundTo(elapsed * 30, 0, 1)));
 		if(Math.abs(intendedScore - lerpScore) < 10) lerpScore = intendedScore;
@@ -216,13 +219,13 @@ class StoryMenuState extends MusicBeatState
 		{
 			var upP = controls.UI_UP_P;
 			var downP = controls.UI_DOWN_P;
-			if (upP)
+			if (upP || Swipe.Up)
 			{
 				changeWeek(-1);
 				FlxG.sound.play(Paths.sound('scrollMenu'));
 			}
 
-			if (downP)
+			if (downP || Swipe.Down)
 			{
 				changeWeek(1);
 				FlxG.sound.play(Paths.sound('scrollMenu'));
@@ -235,54 +238,49 @@ class StoryMenuState extends MusicBeatState
 				changeDifficulty();
 			}
 
-			if (controls.UI_RIGHT)
+			if (FlxG.mouse.overlaps(rightArrow) && FlxG.mouse.justPressed || controls.UI_RIGHT)
 				rightArrow.animation.play('press')
 			else
 				rightArrow.animation.play('idle');
 
-			if (controls.UI_LEFT)
+			if (FlxG.mouse.overlaps(leftArrow) && FlxG.mouse.justPressed || controls.UI_LEFT)
 				leftArrow.animation.play('press');
 			else
 				leftArrow.animation.play('idle');
 
-			if (controls.UI_RIGHT_P)
+			if (FlxG.mouse.overlaps(rightArrow) && FlxG.mouse.justPressed || controls.UI_RIGHT_P)
 				changeDifficulty(1);
-			else if (controls.UI_LEFT_P)
+			else if (FlxG.mouse.overlaps(leftArrow) && FlxG.mouse.justPressed || controls.UI_LEFT_P)
 				changeDifficulty(-1);
-			else if (upP || downP)
+			else if (upP || downP || Swipe.Up || Swipe.Down)
 				changeDifficulty();
 
-			if(FlxG.keys.justPressed.CONTROL #if TOUCH_CONTROLS || mobilePad.buttonX.justPressed #end)
-			{
-				#if TOUCH_CONTROLS
-				removeMobilePad();
-				#end
-				persistentUpdate = false;
-				openSubState(new GameplayChangersSubstate());
-			}
-			else if(controls.RESET #if TOUCH_CONTROLS || mobilePad.buttonY.justPressed #end)
-			{
-				#if TOUCH_CONTROLS
-				removeMobilePad();
-				#end
-				persistentUpdate = false;
-				openSubState(new ResetScoreSubState('', curDifficulty, '', curWeek));
-				//FlxG.sound.play(Paths.sound('scrollMenu'));
-			}
-			else if (controls.ACCEPT)
-			{
-				selectWeek();
-			}
+				if(FlxG.keys.justPressed.CONTROL #if TOUCH_CONTROLS || mobilePad.buttonX.justPressed #end)
+				{
+					#if TOUCH_CONTROLS removeMobilePad(); #end
+					persistentUpdate = false;
+					openSubState(new GameplayChangersSubstate());
+				}
+				else if(controls.RESET #if TOUCH_CONTROLS || mobilePad.buttonY.justPressed #end)
+				{
+					#if TOUCH_CONTROLS removeMobilePad(); #end
+					persistentUpdate = false;
+					openSubState(new ResetScoreSubState('', curDifficulty, '', curWeek));
+					//FlxG.sound.play(Paths.sound('scrollMenu'));
+				}
+		
+				else if (FlxG.mouse.overlaps(grpWeekText.members[curWeek]) && FlxG.mouse.justPressed || controls.ACCEPT)
+				{
+					selectWeek();
+				}
 		}
 
-		if (controls.BACK && !movedBack && !selectedWeek)
+		if ((controls.BACK || Swipe.Right) && !movedBack && !selectedWeek)
 		{
 			FlxG.sound.play(Paths.sound('cancelMenu'));
 			movedBack = true;
 			MusicBeatState.switchState(new MainMenuState());
 		}
-
-		super.update(elapsed);
 
 		grpLocks.forEach(function(lock:FlxSprite)
 		{
@@ -299,6 +297,36 @@ class StoryMenuState extends MusicBeatState
 	{
 		if (!weekIsLocked(loadedWeeks[curWeek].fileName))
 		{
+			// I can't use Dynamic Array .copy() because that crashes HTML5, here's a workaround.
+			var songArray:Array<String> = [];
+			var leWeek:Array<Dynamic> = loadedWeeks[curWeek].songs;
+
+			for (i in 0...leWeek.length) {
+				songArray.push(leWeek[i][0]);
+			}
+
+			// that's stupid lmao
+			try
+			{
+				PlayState.storyPlaylist = songArray;
+				PlayState.isStoryMode = true;
+				selectedWeek = true;
+
+				var diffic = Difficulty.getFilePath(curDifficulty);
+				if(diffic == null) diffic = '';
+
+				PlayState.storyDifficulty = curDifficulty;
+
+				PlayState.SONG = Song.loadFromJson(PlayState.storyPlaylist[0].toLowerCase() + diffic, PlayState.storyPlaylist[0].toLowerCase());
+				PlayState.campaignScore = 0;
+				PlayState.campaignMisses = 0;
+			}
+			catch(e:Dynamic)
+			{
+				trace('ERROR! $e');
+				return;
+			}
+		
 			if (stopspamming == false)
 			{
 				FlxG.sound.play(Paths.sound('confirmMenu'));
@@ -315,30 +343,18 @@ class StoryMenuState extends MusicBeatState
 				stopspamming = true;
 			}
 
-			// We can't use Dynamic Array .copy() because that crashes HTML5, here's a workaround.
-			var songArray:Array<String> = [];
-			var leWeek:Array<Dynamic> = loadedWeeks[curWeek].songs;
-			for (i in 0...leWeek.length) {
-				songArray.push(leWeek[i][0]);
-			}
-
-			// Nevermind that's stupid lmao
-			PlayState.storyPlaylist = songArray;
-			PlayState.isStoryMode = true;
-			selectedWeek = true;
-
-			var diffic = CoolUtil.getDifficultyFilePath(curDifficulty);
-			if(diffic == null) diffic = '';
-
-			PlayState.storyDifficulty = curDifficulty;
-
-			PlayState.SONG = Song.loadFromJson(PlayState.storyPlaylist[0].toLowerCase() + diffic, PlayState.storyPlaylist[0].toLowerCase());
-			PlayState.campaignScore = 0;
-			PlayState.campaignMisses = 0;
 			new FlxTimer().start(1, function(tmr:FlxTimer)
 			{
+				if (!ClientPrefs.data.loadingScreen) FlxG.sound.music.stop();
 				LoadingState.loadAndSwitchState(new PlayState(), true);
-				FreeplayState.destroyFreeplayVocals();
+				#if PsychExtended_ExtraFreeplayMenus
+				if (ClientPrefs.data.FreeplayStyle == 'NF')
+					FreeplayStateNF.destroyFreeplayVocals();
+				else if (ClientPrefs.data.FreeplayStyle == 'NovaFlare')
+					FreeplayStateNOVA.destroyFreeplayVocals();
+				else
+				#end
+					FreeplayState.destroyFreeplayVocals();
 			});
 		} else {
 			FlxG.sound.play(Paths.sound('cancelMenu'));
@@ -351,15 +367,18 @@ class StoryMenuState extends MusicBeatState
 		curDifficulty += change;
 
 		if (curDifficulty < 0)
-			curDifficulty = CoolUtil.difficulties.length-1;
-		if (curDifficulty >= CoolUtil.difficulties.length)
+			curDifficulty = Difficulty.list.length-1;
+		if (curDifficulty >= Difficulty.list.length)
 			curDifficulty = 0;
 
 		WeekData.setDirectoryFromWeek(loadedWeeks[curWeek]);
 
-		var diff:String = CoolUtil.difficulties[curDifficulty];
-		var newImage:FlxGraphic = Paths.image('menudifficulties/' + Paths.formatToSongPath(diff));
-		//trace(Paths.currentModDirectory + ', menudifficulties/' + Paths.formatToSongPath(diff));
+		var diff:String = Difficulty.getString(curDifficulty);
+		var newImage:FlxGraphic;
+	
+		if(!Paths.fileExists('images/menudifficulties/' + Paths.formatToSongPath(diff) + '.png', IMAGE)) newImage = Paths.image('menudifficulties/imagenotfound');
+		else newImage = Paths.image('menudifficulties/' + Paths.formatToSongPath(diff));
+		//trace(Mods.currentModDirectory + ', menudifficulties/' + Paths.formatToSongPath(diff));
 
 		if(sprDifficulty.graphic != newImage)
 		{
@@ -380,6 +399,8 @@ class StoryMenuState extends MusicBeatState
 		#if !switch
 		intendedScore = Highscore.getWeekScore(loadedWeeks[curWeek].fileName, curDifficulty);
 		#end
+
+		updateText(); //update text when difficulty is changed
 	}
 
 	var lerpScore:Int = 0;
@@ -423,41 +444,15 @@ class StoryMenuState extends MusicBeatState
 		}
 		PlayState.storyWeek = curWeek;
 
-		CoolUtil.difficulties = CoolUtil.defaultDifficulties.copy();
-		var diffStr:String = WeekData.getCurrentWeek().difficulties;
-		if(diffStr != null) diffStr = diffStr.trim(); //Fuck you HTML5
+		Difficulty.loadFromWeek();
 		difficultySelectors.visible = unlocked;
 
-		if(diffStr != null && diffStr.length > 0)
-		{
-			var diffs:Array<String> = diffStr.split(',');
-			var i:Int = diffs.length - 1;
-			while (i > 0)
-			{
-				if(diffs[i] != null)
-				{
-					diffs[i] = diffs[i].trim();
-					if(diffs[i].length < 1) diffs.remove(diffs[i]);
-				}
-				--i;
-			}
-
-			if(diffs.length > 0 && diffs[0].length > 0)
-			{
-				CoolUtil.difficulties = diffs;
-			}
-		}
-		
-		if(CoolUtil.difficulties.contains(CoolUtil.defaultDifficulty))
-		{
-			curDifficulty = Math.round(Math.max(0, CoolUtil.defaultDifficulties.indexOf(CoolUtil.defaultDifficulty)));
-		}
+		if(Difficulty.list.contains(Difficulty.getDefault()))
+			curDifficulty = Math.round(Math.max(0, Difficulty.defaultList.indexOf(Difficulty.getDefault())));
 		else
-		{
 			curDifficulty = 0;
-		}
 
-		var newPos:Int = CoolUtil.difficulties.indexOf(lastDifficultyName);
+		var newPos:Int = Difficulty.list.indexOf(lastDifficultyName);
 		//trace('Pos of ' + lastDifficultyName + ' is ' + newPos);
 		if(newPos > -1)
 		{
@@ -480,8 +475,9 @@ class StoryMenuState extends MusicBeatState
 
 		var leWeek:WeekData = loadedWeeks[curWeek];
 		var stringThing:Array<String> = [];
+
 		for (i in 0...leWeek.songs.length) {
-			stringThing.push(leWeek.songs[i][0]);
+			stringThing.push(leWeek.songs[i][0]); 
 		}
 
 		txtTracklist.text = '';
@@ -499,4 +495,76 @@ class StoryMenuState extends MusicBeatState
 		intendedScore = Highscore.getWeekScore(loadedWeeks[curWeek].fileName, curDifficulty);
 		#end
 	}
+}
+
+class Swipe
+{
+  /**
+   * Indicates if there is a down swipe gesture detected.
+   */
+  public static var Down(get, never):Bool;
+
+  /**
+   * Indicates if there is a right swipe gesture detected.
+   */
+  public static var Right(get, never):Bool;
+
+  /**
+   * Indicates if there is an up swipe gesture detected.
+   */
+  public static var Up(get, never):Bool;
+
+  /**
+   * Determines if there is a down swipe in the FlxG.swipes array.
+   *
+   * @return True if any swipe direction is down, false otherwise.
+   */
+  @:noCompletion
+  static function get_Down():Bool
+  {
+	#if FLX_POINTER_INPUT
+	for (swipe in FlxG.swipes)
+	{
+	  if (swipe.degrees > -135 && swipe.degrees < -45 && swipe.distance > 20) return true;
+	}
+	#end
+
+	return false;
+  }
+
+  /**
+   * Determines if there is a right swipe in the FlxG.swipes array.
+   *
+   * @return True if any swipe direction is right, false otherwise.
+   */
+  @:noCompletion
+  static function get_Right():Bool
+  {
+	#if FLX_POINTER_INPUT
+	for (swipe in FlxG.swipes)
+	{
+	  if (swipe.degrees > -45 && swipe.degrees < 45 && swipe.distance > 20) return true;
+	}
+	#end
+
+	return false;
+  }
+
+  /**
+   * Determines if there is an up swipe in the FlxG.swipes array.
+   *
+   * @return True if any swipe direction is up, false otherwise.
+   */
+  @:noCompletion
+  static function get_Up():Bool
+  {
+	#if FLX_POINTER_INPUT
+	for (swipe in FlxG.swipes)
+	{
+	  if (swipe.degrees > 45 && swipe.degrees < 135 && swipe.distance > 20) return true;
+	}
+	#end
+
+	return false;
+  }
 }
