@@ -3,7 +3,7 @@ package;
 import flixel.graphics.frames.FlxAtlasFrames;
 import flixel.util.FlxSort;
 
-import Section.SwagSection;
+import Section;
 import openfl.utils.AssetType;
 import openfl.utils.Assets;
 import haxe.Json;
@@ -89,7 +89,7 @@ class Character extends FlxSprite
 			default:
 				var characterPath:String = 'characters/$curCharacter.json';
 
-				var path:String = Paths.getPath(characterPath, TEXT, null);
+				var path:String = Paths.getPath(characterPath, TEXT, null, true);
 				#if MODS_ALLOWED
 				if (!FileSystem.exists(path))
 				#else
@@ -135,7 +135,7 @@ class Character extends FlxSprite
 		isAnimateAtlas = false;
 
 		#if flxanimate
-		var animToFind:String = Paths.getPath('images/' + json.image + '/Animation.json', TEXT, null);
+		var animToFind:String = Paths.getPath('images/' + json.image + '/Animation.json', TEXT, null, true);
 		if (#if MODS_ALLOWED FileSystem.exists(animToFind) || #end Assets.exists(animToFind))
 			isAnimateAtlas = true;
 		#end

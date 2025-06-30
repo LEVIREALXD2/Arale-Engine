@@ -2,6 +2,7 @@ package;
 
 import animateatlas.AtlasFrameMaker;
 import flixel.math.FlxPoint;
+import flixel.graphics.frames.FlxFramesCollection;
 import flixel.graphics.frames.FlxFrame.FlxFrameAngle;
 import openfl.geom.Rectangle;
 import flixel.math.FlxRect;
@@ -98,10 +99,10 @@ class Paths
 		currentLevel = name.toLowerCase();
 	}
 
-	public static function getPath(file:String, type:AssetType, ?library:Null<String> = null, ?modsAllowed:Bool = false)
+	public static function getPath(file:String, ?type:AssetType = TEXT, ?library:Null<String> = null, ?modsAllowed:Bool = false)
 	{
 		#if MODS_ALLOWED
-		if()
+		if(modsAllowed)
 		{
 			var customFile:String = file;
 			if (library != null)
@@ -314,16 +315,36 @@ class Paths
 		#end
 	}
 
-	inline static public function getPackerAtlas(key:String, ?library:String)
+	inline static public function getAsepriteAtlas(key:String, ?parentFolder:String = null):FlxAtlasFrames
+	{
+		var imageLoaded:FlxGraphic = image(key, parentFolder);
+		#if MODS_ALLOWED
+		var jsonExists:Bool = false;
+
+		var json:String = modsImagesJson(key);
+		if(FileSystem.exists(json)) jsonExists = true;
+
+		return FlxAtlasFrames.fromTexturePackerJson(imageLoaded, (jsonExists ? File.getContent(json) : getPath('images/$key' + '.json', TEXT, parentFolder)));
+		#else
+		return FlxAtlasFrames.fromTexturePackerJson(imageLoaded, getPath('images/$key' + '.json', TEXT, parentFolder));
+		#end
+	}
+
+	inline static public function modsImagesJson(key:String)
+		return modFolders('images/' + key + '.json');
+
+	inline static public function getPackerAtlas(key:String, ?library:String):FlxAtlasFrames
 	{
 		#if MODS_ALLOWED
 		var imageLoaded:FlxGraphic = returnGraphic(key);
 		var txtExists:Bool = false;
-		if(FileSystem.exists(modsTxt(key))) {
+
+		var txt:String = modsTxt(key);
+		if(FileSystem.exists(txt)) {
 			txtExists = true;
 		}
 
-		return FlxAtlasFrames.fromSpriteSheetPacker((imageLoaded != null ? imageLoaded : image(key, library)), (txtExists ? File.getContent(modsTxt(key)) : file('images/$key.txt', library)));
+		return FlxAtlasFrames.fromSpriteSheetPacker((imageLoaded != null ? imageLoaded : image(key, library)), (txtExists ? File.getContent(txt) : file('images/$key.txt', library)));
 		#else
 		return FlxAtlasFrames.fromSpriteSheetPacker(image(key, library), file('images/$key.txt', library));
 		#end
@@ -625,4 +646,56 @@ class Paths
 		spr.loadAtlasEx(folderOrImg, spriteJson, animationJson);
 	}
 	#end
+
+	//Useful code types from Codename Engine
+	public static var tempFramesCache:Map<String, FlxFramesCollection> = [];
+
+	public static function init() {
+		FlxG.signals.preStateSwitch.add(function() {
+			tempFramesCache.clear();
+		});
+	}
+
+	inline static public function fragShaderPath(key:String)
+		return getPath('shaders/$key.frag');
+
+	inline static public function vertShaderPath(key:String)
+		return getPath('shaders/$key.vert');
+
+	inline static public function fragShader(key:String)
+		return getTextFromFile('shaders/$key.frag');
+
+	inline static public function vertShader(key:String)
+		return getTextFromFile('shaders/$key.vert');
+
+	static public function getFolderContent(key:String, addPath:Bool = false, source:String = "BOTH"):Array<String> {
+		var content:Array<String> = [];
+		var folder = key.endsWith('/') ? key : key + '/';
+
+		#if MODS_ALLOWED
+		if (source == "MODS" || source == "BOTH") {
+			var modDirs:Array<String> = [];
+			if (Mods.currentModDirectory != null && Mods.currentModDirectory.length > 0)
+				modDirs.push(Mods.currentModDirectory);
+			modDirs = modDirs.concat(Mods.getGlobalMods());
+
+			for (mod in modDirs) {
+				var modFolder = Paths.mods('$mod/$folder');
+				if (FileSystem.exists(modFolder)) {
+					for (file in FileSystem.readDirectory(modFolder)) {
+						if (!FileSystem.isDirectory('$modFolder/$file')) {
+							var path = addPath ? '$folder$file' : file;
+							if (!content.contains(path))
+								content.push(path);
+						}
+					}
+				}
+			}
+		}
+		#end
+
+		if (content != []) return content;
+		trace('Content not found');
+		return null;
+	}
 }

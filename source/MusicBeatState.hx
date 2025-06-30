@@ -42,6 +42,23 @@ class MusicBeatState extends FlxUIState
 	var trackedinputsUI:Array<FlxActionInput> = [];
 	var trackedinputsNOTES:Array<FlxActionInput> = [];
 
+	public function checkMobileControlVisible(selectedButton:String) {
+		var buttonsVisible:Bool = false;
+		for (button in mobilePad.createdButtons) {
+			var buttonName:String = "button" + button;
+			var buttonVisibility:Bool = Reflect.getProperty(mobilePad, buttonName).visible;
+			if (button != selectedButton && buttonsVisible != buttonVisibility) buttonsVisible = buttonVisibility;
+		}
+		return buttonsVisible;
+	}
+
+	public function changeMobileControlVisible(selectedButton:String, ?visible:Bool = false) {
+		for (button in mobilePad.createdButtons) {
+			var buttonName:String = "button" + button;
+			if (button != selectedButton) Reflect.getProperty(mobilePad, buttonName).visible = visible;
+		}
+	}
+
 	public function addMobilePad(?DPad:String, ?Action:String) {
 		if (mobilePad != null)
 			removeMobilePad();
@@ -135,6 +152,16 @@ class MusicBeatState extends FlxUIState
 			mobilec = FlxDestroyUtil.destroy(mobilec);
 	}
 	#end
+
+	public function initPsychCamera():backend.PsychCamera
+	{
+		var camera = new backend.PsychCamera();
+		FlxG.cameras.reset(camera);
+		FlxG.cameras.setDefaultDrawTarget(camera, true);
+		// _psychCameraInitialized = true;
+		//trace('initialized psych camera ' + Sys.cpuTime());
+		return camera;
+	}
 
 	override function create() {
 		camBeat = FlxG.camera;

@@ -8,6 +8,16 @@ import sys.io.*;
 import js.html.*;
 #end
 
+//import them for now
+import funkin.backend.FunkinText;
+import funkin.backend.shaders.FunkinShader;
+import funkin.backend.shaders.CustomShader;
+
+#if HSCRIPT_ALLOWED
+import psychlua.HScript;
+#end
+import tea.SScript;
+
 // FlxAnimate
 #if flxanimate
 import flxanimate.*;

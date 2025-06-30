@@ -8,6 +8,7 @@ import TitleState;
 
 // Add a variable here and it will get automatically saved
 @:structInit class SaveVariables {
+	public var UseNewCamSystem:Bool = false;
 	public var Modpack:Bool = false;
 	public var wideScreen:Bool = false;
 	#if android public var storageType:String = "EXTERNAL_DATA"; #end
