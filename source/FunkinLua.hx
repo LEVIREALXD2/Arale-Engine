@@ -8,7 +8,6 @@ import llua.State;
 import llua.Convert;
 #end
 
-import animateatlas.AtlasFrameMaker;
 import flixel.FlxG;
 import flixel.addons.effects.FlxTrail;
 import flixel.input.keyboard.FlxKey;
@@ -1433,7 +1432,7 @@ class FunkinLua {
 		Lua_helper.add_callback(lua, "triggerEvent", function(name:String, arg1:Dynamic, arg2:Dynamic) {
 			var value1:String = arg1;
 			var value2:String = arg2;
-			PlayState.instance.triggerEventNote(name, value1, value2);
+			PlayState.instance.triggerEvent(name, value1, value2, Conductor.songPosition);
 			//trace('Triggered event: ' + name + ', ' + value1 + ', ' + value2);
 			return true;
 		});
@@ -2877,11 +2876,13 @@ class FunkinLua {
 	{
 		switch(spriteType.toLowerCase().trim())
 		{
+			/*
 			case "texture" | "textureatlas" | "tex":
 				spr.frames = AtlasFrameMaker.construct(image);
 
 			case "texture_noaa" | "textureatlas_noaa" | "tex_noaa":
 				spr.frames = AtlasFrameMaker.construct(image, null, true);
+			*/
 
 			case "packer" | "packeratlas" | "pac":
 				spr.frames = Paths.getPackerAtlas(image);

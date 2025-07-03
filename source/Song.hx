@@ -86,6 +86,7 @@ class Song
 		this.bpm = bpm;
 	}
 
+	public static var loadedSongName:String;
 	public static function loadFromJson(jsonInput:String, ?folder:String):SwagSong
 	{
 		var rawJson = null;
@@ -130,6 +131,7 @@ class Song
 				daBpm = songData.bpm; */
 
 		var songJson:Dynamic = parseJSONshit(rawJson);
+		loadedSongName = folder;
 		if(jsonInput != 'events') StageData.loadDirectory(songJson);
 		onLoadJson(songJson);
 		return songJson;

@@ -13,6 +13,9 @@ import funkin.backend.FunkinText;
 import funkin.backend.shaders.FunkinShader;
 import funkin.backend.shaders.CustomShader;
 
+import backend.BaseStage;
+import PlayState.Countdown;
+
 #if HSCRIPT_ALLOWED
 import psychlua.HScript;
 #end

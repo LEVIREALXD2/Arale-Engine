@@ -74,10 +74,6 @@ class HScript extends SScript
 			
 		this.varsToBring = varsToBring;
 
-		/*
-		if (PlayState.publicVariables != [] && PlayState.publicVariables != null)
-			interp.publicVariables = PlayState.publicVariables;
-		*/
 		super(file, false, false);
 
 		parentLua = parent;
