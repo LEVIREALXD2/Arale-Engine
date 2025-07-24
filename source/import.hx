@@ -9,6 +9,10 @@ import sys.io.*;
 import js.html.*;
 #end
 
+#if DISCORD_ALLOWED
+import Discord.DiscordClient;
+#end
+
 //import them for now
 import funkin.backend.scripting.*;
 import funkin.backend.scripting.events.*;
