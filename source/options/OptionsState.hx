@@ -1,176 +1,326 @@
 package options;
 
-#if desktop
-import Discord.DiscordClient;
+import MainMenuState;
+import FreeplayState;
+#if TOUCH_CONTROLS
+import mobile.substates.MobileControlSelectSubState;
+import mobile.substates.MobileExtraControl;
 #end
-import flash.text.TextField;
-import flixel.FlxG;
-import flixel.FlxSprite;
-import flixel.addons.display.FlxGridOverlay;
-import flixel.group.FlxGroup.FlxTypedGroup;
-import flixel.math.FlxMath;
-import flixel.text.FlxText;
-import flixel.util.FlxColor;
-import lime.utils.Assets;
-import flixel.FlxSubState;
-import flash.text.TextField;
-import flixel.FlxG;
-import flixel.FlxSprite;
-import flixel.util.FlxSave;
-import haxe.Json;
-import flixel.tweens.FlxEase;
-import flixel.tweens.FlxTween;
-import flixel.util.FlxTimer;
-import flixel.input.keyboard.FlxKey;
-import flixel.graphics.FlxGraphic;
-import Controls;
-
-using StringTools;
+import mobile.states.CopyState;
+import ClientPrefs;
+import StageData;
+import options.NovaFlareOptionsObjects.Option;
 
 class OptionsState extends MusicBeatState
 {
-	var options:Array<String> = ['Note Colors', #if TOUCH_CONTROLS 'Mobile Controls' #else 'Controls' #end, 'Adjust Delay and Combo', 'Graphics', 'Visuals and UI', 'Gameplay' #if (TOUCH_CONTROLS || mobile) , 'Mobile Options' #end];
-	private var grpOptions:FlxTypedGroup<Alphabet>;
-	private static var curSelected:Int = 0;
-	public static var menuBG:FlxSprite;
+	public static var instance:OptionsState;
+	#if android final lastStorageType:String = ClientPrefs.data.storageType; #end
 
-	function openSelectedSubstate(label:String) {
-		#if TOUCH_CONTROLS
-	    persistentUpdate = false;
-	    if (label != "Adjust Delay and Combo") removeMobilePad();
-	    #end
-		switch(label) {
-			case 'Note Colors':
-				openSubState(new options.NotesSubState());
-			case 'Controls':
-				openSubState(new options.ControlsSubState());
-			#if TOUCH_CONTROLS
-			case 'Mobile Controls':
-    			openSubState(new MobileControlSelectSubState());
-    		#end
-			case 'Graphics':
-				openSubState(new options.GraphicsSettingsSubState());
-			case 'Visuals and UI':
-				openSubState(new options.VisualsUISubState());
-			case 'Gameplay':
-				openSubState(new options.GameplaySettingsSubState());
-			#if (TOUCH_CONTROLS || mobile)
-			case 'Mobile Options':
-			    openSubState(new MobileOptionsSubState());
-			#end
-			case 'Adjust Delay and Combo':
-				LoadingState.loadAndSwitchState(new options.NoteOffsetState());
-		}
-	}
+	var filePath:String = 'menuExtend/OptionsState/';
 
-	var selectorLeft:Alphabet;
-	var selectorRight:Alphabet;
+	var naviArray = [];
 
-	override function create() {
-		#if desktop
-		DiscordClient.changePresence("Options Menu", null);
-		#end
+	////////////////////////////////////////////////////////////////////////////////////////////
 
-		var bg:FlxSprite = new FlxSprite().loadGraphic(Paths.image('menuDesat'));
-		bg.color = 0xFFea71fd;
-		bg.updateHitbox();
+	public var baseColor = 0x302E3A;
+	public var mainColor = 0x24232C;
 
-		bg.screenCenter();
-		bg.antialiasing = ClientPrefs.data.antialiasing;
+
+	////////////////////////////////////////////////////////////////////////////////////////////
+
+	public var mouseEvent:MouseEvent;
+
+	var naviBG:RoundRect;
+	var naviSpriteGroup:Array<NaviSprite> = [];
+
+	var cataGroup:Array<OptionCata> = [];
+	public var cataMove:MouseMove;
+	public var cataCount:Array<StringRect> = []; //string开启的检测
+
+	var downBG:Rect;
+	var tipButton:TipButton;
+	var specButton:FuncButton;
+
+	var specBG:Rect;
+	var searchButton:SearchButton;
+	var resetButton:ResetButton;
+
+	override function create()
+	{
+		persistentUpdate = persistentDraw = true;
+		instance = this;
+
+		naviArray = [
+			'Graphics',
+			'Visual & UI',
+			'Gameplay',
+			'Mobile'
+		];
+
+		mouseEvent = new MouseEvent();
+		add(mouseEvent);
+
+		var bg = new Rect(0, 0, FlxG.width, FlxG.height, 0, 0, baseColor);
 		add(bg);
 
-		grpOptions = new FlxTypedGroup<Alphabet>();
-		add(grpOptions);
+		naviBG = new RoundRect(0, 0, UIScale.adjust(FlxG.width * 0.2), FlxG.height, 0, LEFT_CENTER,  mainColor);
+		add(naviBG);
 
-		for (i in 0...options.length)
+		for (i in 0...naviArray.length)
 		{
-			var optionText:Alphabet = new Alphabet(0, 0, options[i], true);
-			optionText.screenCenter();
-			optionText.y += (100 * (i - (options.length / 2))) + 50;
-			grpOptions.add(optionText);
+			var naviSprite = new NaviSprite(UIScale.adjust(FlxG.width * 0.005), UIScale.adjust(FlxG.height * 0.005) + i * UIScale.adjust(FlxG.height * 0.1), UIScale.adjust(FlxG.width * 0.19), UIScale.adjust(FlxG.height * 0.09), naviArray[i], i, false);
+			naviSprite.antialiasing = ClientPrefs.data.antialiasing;
+			add(naviSprite);
+			naviSpriteGroup.push(naviSprite);
 		}
 
-		selectorLeft = new Alphabet(0, 0, '>', true);
-		add(selectorLeft);
-		selectorRight = new Alphabet(0, 0, '<', true);
-		add(selectorRight);
+		/////////////////////////////////////////////////////////////////
 
-		changeSelection();
-		ClientPrefs.saveSettings();
+		for (i in 0...naviArray.length) {
+			addCata(naviArray[i]);
+		}
+
+		var moveHeight:Float = 100;
+		for (num in cataGroup) {
+			if (num != cataGroup[cataGroup.length - 1]) {
+				moveHeight -= num.bg.realHeight;
+				moveHeight -= UIScale.adjust(FlxG.width * (0.8 / 40));
+			} else {
+				moveHeight -= cataGroup[cataGroup.length - 1].bg.realHeight - UIScale.adjust(FlxG.height * 0.8);
+				moveHeight -= UIScale.adjust(FlxG.width * (0.8 / 40)) * 2;
+			}
+		}
+		cataMove = new MouseMove(OptionsState, 'cataPosiData', 
+								[moveHeight, 100],
+								[ 
+									[UIScale.adjust(FlxG.width * 0.2), FlxG.width], 
+									[0, FlxG.height - Std.int(UIScale.adjust(FlxG.height * 0.1))]
+								],
+								cataMoveEvent);
+		add(cataMove);
+		cataMoveEvent(true);
+			
+		/////////////////////////////////////////////////////////////
+
+		downBG = new Rect(0, FlxG.height - Std.int(UIScale.adjust(FlxG.height * 0.1)), FlxG.width, Std.int(UIScale.adjust(FlxG.height * 0.1)), 0, 0, mainColor, 0.75);
+		add(downBG);
+
+		tipButton = new TipButton(
+			UIScale.adjust(FlxG.width * 0.2) + UIScale.adjust(FlxG.height * 0.01), 
+			downBG.y + Std.int(UIScale.adjust(FlxG.height * 0.01)),
+			FlxG.width - UIScale.adjust(FlxG.width * 0.2) - UIScale.adjust(FlxG.height * 0.01) - Std.int(UIScale.adjust(FlxG.width * 0.15)) - Std.int(UIScale.adjust(FlxG.height * 0.01) * 2), 
+			Std.int(UIScale.adjust(FlxG.height * 0.08))
+		);
+		add(tipButton);
+
+		specButton = new FuncButton(
+			FlxG.width - Std.int(UIScale.adjust(FlxG.width * 0.15)) - Std.int(UIScale.adjust(FlxG.height * 0.01)), 
+			downBG.y + Std.int(UIScale.adjust(FlxG.height * 0.01)),
+			Std.int(UIScale.adjust(FlxG.width * 0.15)), 
+			Std.int(UIScale.adjust(FlxG.height * 0.08)),
+			specChange
+		);
+		specButton.alpha = 0.5;
+		add(specButton);
+
+		//////////////////////////////////////////////////////////////////////
+
+		specBG = new Rect(UIScale.adjust(FlxG.width * 0.2), 0, FlxG.width - UIScale.adjust(FlxG.width * 0.2), Std.int(UIScale.adjust(FlxG.height * 0.1)), 0, 0, mainColor, 0.75);
+		add(specBG);
+
+		searchButton = new SearchButton(specBG.x + specBG.height * 0.2, specBG.height * 0.2, specBG.width * 0.5, specBG.height * 0.6);
+		add(searchButton);
+
+		resetButton = new ResetButton(specBG.x + specBG.height * 0.2 * 2 + searchButton.width, specBG.height * 0.2, specBG.width - (specBG.height * 0.2 * 3 + searchButton.width), specBG.height * 0.6);
+		add(resetButton);
+
+		var backShape = new GeneralBack(0, 720 - 72, UIScale.adjust(FlxG.width * 0.2), UIScale.adjust(FlxG.height * 0.1), 'back', EngineSet.mainColor, backMenu);
+		add(backShape);
 		
-		var tipText:FlxText = new FlxText(10, 12, 0, 'Press E to Go In Extra Key Return Menu', 16);
-		tipText.setFormat(Paths.font("vcr.ttf"), 16, FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
-		tipText.borderSize = 2;
-		tipText.scrollFactor.set();
-		add(tipText);
-		
-		#if TOUCH_CONTROLS
-		addMobilePad("UP_DOWN", "A_B_E");
-		#end
 
 		super.create();
 	}
 
-	override function closeSubState() {
-		super.closeSubState();
-		ClientPrefs.saveSettings();
-		#if TOUCH_CONTROLS
-		removeMobilePad();
-		addMobilePad("UP_DOWN", "A_B_E");
-		persistentUpdate = true;
-		#end
-	}
+	public var ignoreCheck:Bool = false;
 
-	override function update(elapsed:Float) {
+	override function update(elapsed:Float)
+	{
 		super.update(elapsed);
 
-		if (controls.UI_UP_P) {
-			changeSelection(-1);
-		}
-		if (controls.UI_DOWN_P) {
-			changeSelection(1);
-		}
+		if (cataCount.length > 0) cataMove.inputAllow = false;
+		else cataMove.inputAllow = true;
 
-		if (controls.BACK) {
-			FlxG.sound.play(Paths.sound('cancelMenu'));
-			MusicBeatState.switchState(new MainMenuState());
-		}
-
-		if (controls.ACCEPT) {
-			openSelectedSubstate(options[curSelected]);
-		}
-		
-		#if TOUCH_CONTROLS
-		if (mobilePad.buttonE.justPressed) {
-			removeMobilePad();
-			persistentUpdate = false;
-			openSubState(new MobileExtraControl());
-		}
-		#end
-	}
-	
-	function changeSelection(change:Int = 0) {
-		curSelected += change;
-		if (curSelected < 0)
-			curSelected = options.length - 1;
-		if (curSelected >= options.length)
-			curSelected = 0;
-
-		var bullShit:Int = 0;
-
-		for (item in grpOptions.members) {
-			item.targetY = bullShit - curSelected;
-			bullShit++;
-
-			item.alpha = 0.6;
-			if (item.targetY == 0) {
-				item.alpha = 1;
-				selectorLeft.x = item.x - 63;
-				selectorLeft.y = item.y;
-				selectorRight.x = item.x + item.width + 15;
-				selectorRight.y = item.y;
+		var posi:Int = -1;
+		for (cata in 0...cataGroup.length - 1) {
+			if (cataGroup[cata].y < FlxG.height / 2 && cataGroup[cata].y + cataGroup[cata].bg.realHeight > FlxG.height / 2) {
+				posi = cata;
+				break;
 			}
 		}
-		FlxG.sound.play(Paths.sound('scrollMenu'));
+
+		for (spr in 0...naviSpriteGroup.length -1) {
+			if (spr == posi) naviSpriteGroup[spr].cataChoose = true;
+			else naviSpriteGroup[spr].cataChoose = false;
+		}
+	}
+
+	//Apply Automatically
+	override function openSubState(SubState:flixel.FlxSubState) {
+		super.openSubState(SubState);
+		persistentUpdate = false;
+	}
+
+	override function closeSubState()
+	{
+		super.closeSubState();
+		persistentUpdate = true;
+	}
+
+	public function changeCata(sort:Int) {
+		if (cataCount.length > 0) return;
+		var outputData:Float = 100;
+		for (cata in 0...sort) {
+			outputData -= cataGroup[cata].bg.realHeight;
+			outputData -= UIScale.adjust(FlxG.width * (0.8 / 40));
+		}
+		cataMove.lerpData = outputData;
+	}
+
+	public function changeTip(str:String) {
+		tipButton.changeText(str);
+	}
+
+	public function addCata(type:String) {
+		var obj:OptionCata = null;
+
+		var outputX:Float = naviBG.width + UIScale.adjust(FlxG.width * (0.8 / 40)); //已被初始化
+		var outputWidth:Float = UIScale.adjust(FlxG.width * (0.8 - (0.8 / 40 * 2))); //已被初始化
+		var outputY:Float = 100; //等待被初始化
+		var outputHeight:Float = 200; //等待被初始化
+
+		switch (type) 
+		{
+			case 'Graphics':
+				obj = new GraphicsGroup(outputX, outputY, outputWidth, outputHeight);
+			case 'Visual & UI':
+				obj = new UIGroup(outputX, outputY, outputWidth, outputHeight);
+			case 'Gameplay':
+				obj = new GameplayGroup(outputX, outputY, outputWidth, outputHeight);
+			case 'Mobile':
+				obj = new MobileGroup(outputX, outputY, outputWidth, outputHeight);
+			default:
+				//nothing lol
+		}
+		cataGroup.push(obj);
+		add(obj);
+	}
+
+	public function addMove(tar:MouseMove) {
+		add(tar);
+	}
+
+	static public var cataPosiData:Float = 100;
+	public function cataMoveEvent(init:Bool = false){
+		for (i in 0...cataGroup.length) {
+			if (i == 0) cataGroup[i].y = cataPosiData;
+			else cataGroup[i].y = cataGroup[i - 1].y + cataGroup[i - 1].bg.realHeight + UIScale.adjust(FlxG.width * (0.8 / 40));
+		}
+	}
+
+	static public var naviPosiData:Float = 0;
+
+	var specOpen:Bool = false;
+	var specTween:Array<FlxTween> = [];
+	var specTime = 0.6;
+	public function specChange() {
+		for (tween in specTween) {
+			if (tween != null) tween.cancel();
+		}
+
+		var newPoint:Float = 0;
+		if (!specOpen) {
+			newPoint = FlxG.width;
+			cataMove.moveLimit[1] = 30;
+		} else {
+			newPoint = UIScale.adjust(FlxG.width * 0.2);
+			cataMove.moveLimit[1] = 100;
+		}
+
+		var tween = FlxTween.tween(specBG, {x: newPoint}, specTime, {ease: FlxEase.expoInOut});
+		specTween.push(tween);
+		var tween = FlxTween.tween(searchButton, {x: newPoint + specBG.height * 0.2}, specTime, {ease: FlxEase.expoInOut});
+		specTween.push(tween);
+		var tween = FlxTween.tween(resetButton, {x: newPoint + specBG.height * 0.2 + searchButton.width + specBG.height * 0.2}, specTime, {ease: FlxEase.expoInOut});
+		specTween.push(tween);
+
+		specOpen = !specOpen;
+	}
+
+	public function moveState(type:Int)
+	{
+		switch (type)
+		{
+			case 1: // NoteOffsetState
+				LoadingState.loadAndSwitchState(new NoteOffsetState());
+			case 2: // NotesSubState
+				persistentUpdate = false;
+				openSubState(new NotesSubState());
+			case 3: // ControlsSubState
+				persistentUpdate = false;
+				openSubState(new ControlsSubState());
+			#if TOUCH_CONTROLS
+			case 4: // MobileControlSelectSubState
+				persistentUpdate = false;
+				openSubState(new MobileControlSelectSubState());
+			case 5: // MobileExtraControl
+				persistentUpdate = false;
+				openSubState(new MobileExtraControl());
+			#end
+			case 6: // CopyStates
+				LoadingState.loadAndSwitchState(new CopyState());
+		}
+	}
+
+	public function resetData()
+	{
+		for (spr in 0...naviSpriteGroup.length - 1) {
+			if (naviSpriteGroup[spr].cataChoose == true) {
+				cataGroup[spr].resetData();
+				break;
+			}
+		}
+	}
+
+	public static var stateType:Int = 0; //检测到底退回到哪个界面
+	var backCheck:Bool = false;
+	function backMenu()
+	{
+		if (!backCheck)
+		{
+			backCheck = true;
+			FlxG.sound.play(Paths.sound('cancelMenu'));
+			#if android
+			if (ClientPrefs.data.storageType != lastStorageType) {
+				File.saveContent(lime.system.System.applicationStorageDirectory + 'storagetype.txt', ClientPrefs.data.storageType);
+				ClientPrefs.saveSettings();
+				CoolUtil.showPopUp('Storage Type has been changed and you needed restart the game!!\nPress OK to close the game.', 'Notice!');
+				lime.system.System.exit(0);
+			}
+			else
+			#end
+				ClientPrefs.saveSettings();
+			Main.fpsVar.visible = ClientPrefs.data.showFPS;
+			switch (stateType)
+			{
+				case 0:
+					MusicBeatState.switchState(new MainMenuState());
+				case 1:
+						MusicBeatState.switchState(new FreeplayState());
+				case 2:
+					MusicBeatState.switchState(new PlayState());
+					FlxG.mouse.visible = false;
+			}
+			stateType = 0;
+		}
 	}
 }

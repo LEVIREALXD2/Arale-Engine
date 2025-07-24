@@ -17,6 +17,10 @@ import flixel.FlxBasic;
 import flixel.input.actions.FlxActionInput;
 import flixel.util.FlxDestroyUtil;
 
+#if SCRIPTING_ALLOWED
+import scripting.HScript;
+#end
+
 class MusicBeatState extends FlxUIState
 {
 	private var curSection:Int = 0;
@@ -150,6 +154,16 @@ class MusicBeatState extends FlxUIState
 
 		if (mobilec != null)
 			mobilec = FlxDestroyUtil.destroy(mobilec);
+
+		#if SCRIPTING_ALLOWED
+		call("destroy");
+		stateScripts = FlxDestroyUtil.destroy(stateScripts);
+		#end
+	}
+	#elseif SCRIPTING_ALLOWED
+	override function destroy() {
+		call("destroy");
+		stateScripts = FlxDestroyUtil.destroy(stateScripts);
 	}
 	#end
 
@@ -164,6 +178,8 @@ class MusicBeatState extends FlxUIState
 	}
 
 	override function create() {
+		#if SCRIPTING_ALLOWED loadScript(); #end
+
 		camBeat = FlxG.camera;
 		var skip:Bool = FlxTransitionableState.skipNextTransOut;
 		super.create();
@@ -174,10 +190,12 @@ class MusicBeatState extends FlxUIState
 		FlxTransitionableState.skipNextTransOut = false;
 	}
 
+	var oldStepThing:Int;
 	override function update(elapsed:Float)
 	{
 		//everyStep();
 		var oldStep:Int = curStep;
+		oldStepThing = curStep;
 
 		updateCurStep();
 		updateBeat();
@@ -201,6 +219,8 @@ class MusicBeatState extends FlxUIState
 		stagesFunc(function(stage:BaseStage) {
 			stage.update(elapsed);
 		});
+
+		#if SCRIPTING_ALLOWED call("update", [elapsed]); #end
 
 		super.update(elapsed);
 	}
@@ -335,5 +355,103 @@ class MusicBeatState extends FlxUIState
 		for (stage in stages)
 			if(stage != null && stage.exists && stage.active)
 				func(stage);
+	}
+
+	/**
+	 * SCRIPTING STUFF
+	 */
+	#if SCRIPTING_ALLOWED
+	public var scriptsAllowed:Bool = true;
+
+	/**
+	 * Current injected script attached to the state. To add one, create a file at path "data/states/stateName" (ex: data/states/FreeplayState)
+	 */
+	public var stateScripts:ScriptPack;
+
+	public static var lastScriptName:String = null;
+	public static var lastStateName:String = null;
+
+	public var scriptName:String = null;
+
+	public function new(scriptsAllowed:Bool = true, ?scriptName:String) {
+		super();
+		if(lastStateName != (lastStateName = Type.getClassName(Type.getClass(this)))) {
+			lastScriptName = null;
+		}
+		this.scriptName = scriptName != null ? scriptName : lastScriptName;
+		lastScriptName = this.scriptName;
+	}
+
+	function loadScript(?customPath:String) {
+		var className = Type.getClassName(Type.getClass(this));
+		if (stateScripts == null)
+			(stateScripts = new ScriptPack(className)).setParent(this);
+		if (scriptsAllowed) {
+			if (stateScripts.scripts.length == 0) {
+				var scriptName = this.scriptName != null ? this.scriptName : className.substr(className.lastIndexOf(".")+1);
+				var filePath:String = "states/" + scriptName;
+				if (customPath != null)
+					filePath = customPath;
+				var path = Paths.script(filePath);
+				var script = Script.create(path);
+				script.remappedNames.set(script.fileName, '${script.fileName}');
+				stateScripts.add(script);
+				script.load();
+				call('create');
+			}
+			else stateScripts.reload();
+		}
+	}
+	#end
+
+	public function call(name:String, ?args:Array<Dynamic>, ?defaultVal:Dynamic):Dynamic {
+		// calls the function on the assigned script
+		#if SCRIPTING_ALLOWED
+		if(stateScripts != null)
+			return stateScripts.call(name, args);
+		#end
+		return defaultVal;
+	}
+
+	public function event<T:CancellableEvent>(name:String, event:T):T {
+		#if SCRIPTING_ALLOWED
+		if(stateScripts != null)
+			stateScripts.call(name, [event]);
+		#end
+		return event;
+	}
+
+	override function closeSubState() {
+		super.closeSubState();
+		call('onCloseSubState');
+	}
+
+	public function closeSubStatePost() {
+		call('onCloseSubStatePost');
+	}
+
+	public override function createPost() {
+		super.createPost();
+		persistentUpdate = true;
+		call("postCreate");
+	}
+
+	public override function tryUpdate(elapsed:Float):Void
+	{
+		if (persistentUpdate || subState == null) {
+			call("preUpdate", [elapsed]);
+			update(elapsed);
+			call("postUpdate", [elapsed]);
+		}
+
+		if (_requestSubStateReset)
+		{
+			_requestSubStateReset = false;
+			resetSubState();
+		}
+		if (subState != null)
+		{
+			subState.tryUpdate(elapsed);
+		}
 	}
 }

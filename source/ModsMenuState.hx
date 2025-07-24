@@ -9,8 +9,7 @@ import haxe.Json;
 
 import flixel.util.FlxSpriteUtil;
 import AttachedSprite;
-import AlphabetNew as AlphabetNew;
-import options.ModSettingsSubState;
+import AlphabetNew;
 import mobile.backend.TouchFunctions;
 import openfl.display.BitmapData;
 import lime.utils.Assets;
@@ -190,11 +189,7 @@ class ModsMenuState extends MusicBeatState
 
 			FlxG.autoPause = false;
 			changeSelectedMod();
-			#if TOUCH_CONTROLS
-			addMobilePad("NONE", "B");
-			mobilePad.y -= 215; // so that you can press the buttons.
-			mobilePad.alpha = 0.3;
-			#end
+			#if TOUCH_CONTROLS addMobilePad("NONE", "B"); #end
 			return super.create();
 		}
 
@@ -836,30 +831,15 @@ class ModsMenuState extends MusicBeatState
 	function saveTxt()
 	{
 		var fileStr:String = '';
-		var value = '0';
-
-		var modFolder:String = 'modsList.txt';
-		if (ClientPrefs.data.Modpack) modFolder = 'modpackList.txt';
-
 		for (mod in modsList.all)
 		{
 			if(mod.trim().length < 1) continue;
 
 			if(fileStr.length > 0) fileStr += '\n';
 
-			/*
-			for(menu in Mods.getSelectedMenuMod()){
-				var dat:Array<String> = menu.split("|");
-				if (dat[0] == mod && dat[1] == "1") value = "1";
-				else value = "0";
-				//trace(dat + ' && ' + value);
-			}
-			*/
-
 			var on = '1';
 			if(modsList.disabled.contains(mod)) on = '0';
-			//trace("in modsList: " + mod + " || " + value);
-			fileStr += '$mod|$on|$value';
+			fileStr += '$mod|$on';
 		}
 
 		var path:String = 'modsList.txt';
@@ -899,7 +879,7 @@ class ModItem extends FlxSpriteGroup
 			try
 			{
 				//trace('trying to load settings: $folder');
-				settings = tjson.TJSON.parse(data);
+				settings = Json.parse(data);
 			}
 			catch(e:Dynamic)
 			{

@@ -393,7 +393,9 @@ class FreeplayState extends MusicBeatState
 
 			try
 			{
-				PlayState.SONG = Song.loadFromJson(poop, songLowercase);
+				if (ClientPrefs.data.chartLoadSystem == '1.0x') Song.loadFromJson(poop, songLowercase);
+				else PlayState.SONG = Song.loadFromJson(poop, songLowercase);
+
 				PlayState.isStoryMode = false;
 				PlayState.storyDifficulty = curDifficulty;
 
@@ -418,11 +420,11 @@ class FreeplayState extends MusicBeatState
 			}
 
 			if (FlxG.keys.pressed.SHIFT #if TOUCH_CONTROLS || mobilePad.buttonZ.pressed #end)
-				LoadingState.loadAndSwitchState(new ChartingState(), false);
+				CustomSwitchState.switchMenus('Charting', true);
 			else {
 				LoadingState.loadAndSwitchState(new PlayState());
 			}
-			if (!ClientPrefs.data.loadingScreen) FlxG.sound.music.stop();
+			FlxG.sound.music.stop();
 			stopMusicPlay = true;
 
 			destroyFreeplayVocals();

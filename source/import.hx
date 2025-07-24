@@ -1,5 +1,6 @@
 #if !macro
 import Paths;
+import FunkinLua;
 
 #if sys
 import sys.*;
@@ -9,17 +10,25 @@ import js.html.*;
 #end
 
 //import them for now
+import funkin.backend.scripting.*;
+import funkin.backend.scripting.events.*;
+import backend.mouse.*;
+import backend.data.*;
+import backend.ui.*;
+import objects.screen.*;
+import objects.state.general.*;
+import shapeEx.*;
+import codenamecrew.hscript.macros.*;
 import funkin.backend.FunkinText;
 import funkin.backend.shaders.FunkinShader;
 import funkin.backend.shaders.CustomShader;
 
 import backend.BaseStage;
 import PlayState.Countdown;
-
-#if HSCRIPT_ALLOWED
-import psychlua.HScript;
-#end
+import Song.SwagSong;
+import Section.SwagSection;
 import tea.SScript;
+import editors.StageEditorState;
 
 // FlxAnimate
 #if flxanimate
@@ -27,7 +36,7 @@ import flxanimate.*;
 import flxanimate.PsychFlxAnimate as FlxAnimate;
 #end
 
-import options.BaseModOptionsMenu;
+import options.base.*; //Import base ones instead of NovaFlare's
 #if MODS_ALLOWED
 import backend.Mods;
 #end

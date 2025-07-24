@@ -2,6 +2,7 @@ package mobile.objects;
 
 import flixel.util.FlxSave;
 
+#if TOUCH_CONTROLS
 class Config {
 	var save:FlxSave;
 	var isExtend:Bool = false;
@@ -234,3 +235,4 @@ class CurrentManager {
 		}
 	}
 }
+#end

@@ -33,9 +33,13 @@ class Conductor
 	{
 	}
 
-	public static function judgeNote(note:Note, diff:Float=0):Rating // die
+	public static function judgeNote(note:Note, diff:Float=0, ?itsEditorPlayState:Bool, ?itsEditorPlayStateNew:Bool):Rating // die
 	{
-		var data:Array<Rating> = PlayState.instance.ratingsData; //shortening cuz fuck u
+		var data:Array<Rating>;
+		if (itsEditorPlayState) data = editors.EditorPlayState.instance.ratingsData;
+		else if (itsEditorPlayStateNew) data = editors.content.EditorPlayState.instance.ratingsData;
+		else data = PlayState.instance.ratingsData;
+
 		for(i in 0...data.length-1) //skips last window (Shit)
 		{
 			if (diff <= data[i].hitWindow)

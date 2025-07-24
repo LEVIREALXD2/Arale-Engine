@@ -47,19 +47,19 @@
 		<set name="BUILD_DIR" value="/root/PsychOnline06/export/release" unless="debug" />
 		<set name="BUILD_DIR" value="/root/PsychOnline06/export/32bit" if="32bits" />
 		<android target-sdk-version="34" />
+		<android gradle-version="8.11.1" /> <!-- A simple Gradle fix I think -->
 	</section>
 
 	<classpath name="source" />
-	<classpath name="cne-openfl" />
+	<classpath name="cne-openfl" /> <!-- This thing will be removed later bc it's useless -->
 	
 	<!-- PSYCH ENGINE CUSTOMIZATION -->
 	<define name="MODS_ALLOWED" if="desktop || mobile" />
 	<define name="HSCRIPT_ALLOWED" if="desktop || mobile" />
-	<define name="NEW_PSYCH063" if="termux" /> <!-- Makes Some Changes for haxe 4.3.6 bc fucking haxe 4.2.5 doesn't support termux -->
+	<define name="SCRIPTING_ALLOWED" /> <!-- Allow to change states with hscript -->
+	<define name="NEW_PSYCH063" />
 	<define name="TOUCH_CONTROLS" if="mobile" />
-	<define name="REGION" />
-	<define name="LUAMPAD_ALLOWED" if="TOUCH_CONTROLS" />
-	<define name="ModpackFolder" if="mobile" />
+	<define name="NEW_HSCRIPT" />
 	<define name="LUA_ALLOWED" if="desktop || mobile" />
 	<define name="ACHIEVEMENTS_ALLOWED" />
 	<define name="VIDEOS_ALLOWED" if="web || windows || android" unless="32bits"/>
@@ -129,7 +129,7 @@
 	
 	<section if="MODS_ALLOWED">
 		<assets path='example_mods' rename='mods' embed='false'/>
-		<assets path='example_modpack' rename='modpack' embed='false' if="ModpackFolder" />
+		<assets path='example_modpack' rename='modpack' embed='false' />
 	</section>
 	<assets path='art/readme.txt' rename='do NOT readme.txt' if="desktop" />
 	<!-- <template path='mods' /> -->
@@ -155,13 +155,14 @@
 	<!--In case you want to use the ui package-->
 	<haxelib name="flixel-ui" />
 	<haxelib name="linc_luajit" if="LUA_ALLOWED"/>
-	<haxelib name="tjson"/>
+	<!-- <haxelib name="tjson"/> --> <!-- Not Needed -->
 	<haxelib name="hxCodec" if="VIDEOS_ALLOWED"/>
 	<haxelib name="faxe" if='switch'/>
 	<!--<haxelib name="polymod"/> -->
 	<haxelib name="discord_rpc" if="desktop"/>
-	<haxelib name="FlxAnimate" />
+	<haxelib name="flxanimate" />
 	<haxelib name="SScript" if="HSCRIPT_ALLOWED"/>
+	<haxelib name="hscript-improved" if="HSCRIPT_ALLOWED"/> <!-- Using for FlxAxes and Others Right now -->
 
 	<!-- <haxelib name="markdown" /> -->
 	<!-- <haxelib name="HtmlParser" /> -->
@@ -217,7 +218,7 @@
 	<!-- Do whatever you want I'm tired uninstall and install everytime -->
 	<certificate path="key.keystore" password="psychengine" alias="psychport" alias-password="psychengine" if="android" unless="debug" />
 
-	<haxeflag name="--macro" value="macros.CreateMacroAbstractClass.init()" />
+	<!-- <haxeflag name="--macro" value="macros.CreateMacroAbstractClass.init()" /> --> <!-- It's too buggy, If you fix this, send me the fixed one -->
 	
 	<haxedef name="DISABLED_MACRO_SUPERLATIVE" />
 

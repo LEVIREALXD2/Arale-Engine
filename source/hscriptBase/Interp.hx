@@ -1132,8 +1132,6 @@ class Interp {
 		if (c == null)
 			c = Type.resolveClass(cl);
 		if (c == null)
-			c = Type.resolveClass('${cl}_HSC');
-		if (c == null)
 			error(EInvalidAccess(cl));
 
 		return Type.createInstance(c, args);

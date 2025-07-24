@@ -65,6 +65,8 @@ class Character extends FlxSprite
 	public var cameraPosition:Array<Float> = [0, 0];
 	public var healthColorArray:Array<Int> = [255, 0, 0];
 
+	public var missingCharacter:Bool = false;
+	public var missingText:FlxText;
 	public var hasMissAnimations:Bool = false;
 	public var vocalsFile:String = '';
 
@@ -82,6 +84,24 @@ class Character extends FlxSprite
 		animOffsets = new Map<String, Array<Dynamic>>();
 		curCharacter = character;
 		this.isPlayer = isPlayer;
+		changeCharacter(character);
+
+		switch(curCharacter)
+		{
+			case 'pico-speaker':
+				skipDance = true;
+				loadMappedAnims();
+				playAnim("shoot1");
+			case 'pico-blazin', 'darnell-blazin':
+				skipDance = true;
+		}
+	}
+
+	public function changeCharacter(character:String)
+	{
+		animationsArray = [];
+		animOffsets = [];
+		curCharacter = character;
 		switch (curCharacter)
 		{
 			//case 'your character name in case you want to hardcode them instead':
@@ -97,8 +117,9 @@ class Character extends FlxSprite
 				#end
 				{
 					path = Paths.getPreloadPath('characters/' + DEFAULT_CHARACTER + '.json'); //If a character couldn't be found, change him to BF just to prevent a crash
-					color = FlxColor.BLACK;
-					alpha = 0.6;
+					missingCharacter = true;
+					missingText = new FlxText(0, 0, 300, 'ERROR:\n$character.json', 16);
+					missingText.alignment = CENTER;
 				}
 
 				try
@@ -118,16 +139,6 @@ class Character extends FlxSprite
 		if(hasAnimation('singLEFTmiss') || hasAnimation('singDOWNmiss') || hasAnimation('singUPmiss') || hasAnimation('singRIGHTmiss')) hasMissAnimations = true;
 		recalculateDanceIdle();
 		dance();
-
-		switch(curCharacter)
-		{
-			case 'pico-speaker':
-				skipDance = true;
-				loadMappedAnims();
-				playAnim("shoot1");
-			case 'pico-blazin', 'darnell-blazin':
-				skipDance = true;
-		}
 	}
 
 	public function loadCharacterFile(json:Dynamic)
@@ -476,16 +487,40 @@ class Character extends FlxSprite
 	public var atlas:FlxAnimate;
 	public override function draw()
 	{
+		var lastAlpha:Float = alpha;
+		var lastColor:FlxColor = color;
+		if(missingCharacter)
+		{
+			alpha *= 0.6;
+			color = FlxColor.BLACK;
+		}
+
 		if(isAnimateAtlas)
 		{
 			if(atlas.anim.curInstance != null)
 			{
 				copyAtlasValues();
 				atlas.draw();
+				alpha = lastAlpha;
+				color = lastColor;
+				if(missingCharacter && visible)
+				{
+					missingText.x = getMidpoint().x - 150;
+					missingText.y = getMidpoint().y - 10;
+					missingText.draw();
+				}
 			}
 			return;
 		}
 		super.draw();
+		if(missingCharacter && visible)
+		{
+			alpha = lastAlpha;
+			color = lastColor;
+			missingText.x = getMidpoint().x - 150;
+			missingText.y = getMidpoint().y - 10;
+			missingText.draw();
+		}
 	}
 
 	public function copyAtlasValues()

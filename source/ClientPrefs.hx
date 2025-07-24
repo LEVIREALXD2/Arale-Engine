@@ -8,9 +8,14 @@ import TitleState;
 
 // Add a variable here and it will get automatically saved
 @:structInit class SaveVariables {
+	public var uiScale:Float = 1;
 	public var UseNewCamSystem:Bool = false;
+	public var KeyboardFixes:Bool = false;
 	public var Modpack:Bool = false;
+	public var useRGB:Bool = false;
 	public var wideScreen:Bool = false;
+	public var hscriptversion:String = 'HScript Old';
+	public var chartLoadSystem:String = '0.4-0.7x';
 	#if android public var storageType:String = "EXTERNAL_DATA"; #end
 
 	#if TOUCH_CONTROLS
@@ -22,6 +27,10 @@ import TitleState;
 	public var extraKeyReturn2:String = 'SPACE';
 	public var extraKeyReturn3:String = 'Q';
 	public var extraKeyReturn4:String = 'E';
+	public var extraKeyReturn5:String = 'W';
+	public var extraKeyReturn6:String = 'A';
+	public var extraKeyReturn7:String = 'S';
+	public var extraKeyReturn8:String = 'D';
 	public var hitboxhint:Bool = false;
 	public var hitboxmode:String = 'New'; //starting new way to change between hitboxes yay
 	public var hitboxtype:String = 'Gradient';
@@ -29,9 +38,6 @@ import TitleState;
 	public var hitboxLocation:String = 'Bottom';
 	public var hitboxalpha:Float = #if mobile 0.7 #else 0 #end; //someone request this lol
 	#end
-
-	//New Psych Features
-	public var loadingScreen:Bool = true;
 
 	//PsychEngine
 	public var downScroll:Bool = false;

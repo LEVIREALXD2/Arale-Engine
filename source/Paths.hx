@@ -20,6 +20,9 @@ import sys.FileSystem;
 import flixel.graphics.FlxGraphic;
 import openfl.display.BitmapData;
 import haxe.Json;
+#if SCRIPTING_ALLOWED
+import scripting.HScript.Script;
+#end
 
 import flash.media.Sound;
 
@@ -181,6 +184,30 @@ class Paths
 		return getPath('$key.lua', TEXT, library);
 	}
 
+	inline public static function getScriptPath(file:String = '')
+	{
+		return 'scripting/$file';
+	}
+
+	inline static public function script(key:String, ?library:String, isAssetsPath:Bool = false) {
+		#if SCRIPTING_ALLOWED
+		var scriptToLoad:String = null;
+		for(ex in Script.scriptExtensions) {
+			#if MODS_ALLOWED
+			scriptToLoad = Paths.modFolders('scripts/${key}.$ex'); //menuFolders can usable instead but this repo doesn't support it for now
+			if(!FileSystem.exists(scriptToLoad))
+				scriptToLoad = Paths.getScriptPath('${key}.$ex');
+			#else
+			scriptToLoad = Paths.getScriptPath('${key}.$ex');
+			#end
+
+			if(FileSystem.exists(scriptToLoad))
+				break;
+		}
+		return scriptToLoad;
+		#end
+	}
+
 	static public function video(key:String)
 	{
 		#if MODS_ALLOWED
@@ -209,14 +236,11 @@ class Paths
 		return file;
 	}
 
-	inline static public function voices(song:String):Any
+	inline static public function voices(song:String, postfix:String = null):Any
 	{
 		var songKey:String = '${formatToSongPath(song)}/Voices';
-		#if !NEW_PSYCH063
-		var voices = returnSound('songs', songKey);
-		#else
+		if(postfix != null) songKey += '-' + postfix;
 		var voices = returnSound(null, songKey, 'songs');
-		#end
 		return voices;
 	}
 

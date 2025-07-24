@@ -5,7 +5,6 @@ import flixel.ui.FlxButton as UIButton;
 import flixel.addons.display.FlxBackdrop;
 import flixel.addons.display.FlxGridOverlay;
 import flixel.util.FlxGradient;
-import options.ControlsSubState;
 
 
 class MobileControlSelectSubState extends MusicBeatSubstate

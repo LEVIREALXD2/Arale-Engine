@@ -3,8 +3,6 @@ package mobile.psychlua;
 import lime.ui.Haptic;
 import flixel.util.FlxSave;
 import mobile.backend.TouchFunctions;
-import mobile.objects.MobileControls.ControlsGroup;
-import mobile.objects.MobileControls.Config;
 import FunkinLua.CustomSubstate;
 #if android
 import android.widget.Toast as AndroidToast;
@@ -12,8 +10,6 @@ import android.widget.Toast as AndroidToast;
 
 class MobileFunctions
 {
-	static var config:Config = new Config('saved-controls');
-
 	public static function implement(funk:FunkinLua)
 	{
 		#if LUA_ALLOWED
@@ -42,7 +38,7 @@ class MobileFunctions
 		});
 		#end
 
-		#if LUAMPAD_ALLOWED
+		#if TOUCH_CONTROLS
 		//OMG
 		Lua_helper.add_callback(lua, 'mobilePadPressed', function(buttonPostfix:String):Bool
 		{
@@ -112,7 +108,7 @@ class MobileFunctions
 			PlayState.instance.reloadControls(cValue, mode, action);
 		});
 
-		Lua_helper.add_callback(lua, "setMobileControlsPosition", function(?x:Float, ?y:Float):Void
+		Lua_helper.add_callback(lua, "setMobileControlPosition", function(?x:Float, ?y:Float):Void
 		{
 			if (MusicBeatState.mobilec != null) {
 				if (x != null) MusicBeatState.mobilec.x = x;

@@ -21,6 +21,7 @@ import HealthIcon;
 
 class CharacterEditorState extends MusicBeatState
 {
+	var useDesktopThings:Bool = #if TOUCH_CONTROLS (ClientPrefs.data.KeyboardFixes ? true : false) #else true #end;
 	var character:Character;
 	var ghost:FlxSprite;
 	var animateGhost:FlxAnimate;
@@ -117,7 +118,7 @@ class CharacterEditorState extends MusicBeatState
 		animsTxtGroup.cameras = [camHUD];
 		add(animsTxtGroup);
 
-		var tipText:FlxText = new FlxText(FlxG.width - 300, FlxG.height - 24, 300, 'Press ' + #if TOUCH_CONTROLS 'F' #else 'F1' #end + ' for Help', 16);
+		var tipText:FlxText = new FlxText(FlxG.width - 300, FlxG.height - 24, 300, 'Press ${!useDesktopThings ? 'F' : 'F1'} for Help', 16);
 		tipText.cameras = [camHUD];
 		tipText.setFormat(null, 16, FlxColor.WHITE, RIGHT, OUTLINE_FAST, FlxColor.BLACK);
 		tipText.borderColor = FlxColor.BLACK;
@@ -155,6 +156,7 @@ class CharacterEditorState extends MusicBeatState
 		#if TOUCH_CONTROLS
 		addMobilePad("FULL", "CHARACTER_EDITOR");
 		addMobilePadCamera();
+		if (useDesktopThings) mobilePad.visible = false;
 		#end
 
 		super.create();
@@ -163,7 +165,8 @@ class CharacterEditorState extends MusicBeatState
 	function addHelpScreen()
 	{
 		var str:String;
-		#if TOUCH_CONTROLS
+		if (!useDesktopThings)
+		{
 			str = "CAMERA
 			\nX/Y - Camera Zoom In/Out
 			\nZ - Reset Camera Zoom
@@ -176,7 +179,7 @@ class CharacterEditorState extends MusicBeatState
 			\nOTHER
 			\nS - Toggle Silhouettes
 			\nHold C - Move Offsets 10x faster and Camera 4x faster";
-		#else
+		} else {
 			str = "CAMERA
 			\nE/Q - Camera Zoom In/Out
 			\nJ/K/L/I - Move Camera
@@ -196,7 +199,7 @@ class CharacterEditorState extends MusicBeatState
 			\nF12 - Toggle Silhouettes
 			\nHold Shift - Move Offsets 10x faster and Camera 4x faster
 			\nHold Control - Move camera 4x slower";
-		#end
+		}
 
 		helpBg = new FlxSprite().makeGraphic(1, 1, FlxColor.BLACK);
 		helpBg.scale.set(FlxG.width, FlxG.height);
@@ -400,7 +403,7 @@ class CharacterEditorState extends MusicBeatState
 	}
 
 	var check_player:FlxUICheckBox;
-	var charDropDown:FlxUIDropDownMenuCustom;
+	var charDropDown:FlxUIDropDownMenu;
 	function addSettingsUI()
 	{
 		var tab_group = new FlxUI(null, UI_box);
@@ -461,7 +464,7 @@ class CharacterEditorState extends MusicBeatState
 		templateCharacter.label.color = FlxColor.WHITE;
 
 
-		charDropDown = new FlxUIDropDownMenuCustom(10, 30, FlxUIDropDownMenu.makeStrIdLabelArray([''], true), function(index:String)
+		charDropDown = new FlxUIDropDownMenu(10, 30, FlxUIDropDownMenu.makeStrIdLabelArray([''], true), function(index:String)
 		{
 			var intended = characterList[Std.parseInt(index)];
 			if(intended == null || intended.length < 1) return;
@@ -931,28 +934,25 @@ class CharacterEditorState extends MusicBeatState
 		var changedOffset = false;
 		var moveKeysP;
 		var moveKeys;
-		#if TOUCH_CONTROLS
+		if (!useDesktopThings)
+		{
 			moveKeysP = [
+				#if TOUCH_CONTROLS
 				mobilePad.buttonLeft.justPressed,
 				mobilePad.buttonRight.justPressed,
 				mobilePad.buttonUp.justPressed,
-				mobilePad.buttonDown.justPressed,
-				FlxG.keys.justPressed.LEFT,
-				FlxG.keys.justPressed.RIGHT,
-				FlxG.keys.justPressed.UP,
-				FlxG.keys.justPressed.DOWN
+				mobilePad.buttonDown.justPressed
+				#end
 			];
 			moveKeys = [
+				#if TOUCH_CONTROLS
 				mobilePad.buttonLeft.pressed,
 				mobilePad.buttonRight.pressed,
 				mobilePad.buttonUp.pressed,
-				mobilePad.buttonDown.pressed,
-				FlxG.keys.pressed.LEFT,
-				FlxG.keys.pressed.RIGHT,
-				FlxG.keys.pressed.UP,
-				FlxG.keys.pressed.DOWN
+				mobilePad.buttonDown.pressed
+				#end
 			];
-		#else
+		} else {
 			moveKeysP = [
 				FlxG.keys.justPressed.LEFT,
 				FlxG.keys.justPressed.RIGHT,
@@ -965,13 +965,12 @@ class CharacterEditorState extends MusicBeatState
 				FlxG.keys.pressed.UP,
 				FlxG.keys.pressed.DOWN
 			];
-		#end
+		}
+
 		if(moveKeysP.contains(true))
 		{
 			character.offset.x += ((moveKeysP[0] ? 1 : 0) - (moveKeysP[1] ? 1 : 0)) * shiftMultBig;
 			character.offset.y += ((moveKeysP[2] ? 1 : 0) - (moveKeysP[3] ? 1 : 0)) * shiftMultBig;
-			character.offset.x += ((moveKeysP[4] ? 1 : 0) - (moveKeysP[5] ? 1 : 0)) * shiftMultBig;
-			character.offset.y += ((moveKeysP[6] ? 1 : 0) - (moveKeysP[7] ? 1 : 0)) * shiftMultBig;
 			changedOffset = true;
 		}
 
@@ -985,8 +984,6 @@ class CharacterEditorState extends MusicBeatState
 				{
 					character.offset.x += ((moveKeys[0] ? 1 : 0) - (moveKeys[1] ? 1 : 0)) * shiftMultBig;
 					character.offset.y += ((moveKeys[2] ? 1 : 0) - (moveKeys[3] ? 1 : 0)) * shiftMultBig;
-					character.offset.x += ((moveKeys[4] ? 1 : 0) - (moveKeys[5] ? 1 : 0)) * shiftMultBig;
-					character.offset.y += ((moveKeys[6] ? 1 : 0) - (moveKeys[7] ? 1 : 0)) * shiftMultBig;
 					holdingArrowsElapsed -= (1/60);
 					changedOffset = true;
 				}
@@ -1103,10 +1100,13 @@ class CharacterEditorState extends MusicBeatState
 		if(FlxG.keys.justPressed.F12 #if TOUCH_CONTROLS || mobilePad.buttonS.justPressed #end)
 			silhouettes.visible = !silhouettes.visible;
 
-		if((FlxG.keys.justPressed.F1 #if TOUCH_CONTROLS || mobilePad.buttonF.justPressed #end)|| (helpBg.visible && FlxG.keys.justPressed.ESCAPE))
+		if((FlxG.keys.justPressed.F1 #if TOUCH_CONTROLS || mobilePad.buttonF.justPressed #end) || (helpBg.visible && FlxG.keys.justPressed.ESCAPE))
 		{
 			#if TOUCH_CONTROLS
-			changeMobileControlVisible("F", !checkMobileControlVisible("F"));
+				mobilePad.forEachAlive(function(button:MobileButton){
+					if(button.tag != 'F')
+						button.visible = !button.visible;
+				});
 			#end
 			helpBg.visible = !helpBg.visible;
 			helpTexts.visible = helpBg.visible;

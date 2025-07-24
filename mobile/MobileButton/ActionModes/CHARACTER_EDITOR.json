@@ -1,13 +1,6 @@
 {
   "buttons": [
     {
-      "button": "buttonG",
-      "graphic": "g",
-      "x": 784,
-      "y": 596,
-      "color": "0xFF009D"
-    },
-    {
       "button": "buttonV",
       "graphic": "v",
       "x": 784,
@@ -62,6 +55,20 @@
       "x": 1156,
       "y": 596,
       "color": "0xFF0000"
+    },
+    {
+      "button": "buttonS",
+      "graphic": "s",
+      "x": 660,
+      "y": 596,
+      "color": "0xEA00FF"
+    },
+    {
+      "button": "buttonF",
+      "graphic": "f",
+      "x": 870,
+      "y": 2,
+      "color": "0xFF009D"
     }
   ]
 }

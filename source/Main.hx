@@ -114,7 +114,7 @@ class Main extends Sprite
 			game.zoom = 1.0;
 		#end
 
-		#if LUA_ALLOWED Lua.set_callbacks_function(cpp.Callable.fromStaticFunction(psychlua.CallbackHandler.call)); #end
+		#if LUA_ALLOWED Lua.set_callbacks_function(cpp.Callable.fromStaticFunction(CallbackHandler.call)); #end
 		ClientPrefs.loadDefaultKeys();
 		#if ACHIEVEMENTS_ALLOWED Achievements.load(); #end
 		addChild(new FlxGame(game.width, game.height, #if (mobile && MODS_ALLOWED) CopyState.checkExistingFiles() ? game.initialState : CopyState #else game.initialState #end, #if (flixel < "5.0.0") game.zoom, #end game.framerate, game.framerate, game.skipSplash, game.startFullscreen));
@@ -149,6 +149,7 @@ class Main extends Sprite
 
 		#if mobile
 		FlxG.scaleMode = new MobileScaleMode();
+		//FlxG.stage.window.onResize.add((w:Int, h:Int) -> setScale());
 		#end
 
 		// shader and mobile device coords fix
@@ -164,7 +165,7 @@ class Main extends Sprite
 			}
 
 			if (FlxG.game != null)
-			resetSpriteCache(FlxG.game);
+				resetSpriteCache(FlxG.game);
 		});
 	}
 
@@ -174,4 +175,12 @@ class Main extends Sprite
 			sprite.__cacheBitmapData = null;
 		}
 	}
+	
+	#if mobile
+	public inline function setScale(?scale:Float){
+		if(scale == null)
+			scale = Math.min(FlxG.stage.window.width / FlxG.width, FlxG.stage.window.height / FlxG.height);
+		scaleX = scaleY = #if android (scale > 1 ? scale : 1) #else (scale < 1 ? scale : 1) #end;
+	}
+	#end
 }

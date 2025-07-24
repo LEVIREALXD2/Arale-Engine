@@ -49,10 +49,14 @@ class MobileExtraControl extends MusicBeatSubstate
 		titleTeam = new FlxTypedGroup<ChooseButton>();
 		add(titleTeam);
 
-		for (i in 1...5){
+		for (i in 1...9){
+			var bro = i;
+			if (bro > 4) bro -= 4;
 			var data:String = Reflect.field(ClientPrefs.data, "extraKeyReturn" + i);
-			var _x = FlxG.width / 2 + 25 + (titleWidth + 50) * ((i-1) - 4 / 2);
-			var titleObject = new ChooseButton(_x, 150, titleWidth, titleHeight, data, "Key " + Std.string(i));
+			var _x = FlxG.width / 2 + 25 + (titleWidth + 50) * ((bro-1) - 4 / 2);
+			var _y = 150;
+			if (i > 4) _y = 300;
+			var titleObject = new ChooseButton(_x, _y, titleWidth, titleHeight, data, "Key " + Std.string(i));
 			titleTeam.add(titleObject);
 		}
 
@@ -63,7 +67,7 @@ class MobileExtraControl extends MusicBeatSubstate
 			var _length:Int = returnArray[type].length;
 			for (number in 0..._length){
 				var _x = FlxG.width / 2 + optionWidth * (number - _length / 2);
-				var titleObject = new ChooseButton(_x, 300 + (optionHeight + 20) * type, optionWidth, optionHeight, displayArray[type][number]);
+				var titleObject = new ChooseButton(_x, 450 + (optionHeight + 20) * type, optionWidth, optionHeight, displayArray[type][number]);
 				optionTeam.add(titleObject);
 			}
 		}
@@ -76,6 +80,7 @@ class MobileExtraControl extends MusicBeatSubstate
 		super.create();
 	}
 
+	var isDown:Bool = false;
 	override function update(elapsed:Float)
 	{
 		super.update(elapsed);
@@ -91,10 +96,15 @@ class MobileExtraControl extends MusicBeatSubstate
 		if (left || right){
 			if (isMain){
 				titleNum += left ? -1 : 1;
-				if (titleNum > 3)
+				if (titleNum > 3 && !isDown)
 					titleNum = 0;
-				if (titleNum < 0)
+				if (titleNum < 0 && !isDown)
 					titleNum = 3;
+
+				if (titleNum > 7 && isDown)
+					titleNum = 4;
+				if (titleNum < 4 && isDown)
+					titleNum = 7;
 				updateTitle(titleNum + 1, true, 1);
 			} else {
 				chooseNum += left ? -1 : 1;
@@ -107,7 +117,13 @@ class MobileExtraControl extends MusicBeatSubstate
 		}
 
 		if (up || down){
-			if (!isMain){
+			if (isMain){
+				if (up && isDown) titleNum += -4;
+				if (down && !isDown) titleNum += 4;
+				if (down && !isDown) isDown = true;
+				if (up && isDown) isDown = false;
+				updateTitle(titleNum + 1, true, 1);
+			} else {
 				percent = chooseNum / (displayArray[typeNum].length - 1);
 				typeNum += up ? -1 : 1;
 				if (typeNum > displayArray.length - 1)
@@ -133,6 +149,14 @@ class MobileExtraControl extends MusicBeatSubstate
 						ClientPrefs.data.extraKeyReturn3 = returnArray[typeNum][chooseNum];
 					case 4:
 						ClientPrefs.data.extraKeyReturn4 = returnArray[typeNum][chooseNum];
+					case 5:
+						ClientPrefs.data.extraKeyReturn5 = returnArray[typeNum][chooseNum];
+					case 6:
+						ClientPrefs.data.extraKeyReturn6 = returnArray[typeNum][chooseNum];
+					case 7:
+						ClientPrefs.data.extraKeyReturn7 = returnArray[typeNum][chooseNum];
+					case 8:
+						ClientPrefs.data.extraKeyReturn8 = returnArray[typeNum][chooseNum];
 				}
 				ClientPrefs.saveSettings();
 				updateTitle(titleNum + 1, false, 2, true);
@@ -144,7 +168,8 @@ class MobileExtraControl extends MusicBeatSubstate
 				ClientPrefs.saveSettings();
 				FlxTransitionableState.skipNextTransIn = true;
 				FlxTransitionableState.skipNextTransOut = true;
-				MusicBeatState.switchState(new options.OptionsState());
+				//MusicBeatState.switchState(new options.OptionsState());
+				close();
 			} else {
 				isMain = true;
 				percent = chooseNum = typeNum = 0;
@@ -153,10 +178,14 @@ class MobileExtraControl extends MusicBeatSubstate
 		}
 		if (reset){
 			FlxG.sound.play(Paths.sound('cancelMenu'));
-			ClientPrefs.data.extraKeyReturn1 = ClientPrefs.data.extraKeyReturn1;
-			ClientPrefs.data.extraKeyReturn2 = ClientPrefs.data.extraKeyReturn2;
-			ClientPrefs.data.extraKeyReturn3 = ClientPrefs.data.extraKeyReturn3;
-			ClientPrefs.data.extraKeyReturn4 = ClientPrefs.data.extraKeyReturn4;
+			ClientPrefs.data.extraKeyReturn1 = ClientPrefs.defaultData.extraKeyReturn1;
+			ClientPrefs.data.extraKeyReturn2 = ClientPrefs.defaultData.extraKeyReturn2;
+			ClientPrefs.data.extraKeyReturn3 = ClientPrefs.defaultData.extraKeyReturn3;
+			ClientPrefs.data.extraKeyReturn4 = ClientPrefs.defaultData.extraKeyReturn4;
+			ClientPrefs.data.extraKeyReturn5 = ClientPrefs.defaultData.extraKeyReturn5;
+			ClientPrefs.data.extraKeyReturn6 = ClientPrefs.defaultData.extraKeyReturn6;
+			ClientPrefs.data.extraKeyReturn7 = ClientPrefs.defaultData.extraKeyReturn7;
+			ClientPrefs.data.extraKeyReturn8 = ClientPrefs.defaultData.extraKeyReturn8;
 			resetTitle();
 		}
 	}

@@ -544,12 +544,20 @@ class WeekEditorState extends MusicBeatState
 		trace("Problem loading file");
 	}
 
-	public static function saveWeek(weekFile:WeekFile) {
+	public static function saveWeek(weekFile:WeekFile, ?alter:Bool) {
 		var data:String = Json.stringify(weekFile, "\t");
 		if (data.length > 0)
 		{
 			#if mobile
-			StorageUtil.saveContent(weekFileName + ".json", data);
+			if (!alter)
+				StorageUtil.saveContent(weekFileName + ".json", data);
+			else {
+				_file = new FileReference();
+				_file.addEventListener(Event.COMPLETE, onSaveComplete);
+				_file.addEventListener(Event.CANCEL, onSaveCancel);
+				_file.addEventListener(IOErrorEvent.IO_ERROR, onSaveError);
+				_file.save(data, weekFileName + ".json");
+			}
 			#else
 			_file = new FileReference();
 			_file.addEventListener(Event.COMPLETE, onSaveComplete);
