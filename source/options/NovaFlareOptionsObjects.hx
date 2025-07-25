@@ -137,7 +137,8 @@ class Option extends FlxSpriteGroup
 	}
 
 	var overlopCheck:Float;
-	var alreadyShow:Bool = false;
+	var alreadyShowTip:Bool = false;
+	public var allowUpdate:Bool = true; //仅仅用于搜索全局禁止更新(代码作用于option的其他子类)
 	override function update(elapsed:Float)
 	{
 		super.update(elapsed);
@@ -145,18 +146,20 @@ class Option extends FlxSpriteGroup
 		followX = follow.mainX;
 		followY = follow.mainY;
 
+		if (!allowUpdate) return;
+
 		var mouse = FlxG.mouse;
 
 		if (mouse.overlaps(this)) {
 			overlopCheck += elapsed;
 		} else {
 			overlopCheck = 0;
-			alreadyShow = false;
+			alreadyShowTip = false;
 		}
 
-		if (overlopCheck >= 0.2 && !alreadyShow) {
+		if (overlopCheck >= 0.2 && !alreadyShowTip) {
 			OptionsState.instance.changeTip(tips);
-			alreadyShow = true;
+			alreadyShowTip = true;
 		}
 	}
 
@@ -232,7 +235,7 @@ class Option extends FlxSpriteGroup
 	function addTip()
 	{
 		tipsText = new FlxText(0, 0, 0, description, Std.int(follow.width / 10));
-		tipsText.setFormat(Paths.font('montserrat.ttf'), Std.int(follow.width / 45), 0xffffff, LEFT, FlxTextBorderStyle.OUTLINE, 0xFFFFFFFF);
+		tipsText.setFormat(Paths.font('montserrat.ttf'), Std.int(follow.bg.realWidth / 45), 0xffffff, LEFT, FlxTextBorderStyle.OUTLINE, 0xFFFFFFFF);
 		tipsText.antialiasing = ClientPrefs.data.antialiasing;
 		tipsText.borderStyle = NONE;
 		tipsText.active = false;
@@ -259,7 +262,7 @@ class Option extends FlxSpriteGroup
 	function addTitle()
 	{
 		title = new FlxText(0, 0, 0, description, Std.int(follow.width / 10));
-		title.setFormat(Paths.font('montserrat.ttf'), Std.int(follow.width / 30), 0xffffff, LEFT, FlxTextBorderStyle.OUTLINE, 0xFFFFFFFF);
+		title.setFormat(Paths.font('montserrat.ttf'), Std.int(follow.bg.realWidth / 30), 0xffffff, LEFT, FlxTextBorderStyle.OUTLINE, 0xFFFFFFFF);
 		title.antialiasing = ClientPrefs.data.antialiasing;
 		title.borderStyle = NONE;
 		title.x += follow.bg.mainRound;
@@ -311,10 +314,11 @@ class Option extends FlxSpriteGroup
 	var baseTar:FlxText;
 	var baseLine:Rect;
 	var baseDesc:FlxText;
+	var mult:Float = 1; //一些数据需要保持一致
 	function baseBGAdd(double:Bool = false)
 	{
-		var mult:Float = 1; //一些数据需要保持一致
 		if (double) mult = 2;
+		else mult = 1;
 
 		var calcWidth:Float = 0;
 		if (!double) calcWidth = follow.bg.realWidth * ((1 - (1 / 2 / 50 * 3)) / 2);
@@ -403,6 +407,13 @@ class Option extends FlxSpriteGroup
 		change();
 	}
 
+	public function startSearch(text:String):Bool {
+		if (variable.indexOf(text) != -1) return true;
+		if (description.indexOf(text) != -1) return true;
+		if (tips.indexOf(text) != -1) return true;
+		return false;
+	}
+
 	////////////////////////////////////////////////
 
 	public var followX:Float = 0; //optioncata位置
@@ -446,6 +457,118 @@ class Option extends FlxSpriteGroup
 		innerY = innerData;
 		this.y = followY + innerY;
 	}
+
+	////////////////////////////////////////////////////////////////////
+
+	public var alphaTween:Array<FlxTween> = [];
+	public function changeAlpha(isAdd:Bool, time:Float = 0.6) { //无敌了haxeflixel，flxspritegroup你妈炸了
+		if (alphaTween.length > 0) {
+			for (tween in alphaTween) {
+				if (tween != null) tween.cancel();
+			}
+		}
+
+		if (isAdd) {
+			switch (type)
+			{
+				case BOOL:
+					baseChangeAlpha(isAdd, time);
+					var tween = FlxTween.tween(boolButton, {alpha: 1}, time, {ease: FlxEase.expoIn});
+					alphaTween.push(tween);
+				case INT, FLOAT, PERCENT:
+					baseChangeAlpha(isAdd, time);
+					var tween = FlxTween.tween(valueText, {alpha: 0.3}, time, {ease: FlxEase.expoIn});
+					alphaTween.push(tween);
+					var tween = FlxTween.tween(numButton.addButton, {alpha: 1}, time, {ease: FlxEase.expoIn});
+					alphaTween.push(tween);
+					var tween = FlxTween.tween(numButton.deleteButton, {alpha: 1}, time, {ease: FlxEase.expoIn});
+					alphaTween.push(tween);
+					var tween = FlxTween.tween(numButton.moveBG, {alpha: 0.4}, time, {ease: FlxEase.expoIn});
+					alphaTween.push(tween);
+					var tween = FlxTween.tween(numButton.moveDis, {alpha: 1}, time, {ease: FlxEase.expoIn});
+					alphaTween.push(tween);
+					var tween = FlxTween.tween(numButton.rod, {alpha: 1}, time, {ease: FlxEase.expoIn});
+					alphaTween.push(tween);
+				case STRING:
+					baseChangeAlpha(isAdd, time);
+					var tween = FlxTween.tween(valueText, {alpha: 0.3}, time, {ease: FlxEase.expoIn});
+					alphaTween.push(tween);
+					var tween = FlxTween.tween(stringRect.bg, {alpha: 0.3}, time, {ease: FlxEase.expoIn});
+					alphaTween.push(tween);
+					var tween = FlxTween.tween(stringRect.dis, {alpha: 0.3}, time, {ease: FlxEase.expoIn});
+					alphaTween.push(tween);
+					var tween = FlxTween.tween(stringRect.disText, {alpha: 0.3}, time, {ease: FlxEase.expoIn});
+					alphaTween.push(tween);
+				case STATE:
+					var tween = FlxTween.tween(stateButton.bg, {alpha: 0.5}, time, {ease: FlxEase.expoIn});
+					alphaTween.push(tween);
+					var tween = FlxTween.tween(stateButton.stateName, {alpha: 0.8}, time, {ease: FlxEase.expoIn});
+					alphaTween.push(tween);
+				default:
+			}
+		} else {
+			switch (type)
+			{
+				case BOOL:
+					baseChangeAlpha(isAdd, time);
+					var tween = FlxTween.tween(boolButton, {alpha: 0}, time, {ease: FlxEase.expoOut});
+					alphaTween.push(tween);
+				case INT, FLOAT, PERCENT:
+					baseChangeAlpha(isAdd, time);
+					var tween = FlxTween.tween(valueText, {alpha: 0}, time, {ease: FlxEase.expoOut});
+					alphaTween.push(tween);
+					var tween = FlxTween.tween(numButton.addButton, {alpha: 0}, time, {ease: FlxEase.expoOut});
+					alphaTween.push(tween);
+					var tween = FlxTween.tween(numButton.deleteButton, {alpha: 0}, time, {ease: FlxEase.expoOut});
+					alphaTween.push(tween);
+					var tween = FlxTween.tween(numButton.moveBG, {alpha: 0}, time, {ease: FlxEase.expoOut});
+					alphaTween.push(tween);
+					var tween = FlxTween.tween(numButton.moveDis, {alpha: 0}, time, {ease: FlxEase.expoOut});
+					alphaTween.push(tween);
+					var tween = FlxTween.tween(numButton.rod, {alpha: 0}, time, {ease: FlxEase.expoOut});
+					alphaTween.push(tween);
+				case STRING:
+					baseChangeAlpha(isAdd, time);
+					var tween = FlxTween.tween(valueText, {alpha: 0}, time, {ease: FlxEase.expoOut});
+					alphaTween.push(tween);
+					var tween = FlxTween.tween(stringRect.bg, {alpha: 0}, time, {ease: FlxEase.expoOut});
+					alphaTween.push(tween);
+					var tween = FlxTween.tween(stringRect.dis, {alpha: 0}, time, {ease: FlxEase.expoOut});
+					alphaTween.push(tween);
+					var tween = FlxTween.tween(stringRect.disText, {alpha: 0}, time, {ease: FlxEase.expoOut});
+					alphaTween.push(tween);
+				case STATE:
+					var tween = FlxTween.tween(stateButton.bg, {alpha: 0}, time, {ease: FlxEase.expoOut});
+					alphaTween.push(tween);
+					var tween = FlxTween.tween(stateButton.stateName, {alpha: 0}, time, {ease: FlxEase.expoOut});
+					alphaTween.push(tween);
+				default:
+			}
+		}
+	}
+
+	public function baseChangeAlpha(isAdd:Bool, time) {
+		if (isAdd) {
+			var tween = FlxTween.tween(baseBG, {alpha: 0.1}, time, {ease: FlxEase.expoIn});
+			alphaTween.push(tween);
+			var tween = FlxTween.tween(baseTar, {alpha: 0.3}, time, {ease: FlxEase.expoIn});
+			alphaTween.push(tween);
+			var tween = FlxTween.tween(baseLine, {alpha: 0.3}, time, {ease: FlxEase.expoIn});
+			alphaTween.push(tween);
+			var tween = FlxTween.tween(baseDesc, {alpha: 1}, time, {ease: FlxEase.expoIn});
+			alphaTween.push(tween);
+			
+		} else {
+			var tween = FlxTween.tween(baseBG, {alpha: 0}, time, {ease: FlxEase.expoOut});
+			alphaTween.push(tween);
+			var tween = FlxTween.tween(baseTar, {alpha: 0}, time, {ease: FlxEase.expoOut});
+			alphaTween.push(tween);
+			var tween = FlxTween.tween(baseLine, {alpha: 0}, time, {ease: FlxEase.expoOut});
+			alphaTween.push(tween);
+			var tween = FlxTween.tween(baseDesc, {alpha: 0}, time, {ease: FlxEase.expoOut});
+			alphaTween.push(tween);
+		}
+	}
 }
 
 class NaviSprite extends FlxSpriteGroup
@@ -463,6 +586,8 @@ class NaviSprite extends FlxSpriteGroup
 	var mainWidth:Float;
 	var mainHeight:Float;
 
+	var name:String;
+
 	///////////////////////////////////////////////////////////////////////////////
 
 	public function new(X:Float, Y:Float, width:Float, height:Float, name:String, sort:Int, modsAdd:Bool = false) {
@@ -471,6 +596,8 @@ class NaviSprite extends FlxSpriteGroup
 
 		mainWidth = width;
 		mainHeight = height;
+
+		this.name = name;
 
 		background = new Rect(0, 0, width, height, height / 5, height / 5, EngineSet.mainColor, 0.0000001);
 		add(background);
@@ -550,6 +677,7 @@ class OptionCata extends FlxSpriteGroup
 	public var heightSetOffset:Float = 0; //用于特殊的高度处理
 
 	public var optionArray:Array<Option> = [];
+	public var saveArray:Array<Option> = []; //用于保存最初所有的option
 
 	public var bg:RoundRect;
 
@@ -590,6 +718,7 @@ class OptionCata extends FlxSpriteGroup
 		tar.initY(mainY, putY);
 
 		optionArray.push(tar);
+		saveArray.push(tar);
 
 		if (!sameY) heightSet += tar.saveHeight;
 	}
@@ -609,8 +738,34 @@ class OptionCata extends FlxSpriteGroup
 			option.resetData();
 	}
 
-	public function changeHeight(time:Float = 0.6) {
-		bg.changeHeight(heightSet + heightSetOffset, time, 'expoInOut');
+	var addOptions:Array<Option> = [];
+	var removeOptions:Array<Option> = [];
+	public function startSearch(text:String, time = 0.6) {
+		addOptions = [];
+		removeOptions = [];
+		for (i in 0...saveArray.length) {
+			addOptions.push(saveArray[i]);
+		}
+		if (text != "") {
+			for (option in saveArray) {
+				if (!option.startSearch(text)) {
+					addOptions.remove(option);
+					removeOptions.push(option);
+				}
+			}
+		}
+		changeOption(time);
+	}
+
+	function changeOption(time = 0.6) {
+		for (option in addOptions) {
+			option.allowUpdate = true;
+			option.changeAlpha(true, time);
+		}
+		for (option in removeOptions) {
+			option.allowUpdate = false;
+			option.changeAlpha(false, time);
+		}
 	}
 
 	public function optionAdjust(str:Option, outputData:Float, time:Float = 0.6) {
@@ -630,6 +785,10 @@ class OptionCata extends FlxSpriteGroup
 		heightSetOffset += outputData;
 
 		changeHeight(time);
+	}
+
+	public function changeHeight(time:Float = 0.6) {
+		bg.changeHeight(heightSet + heightSetOffset, time, 'expoInOut');
 	}
 }
 
@@ -718,6 +877,7 @@ class FuncButton extends FlxSpriteGroup
 class ResetButton extends FlxSpriteGroup
 {
 	var rect:Rect;
+	var text:FlxText;
 
 	public function new(x:Float, y:Float, width:Float, height:Float)
 	{
@@ -726,7 +886,7 @@ class ResetButton extends FlxSpriteGroup
 		rect = new Rect(0, 0, width, height, height / 5, height / 5, OptionsState.instance.mainColor, 1);
 		add(rect);
 
-		var text = new FlxText(0, 0, 0, 'Reset', 25);
+		text = new FlxText(0, 0, 0, 'Reset', 25);
 		text.font = Paths.font('montserrat.ttf');
 		text.antialiasing = ClientPrefs.data.antialiasing;
 		text.y += rect.height / 2 - text.height / 2;
@@ -787,6 +947,7 @@ class SearchButton extends FlxSpriteGroup
 				tapText.visible = true;
 			else
 				tapText.visible = false;
+			startSearch(cur);
 		}
 		add(search);
 
@@ -802,6 +963,18 @@ class SearchButton extends FlxSpriteGroup
 	{
 		super.update(e);
 	}
+
+	var timer:FlxTimer = null;
+	public function startSearch(text:String)
+	{
+		if (OptionsState.instance.cataCount.length > 0) return;
+		
+		if (timer != null) timer.cancel();
+		timer = new FlxTimer().start(0.2, function(tmr:FlxTimer)
+		{
+			OptionsState.instance.startSearch(text);
+		});
+	}
 }
 
 class TipButton extends FlxSpriteGroup
@@ -809,8 +982,11 @@ class TipButton extends FlxSpriteGroup
 	public var background:RoundRect;
 	public var textDis:AlphaText;
 
+	var saveHeight:Float;
 	public function new(X:Float, Y:Float, width:Float, height:Float) {
 		super(X, Y);
+
+		this.saveHeight = height;
 
 		background = new RoundRect(0, 0, width, height, height / 5, LEFT_UP, EngineSet.mainColor);
 		background.alpha = 0.3;
@@ -836,11 +1012,11 @@ class TipButton extends FlxSpriteGroup
 
 	public function changeText(newText:String, ?time = 0.4) {
 		textDis.changeText(newText, time * 1.2);
-		var newWidth = textDis.minorText.textField.textWidth + background.mainRound * 2;
+		//var newWidth = textDis.minorText.textField.textWidth + background.mainRound * 2;
 
-		background.changeWidth(newWidth, time, 'expoInOut');
-		var newHeight = textDis.minorText.textField.textHeight + background.mainRound;
-		background.changeHeight(newHeight, time, 'expoInOut');
+		//background.changeWidth(newWidth, time, 'expoInOut');
+		//var newHeight = textDis.minorText.textField.textHeight + background.mainRound;
+		//background.changeHeight(newHeight, time, 'expoInOut');
 	}
 }
 

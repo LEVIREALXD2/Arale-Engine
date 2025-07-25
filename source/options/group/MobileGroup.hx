@@ -150,6 +150,7 @@ class MobileGroup extends OptionCata
 			'CopyState'
 		);
 		addOption(option);
+		option.onChange = () -> LoadingState.loadAndSwitchState(new mobile.states.CopyState());
 
 		changeHeight(0);
 	}

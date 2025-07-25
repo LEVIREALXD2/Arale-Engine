@@ -721,4 +721,7 @@ class Paths
 		trace('Content not found');
 		return null;
 	}
+
+	inline static public function getFolderPath(file:String, folder = "shared")
+		return 'assets/$folder/$file';
 }

@@ -238,7 +238,7 @@ class HitboxOld extends FlxSpriteGroup {
 						hitbox.add(add(buttonExtra2 = createhitbox(640, 580, "extra2", "mobile/Hitbox/hitboxBottom-2", ClientPrefs.data.extraKeyReturn2.toUpperCase())));
 				}
 			}
-			else if (ClientPrefs.data.hitboxLocation == 'Bottom') {
+			else if (ClientPrefs.data.hitboxLocation == 'Top') {
 				switch (ClientPrefs.data.extraKeys) {
 					case 2:
 						hitbox.add(add(buttonLeft = createhitbox(0, 144, "left", "mobile/Hitbox/hitboxBottom-2")));

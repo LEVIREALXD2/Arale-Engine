@@ -45,10 +45,13 @@ class OptionsState extends MusicBeatState
 	var searchButton:SearchButton;
 	var resetButton:ResetButton;
 
+	var backButton:GeneralBack;
+
 	override function create()
 	{
 		persistentUpdate = persistentDraw = true;
 		instance = this;
+		FlxG.mouse.visible = true;
 
 		naviArray = [
 			'Graphics',
@@ -134,9 +137,8 @@ class OptionsState extends MusicBeatState
 		resetButton = new ResetButton(specBG.x + specBG.height * 0.2 * 2 + searchButton.width, specBG.height * 0.2, specBG.width - (specBG.height * 0.2 * 3 + searchButton.width), specBG.height * 0.6);
 		add(resetButton);
 
-		var backShape = new GeneralBack(0, 720 - 72, UIScale.adjust(FlxG.width * 0.2), UIScale.adjust(FlxG.height * 0.1), 'back', EngineSet.mainColor, backMenu);
-		add(backShape);
-		
+		backButton = new GeneralBack(0, 720 - 72, UIScale.adjust(FlxG.width * 0.2), UIScale.adjust(FlxG.height * 0.1), 'Back', EngineSet.mainColor, backMenu);
+		add(backButton);
 
 		super.create();
 	}
@@ -174,6 +176,12 @@ class OptionsState extends MusicBeatState
 	{
 		super.closeSubState();
 		persistentUpdate = true;
+	}
+
+	public function startSearch(text:String, time = 0.6) {
+		for (cata in cataGroup) {
+			cata.startSearch(text, time);
+		}
 	}
 
 	public function changeCata(sort:Int) {
@@ -283,7 +291,7 @@ class OptionsState extends MusicBeatState
 
 	public function resetData()
 	{
-		for (spr in 0...naviSpriteGroup.length - 1) {
+		for (spr in 0...naviSpriteGroup.length) {
 			if (naviSpriteGroup[spr].cataChoose == true) {
 				cataGroup[spr].resetData();
 				break;
@@ -314,6 +322,7 @@ class OptionsState extends MusicBeatState
 			{
 				case 0:
 					MusicBeatState.switchState(new MainMenuState());
+					FlxG.mouse.visible = false;
 				case 1:
 						MusicBeatState.switchState(new FreeplayState());
 				case 2:

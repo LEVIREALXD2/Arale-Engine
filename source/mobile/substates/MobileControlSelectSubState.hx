@@ -37,7 +37,7 @@ class MobileControlSelectSubState extends MusicBeatSubstate
 	var ui:FlxCamera;
 	public static var exit:UIButton;
 	public static var reset:UIButton;
-	public static var keyboard:UIButton;
+	//public static var keyboard:UIButton;
 	public static var inControlsSubstate:Bool = false;
 
 	override public function create():Void
@@ -201,6 +201,7 @@ class MobileControlSelectSubState extends MusicBeatSubstate
 		reset.cameras = [ui];
 		add(reset);
 		
+		/*
 		keyboard = new UIButton(exit.x, exit.height + exit.y + 20, "Keyboard", () ->
 		{
 			save();
@@ -223,6 +224,7 @@ class MobileControlSelectSubState extends MusicBeatSubstate
 		keyboard.label.offset.y = -10;
 		keyboard.cameras = [ui];
 		add(keyboard);
+		*/
 
 		changeSelection(0);
 	}
@@ -273,44 +275,44 @@ class MobileControlSelectSubState extends MusicBeatSubstate
 		switch (daChoice)
 		{
 			case 'Pad-Right':
-				reset.y = keyboard.height + keyboard.y + 20;
+				//reset.y = keyboard.height + keyboard.y + 20;
 				reset.visible = true;
-				keyboard.visible = true;
+				//keyboard.visible = true;
 				remove(vpad);
 				vpad = new MobilePad("RIGHT_FULL", "controlExtend");
 				add(vpad);
 				loadcustom(false);
 			case 'Pad-Left':
-				reset.y = keyboard.height + keyboard.y + 20;
+				//reset.y = keyboard.height + keyboard.y + 20;
 				reset.visible = true;
-				keyboard.visible = true;
+				//keyboard.visible = true;
 				remove(vpad);
 				vpad = new MobilePad("FULL", "controlExtend");
 				add(vpad);
 				loadcustom(false);
 			case 'Pad-Custom':
-				reset.y = exit.height + exit.y + 20;
+				//reset.y = exit.height + exit.y + 20;
 				reset.visible = true;
-				keyboard.visible = false;
+				//keyboard.visible = false;
 				remove(vpad);
 				vpad = new MobilePad("RIGHT_FULL", "controlExtend");
 				add(vpad);
 				loadcustom(true);
 			case 'Duo':
-				reset.y = keyboard.height + keyboard.y + 20;
+				//reset.y = keyboard.height + keyboard.y + 20;
 				reset.visible = true;
-				keyboard.visible = true;
+				//keyboard.visible = true;
 				remove(vpad);
 				vpad = new MobilePad("DUO", "controlExtend");
 				add(vpad);
 				loadcustom(false);
 			case 'Hitbox':
 				reset.visible = false;
-				keyboard.visible = true;
+				//keyboard.visible = true;
 				vpad.alpha = 0;
 			case 'Keyboard':
 				reset.visible = false;
-				keyboard.visible = true;
+				//keyboard.visible = true;
 				remove(vpad);
 				vpad.alpha = 0;
 		}

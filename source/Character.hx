@@ -435,7 +435,7 @@ class Character extends FlxSprite
 				}
 			}
 
-			TankmenBG.animationNotes = animationNotes;
+			states.stages.objects.TankmenBG.animationNotes = animationNotes;
 			animationNotes.sort(sortAnims);
 		}
 		catch(e:Dynamic) {}

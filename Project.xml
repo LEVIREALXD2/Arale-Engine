@@ -156,7 +156,7 @@
 	<!--In case you want to use the ui package-->
 	<haxelib name="flixel-ui" />
 	<haxelib name="linc_luajit" if="LUA_ALLOWED"/>
-	<!-- <haxelib name="tjson"/> --> <!-- Not Needed -->
+	<haxelib name="tjson"/> <!-- Haxe's json brokes the mods, so use tjson for them -->
 	<haxelib name="hxCodec" if="VIDEOS_ALLOWED"/>
 	<haxelib name="faxe" if='switch'/>
 	<!--<haxelib name="polymod"/> -->

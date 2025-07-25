@@ -88,15 +88,9 @@ class TitleState extends MusicBeatState
 		Paths.clearStoredMemory();
 		Paths.clearUnusedMemory();
 
-		#if LUA_ALLOWED
-		Mods.pushGlobalMods();
-		#end
-		// Just to load a mod on start up if ya got one. For mods that change the menu music and bg
-		Mods.loadTopMod();
-		
 		#if android
-        FlxG.android.preventDefaultKeys = [BACK];
-        #end
+		FlxG.android.preventDefaultKeys = [BACK];
+		#end
 
 		//trace(path, FileSystem.exists(path));
 
@@ -133,6 +127,12 @@ class TitleState extends MusicBeatState
 		FlxG.save.bind('funkin', 'ninjamuffin99');
 
 		ClientPrefs.loadPrefs();
+
+		#if LUA_ALLOWED
+		Mods.pushGlobalMods();
+		#end
+		// Just to load a mod on start up if ya got one. For mods that change the menu music and bg
+		Mods.loadTopMod();
 
 		#if CHECK_FOR_UPDATES
 		if(ClientPrefs.data.checkForUpdates && !closedState) {

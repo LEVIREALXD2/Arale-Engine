@@ -9,9 +9,9 @@ import openfl.display.BitmapData;
 import flixel.math.FlxRect;
 
 class StringRect extends FlxSpriteGroup{
-	var bg:Rect;
-	var dis:FlxSprite;
-	var disText:FlxText;
+	public var bg:Rect;
+	public var dis:FlxSprite;
+	public var disText:FlxText;
 
 	var follow:Option;
 
@@ -50,10 +50,20 @@ class StringRect extends FlxSpriteGroup{
 	}
 
 	public var allowUpdate:Bool = true;
+	var timeCalc:Float;
 	override function update(elapsed:Float) {
 		super.update(elapsed);
 
+		timeCalc += elapsed;
+
+		if (!follow.allowUpdate) {
+			timeCalc = 0;
+			return;
+		}
+
 		if (!allowUpdate) return;
+
+		if (timeCalc < 0.6) return;
 
 		var mouse = OptionsState.instance.mouseEvent;
 
@@ -235,7 +245,7 @@ class StringSelect extends FlxSpriteGroup
 		optionMove.mouseLimit[1] = [follow.y + mainY, follow.y + mainY + bg.height];
 		super.update(elapsed);
 
-		if (!allowUpdate) return;
+		if (!follow.allowUpdate) return;
 
 		 for (i in 0...options.length)
 		{
@@ -309,8 +319,12 @@ class StringSelect extends FlxSpriteGroup
 		str.clipRect = swagRect;
 	}
 
-	private function updateSelection(index:Int):Void
+	public function updateSelection(index:Int):Void
 	{
+		for (i in 0...optionSprites.length) {
+			if (i == index) optionSprites[i].setAlpha = 0.1;
+			else optionSprites[i].setAlpha = 0;
+		}
 	}
 }
 
@@ -325,7 +339,7 @@ class ChooseRect extends FlxSpriteGroup {
 
 	var name:String;
 
-	var setAlpha:Float = 0;
+	public var setAlpha:Float = 0;
 
 	///////////////////////////////////////////////////////////////////////////////
 
@@ -377,6 +391,7 @@ class ChooseRect extends FlxSpriteGroup {
 				follow.follow.setValue(name);
 				follow.follow.updateDisText();
 				follow.follow.change();
+				follow.updateSelection(optionSort);
 				follow.follow.stringRect.change(); //关闭设置了喵
 			}
 		} else {
@@ -395,7 +410,7 @@ class ChooseRect extends FlxSpriteGroup {
 
 class StateButton extends FlxSpriteGroup{
 	public var bg:Rect;
-	var stateName:FlxText;
+	public var stateName:FlxText;
 
 	var follow:Option;
 
@@ -418,10 +433,18 @@ class StateButton extends FlxSpriteGroup{
 	}
 
 	var colorChange:Bool = false;
+	var timeCalc:Float;
 	override function update(elapsed:Float) {
 		super.update(elapsed);
 
-		//if (!allowUpdate) return;
+		timeCalc += elapsed;
+
+		if (!follow.allowUpdate) {
+			timeCalc = 0;
+			return;
+		}
+
+		if (timeCalc < 0.6) return;
 
 		var mouse = OptionsState.instance.mouseEvent;
 
@@ -456,12 +479,12 @@ class NumButton extends FlxSpriteGroup {
 	var innerX:Float; //该摁键在option的x
 	var innerY:Float; //该摁键在option的y
 
-	var deleteButton:FlxSprite;
-	var addButton:FlxSprite;
+	public var deleteButton:FlxSprite;
+	public var addButton:FlxSprite;
 
-	var moveBG:Rect;
-	var moveDis:Rect;
-	var rod:Rect;
+	public var moveBG:Rect;
+	public var moveDis:Rect;
+	public var rod:Rect;
 
 	var max:Float;
 	var min:Float;
@@ -494,7 +517,7 @@ class NumButton extends FlxSpriteGroup {
 						 deleteButton.height * 0.5, 
 						 deleteButton.height * 0.5 * 0.5, 
 						 deleteButton.height * 0.5 * 0.5,
-						 0x000000,
+						 0xFF000000,
 						 0.4
 						 );
 		moveBG.y += (height - moveBG.height) / 2;
@@ -543,6 +566,8 @@ class NumButton extends FlxSpriteGroup {
 	override function update(elapsed:Float)
 	{
 		super.update(elapsed);
+
+		if (!follow.allowUpdate) return;
 
 		var mouse = FlxG.mouse;
 
@@ -738,9 +763,10 @@ class BoolButton extends FlxSpriteGroup {
 	}
 
 	public var allowUpdate:Bool = true;
-
 	override function update(elapsed:Float) {
 		super.update(elapsed);
+
+		if (!follow.allowUpdate) return;
 
 		if (!allowUpdate) return;
 
