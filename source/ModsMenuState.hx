@@ -996,6 +996,7 @@ class MenuButton extends FlxSpriteGroup
 			return;
 		}
 
+		#if TOUCH_CONTROLS
 		if (!ClientPrefs.data.KeyboardFixes) {
 			if(!ignoreCheck)
 				onFocus = TouchUtil.overlaps(this);
@@ -1011,6 +1012,7 @@ class MenuButton extends FlxSpriteGroup
 				setButtonVisibility(TouchUtil.overlaps(this));
 			}
 		} else {
+		#end
 			if(!ignoreCheck && !ClientPrefs.data.controllerMode && (FlxG.mouse.justPressed || FlxG.mouse.justMoved) && FlxG.mouse.visible)
 				onFocus = FlxG.mouse.overlaps(this);
 			
@@ -1022,7 +1024,9 @@ class MenuButton extends FlxSpriteGroup
 				if(!ClientPrefs.data.controllerMode)
 					setButtonVisibility(FlxG.mouse.overlaps(this));
 			}
+		#if TOUCH_CONTROLS
 		}
+		#end
 	}
 
 	function set_onFocus(newValue:Bool)
