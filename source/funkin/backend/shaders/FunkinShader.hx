@@ -3,7 +3,11 @@ package funkin.backend.shaders;
 import flixel.graphics.FlxGraphic;
 import flixel.system.FlxAssets.FlxShader;
 import haxe.Exception;
+#if NEW_HSCRIPT
+import codenamecrew.hscript.IHScriptCustomBehaviour;
+#else
 import hscriptBase.IHScriptCustomBehaviour;
+#end
 import lime.utils.Float32Array;
 import openfl.display.BitmapData;
 import openfl.display.ShaderInput;

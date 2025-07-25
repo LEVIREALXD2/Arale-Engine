@@ -28,7 +28,11 @@ import haxe.PosInfos;
 import hscriptBase.Expr;
 import haxe.Constraints;
 import tea.SScript;
+#if NEW_HSCRIPT
+import codenamecrew.hscript.IHScriptCustomBehaviour; //this one should fix the SScript issues
+#else
 import hscriptBase.IHScriptCustomBehaviour;
+#end
 import haxe.EnumTools;
 import haxe.display.Protocol.InitializeResult;
 

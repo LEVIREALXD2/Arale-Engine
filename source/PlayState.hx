@@ -522,20 +522,10 @@ class PlayState extends MusicBeatState
 		#if NEW_HSCRIPT
 		(scripts = new ScriptPack("PlayState")).setParent(this);
 		findAndStartScripts('codenameScripts', true);
-		//Bruh
-		scripts.set("SONG", SONG);
-		scripts.set('add', function(obj:FlxBasic) PlayState.instance.add(obj));
-		scripts.set('insert', function(pos:Int, obj:FlxBasic) PlayState.instance.insert(pos, obj));
-		scripts.set('remove', function(obj:FlxBasic, ?splice:Bool = false) PlayState.instance.remove(obj, splice));
-		
-		scripts.set('addBehindGF', function(obj:flixel.FlxObject) PlayState.instance.addBehindGF(obj));
-		scripts.set('addBehindDad', function(obj:flixel.FlxObject) PlayState.instance.addBehindDad(obj));
-		scripts.set('addBehindBF', function(obj:flixel.FlxObject) PlayState.instance.addBehindBF(obj));
-		scripts.load();
-		scripts.call("onCreate");
 		#end
 		findAndStartScripts('scripts');
-		findAndStartScripts('songs/'); //global scripts for PlayStation
+		//findAndStartScripts('songs/');
+		findAndStartScripts('songs', true); //global scripts for PlayStation
 
 		// STAGE SCRIPTS
 		#if MODS_ALLOWED
@@ -795,6 +785,8 @@ class PlayState extends MusicBeatState
 
 		//HScript Improved Path (separated for now)
 		findAndStartScripts('songs/${songName}/scripts', true); //Modders can add other paths with SScript (I recommend SScript for this because SScript Handling before HScript Improved)
+		scripts.load();
+		scripts.call("create");
 
 		//set introAssets before the starts Countdown (Not same as the CNE But Better Than Psych's Countdown Sprite System)
 		introAssets.set('default', ['ready', 'set', 'go']);
@@ -3874,7 +3866,14 @@ class PlayState extends MusicBeatState
 	}
 
 	public function callOnHScript(funcToCall:String, args:Array<Dynamic> = null, ?ignoreStops:Bool = false, exclusions:Array<String> = null, excludeValues:Array<Dynamic> = null):Dynamic {
-		#if NEW_HSCRIPT if (scripts != null) scripts.call(funcToCall, args); #end
+		#if NEW_HSCRIPT
+		var cneLikeFunctions = funcToCall;
+		if (funcToCall == 'onCreatePost') cneLikeFunctions = 'postCreate';
+		else if (funcToCall == 'onUpdate') cneLikeFunctions = 'update';
+		else if (funcToCall == 'onUpdatePost') cneLikeFunctions = 'postUpdate';
+
+		if (scripts != null) scripts.call(cneLikeFunctions, args);
+		#end
 		var returnVal:Dynamic = FunkinLua.Function_Continue;
 
 		#if HSCRIPT_ALLOWED

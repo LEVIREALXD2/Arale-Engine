@@ -2,7 +2,11 @@ package funkin.backend.shaders;
 
 import haxe.Exception;
 import openfl.Assets;
+#if NEW_HSCRIPT
+import codenamecrew.hscript.IHScriptCustomBehaviour;
+#else
 import hscriptBase.IHScriptCustomBehaviour;
+#end
 
 /**
  * Class for custom shaders from Codename Engine, Added for Using Shaders in PsychEngine without any shitty code.
