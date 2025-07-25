@@ -17,6 +17,7 @@ import TitleState;
 	public var hscriptversion:String = 'HScript Old';
 	public var chartLoadSystem:String = '0.4-0.7x';
 	#if android public var storageType:String = "EXTERNAL_DATA"; #end
+	public var discordRPC:Bool = true;
 
 	#if TOUCH_CONTROLS
 	public var mobilePadTexture:String = "VirtualPad";
@@ -197,6 +198,10 @@ class ClientPrefs {
 			FlxG.sound.volume = FlxG.save.data.volume;
 		if (FlxG.save.data.mute != null)
 			FlxG.sound.muted = FlxG.save.data.mute;
+
+		#if DISCORD_ALLOWED
+		DiscordClient.check();
+		#end
 
 		// controls on a separate save file
 		var save:FlxSave = new FlxSave();

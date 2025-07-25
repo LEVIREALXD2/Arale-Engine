@@ -100,6 +100,16 @@ class UIGroup extends OptionCata
 		addOption(option);
 		#end
 
+		#if DISCORD_ALLOWED
+		var option:Option = new Option(this,
+			'Discord Rich Presence',
+			"Uncheck this to prevent accidental leaks, it will hide the Application from your \"Playing\" box on Discord",
+			'discordRPC',
+			BOOL
+		);
+		addOption(option);
+		#end
+
 		var option:Option = new Option(this,
 			'Combo Stacking',
 			"If unchecked, Ratings and Combo won't stack, saving on System Memory and making them easier to read",

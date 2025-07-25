@@ -1,8 +1,5 @@
 package options.base;
 
-#if desktop
-import Discord.DiscordClient;
-#end
 import openfl.text.TextField;
 import flixel.addons.display.FlxGridOverlay;
 import lime.utils.Assets;
@@ -42,7 +39,7 @@ class BaseModOptionsMenu extends MusicBeatSubstate
 		if(title == null) title = 'Options';
 		if(rpcTitle == null) rpcTitle = 'Options Menu';
 		
-		#if desktop
+		#if DISCORD_ALLOWED
 		DiscordClient.changePresence(rpcTitle, null);
 		#end
 		
