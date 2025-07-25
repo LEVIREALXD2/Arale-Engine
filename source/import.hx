@@ -9,7 +9,7 @@ import sys.io.*;
 import js.html.*;
 #end
 
-#if DISCORD_ALLOWED
+#if desktop
 import Discord.DiscordClient;
 #end
 
