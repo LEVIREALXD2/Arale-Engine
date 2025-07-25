@@ -3544,7 +3544,7 @@ class PlayState extends MusicBeatState
 		FlxG.sound.music.pitch = 1;
 
 		#if DISCORD_ALLOWED
-		DiscordClient.resetClientID()
+		DiscordClient.resetClientID();
 		#end
 		super.destroy();
 	}
