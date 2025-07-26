@@ -18,11 +18,29 @@ class StringRect extends FlxSpriteGroup{
 	var innerX:Float; //该摁键在option的x
 	var innerY:Float; //该摁键在option的y
 
-	var isOpend:Bool = false;
+	public var isOpend:Bool = false;
+
+	//not tested
+	public function reload(X:Float, Y:Float, width:Float, height:Float, follow:Option)
+	{
+		//Remove These
+		remove(bg);
+		remove(disText);
+		remove(dis);
+
+		//Add them back
+		addStringOption(X, Y, width, height, follow);
+	}
 
 	public function new(X:Float, Y:Float, width:Float, height:Float, follow:Option) {
 		super(X, Y);
 
+		addStringOption(X, Y, width, height, follow);
+	}
+
+	//not tested
+	public function addStringOption(X:Float, Y:Float, width:Float, height:Float, follow:Option)
+	{
 		this.follow = follow;
 		innerX = X;
 		innerY = Y;
@@ -187,10 +205,28 @@ class StringSelect extends FlxSpriteGroup
 	public var posiData:Float = 0;
 	var optionMove:MouseMove;
 
+	//not tested
+	public function reload(X:Float, Y:Float, width:Float, height:Float, follow:Option)
+	{
+		//Reset Everything
+		remove(bg);
+		optionSprites = [];
+		remove(slider);
+		OptionsState.instance.removeMove(optionMove);
+
+		//Add them back
+		addStringOption(X, Y, width, height, follow);
+	}
+
 	public function new(X:Float, Y:Float, width:Float, height:Float, follow:Option)
 	{
 		super(X, Y);
 
+		addStringOption(X, Y, width, height, follow);
+	}
+	
+	function addStringOption(X:Float, Y:Float, width:Float, height:Float, follow:Option)
+	{
 		mainX = X;
 		mainY = Y;
 

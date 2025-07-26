@@ -230,6 +230,13 @@ class Option extends FlxSpriteGroup
 		add(select);
 	}
 
+	public function reloadStringSelection() {
+		var clacHeight = baseBG.height - (baseTar.height + baseLine.height) - baseBG.mainRound * 2;
+		var clacWidth = baseBG.width * 0.4 - baseBG.mainRound;
+		stringRect.reload(baseBG.width * 0.6, baseTar.height + baseLine.height + baseBG.mainRound, clacWidth, clacHeight, this);
+		select.reload(0, baseBG.height + inter, follow.bg.realWidth * (1 - (1 / 2 / 50 * 2)), follow.bg.width * 0.2, this);
+	}
+
 	var tipsLight:Rect;
 	var tipsText:FlxText;
 	function addTip()

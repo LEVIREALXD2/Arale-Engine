@@ -56,7 +56,7 @@ class OptionsState extends MusicBeatState
 		naviArray = [
 			'Graphics',
 			'Visual & UI',
-			'Skins',
+			'Note Skins',
 			'Gameplay',
 			'Mobile'
 		];
@@ -213,7 +213,7 @@ class OptionsState extends MusicBeatState
 				obj = new GraphicsGroup(outputX, outputY, outputWidth, outputHeight);
 			case 'Visual & UI':
 				obj = new UIGroup(outputX, outputY, outputWidth, outputHeight);
-			case 'Skins':
+			case 'Note Skins':
 				obj = new SkinGroup(outputX, outputY, outputWidth, outputHeight);
 			case 'Gameplay':
 				obj = new GameplayGroup(outputX, outputY, outputWidth, outputHeight);
@@ -228,6 +228,10 @@ class OptionsState extends MusicBeatState
 
 	public function addMove(tar:MouseMove) {
 		add(tar);
+	}
+
+	public function removeMove(tar:MouseMove) {
+		remove(tar);
 	}
 
 	static public var cataPosiData:Float = 100;
