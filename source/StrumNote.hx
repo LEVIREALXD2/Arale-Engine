@@ -3,12 +3,15 @@ package;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.graphics.frames.FlxAtlasFrames;
+import shaders.RGBPalette;
+import shaders.RGBPalette.RGBShaderReference;
 
 using StringTools;
 
 class StrumNote extends FlxSprite
 {
 	private var colorSwap:ColorSwap;
+	public var rgbShader:RGBShaderReference;
 	public var resetAnim:Float = 0;
 	private var noteData:Int = 0;
 	public var direction:Float = 90;//plan on doing scroll directions soon -bb
@@ -26,16 +29,47 @@ class StrumNote extends FlxSprite
 		return value;
 	}
 
+	public var useRGBShader:Bool = true;
+	public var disableShadersInOptions:Bool = false;
 	public function new(x:Float, y:Float, leData:Int, player:Int) {
-		colorSwap = new ColorSwap();
-		shader = colorSwap.shader;
+		if (ClientPrefs.data.useRGB) {
+			rgbShader = new RGBShaderReference(this, Note.initializeGlobalRGBShader(leData));
+			rgbShader.enabled = false;
+			if(PlayState.SONG != null && PlayState.SONG.disableNoteRGB) useRGBShader = false;
+
+			var arr:Array<FlxColor> = ClientPrefs.data.arrowRGB[leData];
+			if(PlayState.isPixelStage) arr = ClientPrefs.data.arrowRGBPixel[leData];
+
+			if(leData <= arr.length)
+			{
+				@:bypassAccessor
+				{
+					rgbShader.r = arr[0];
+					rgbShader.g = arr[1];
+					rgbShader.b = arr[2];
+				}
+			}
+		}
+		else {
+			colorSwap = new ColorSwap();
+			shader = colorSwap.shader;
+		}
 		noteData = leData;
 		this.player = player;
 		this.noteData = leData;
 		super(x, y);
 
-		var skin:String = 'NOTE_assets';
+		var skin:String = null;
 		if(PlayState.SONG != null && PlayState.SONG.arrowSkin != null && PlayState.SONG.arrowSkin.length > 1) skin = PlayState.SONG.arrowSkin;
+		else skin = Note.defaultNoteSkin;
+
+		var customSkin:String = skin + Note.getNoteSkinPostfix();
+		var nonRGBCustomPixelNote:String = 'NoteSkin/' + Note.getNoteSkinPostfix();
+		if(Paths.fileExists('images/pixelUI/' + nonRGBCustomPixelNote + '.png', IMAGE) && PlayState.isPixelStage && !ClientPrefs.data.useRGB && ClientPrefs.data.noteSkin != 'Default') {
+			customSkin = nonRGBCustomPixelNote;
+		}
+		if(Paths.fileExists('images/$customSkin.png', IMAGE)) skin = customSkin;
+
 		texture = skin; //Load texture and anims
 
 		scrollFactor.set();
@@ -148,20 +182,28 @@ class StrumNote extends FlxSprite
 		animation.play(anim, force);
 		centerOffsets();
 		centerOrigin();
-		if(animation.curAnim == null || animation.curAnim.name == 'static') {
-			colorSwap.hue = 0;
-			colorSwap.saturation = 0;
-			colorSwap.brightness = 0;
-		} else {
-			if (noteData > -1 && noteData < ClientPrefs.data.arrowHSV.length)
-			{
-				colorSwap.hue = ClientPrefs.data.arrowHSV[noteData][0] / 360;
-				colorSwap.saturation = ClientPrefs.data.arrowHSV[noteData][1] / 100;
-				colorSwap.brightness = ClientPrefs.data.arrowHSV[noteData][2] / 100;
-			}
+		if (ClientPrefs.data.useRGB) {
+			if(useRGBShader && !disableShadersInOptions) rgbShader.enabled = (animation.curAnim != null && animation.curAnim.name != 'static');
+		}
+		else {
+			if (!disableShadersInOptions) {
+				if(animation.curAnim == null || animation.curAnim.name == 'static') {
+					colorSwap.hue = 0;
+					colorSwap.saturation = 0;
+					colorSwap.brightness = 0;
+				} else {
+					if (noteData > -1 && noteData < ClientPrefs.data.arrowHSV.length)
+					{
+						colorSwap.hue = ClientPrefs.data.arrowHSV[noteData][0] / 360;
+						colorSwap.saturation = ClientPrefs.data.arrowHSV[noteData][1] / 100;
+						colorSwap.brightness = ClientPrefs.data.arrowHSV[noteData][2] / 100;
+					}
 
-			if(animation.curAnim.name == 'confirm' && !PlayState.isPixelStage) {
-				centerOrigin();
+					if(animation.curAnim != null) {
+						if(animation.curAnim.name == 'confirm' && !PlayState.isPixelStage)
+							centerOrigin();
+					}
+				}
 			}
 		}
 	}
