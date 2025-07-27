@@ -51,7 +51,7 @@
 	</section>
 
 	<classpath name="source" />
-	<classpath name="cne-openfl" /> <!-- This thing will be removed later bc it's useless -->
+	<!-- <classpath name="cne-openfl" /> --> <!-- This thing will be removed later bc it's useless -->
 	
 	<!-- PSYCH ENGINE CUSTOMIZATION -->
 	<define name="MODS_ALLOWED" if="desktop || mobile" />

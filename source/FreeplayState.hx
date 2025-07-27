@@ -414,6 +414,10 @@ class FreeplayState extends MusicBeatState
 				missingText.visible = true;
 				missingTextBG.visible = true;
 				FlxG.sound.play(Paths.sound('cancelMenu'));
+				#if TOUCH_CONTROLS
+				removeMobilePad();
+				addMobilePad("FULL", "A_B_C_X_Y_Z");
+				#end
 
 				updateTexts(elapsed);
 				return;

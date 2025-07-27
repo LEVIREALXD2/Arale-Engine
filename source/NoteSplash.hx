@@ -14,6 +14,15 @@ class NoteSplash extends FlxSprite
 		super(x, y);
 
 		var skin:String = 'noteSplashes';
+		if (PlayState.isPixelStage && ClientPrefs.data.noteSplashSkin == 'Default') skin = 'pixelUI/noteSplashes';
+		else if (ClientPrefs.data.noteSplashSkin != 'Default') {
+			var customSkin:String = 'noteSplashSkins/${skin}' + getNoteSkinPostfix(skin);
+			var nonRGBCustomPixelNote:String = 'pixelUI/noteSplashSkins/${skin}' + getNoteSkinPostfix(skin);
+			if(Paths.fileExists('images/' + nonRGBCustomPixelNote + '.png', IMAGE) && PlayState.isPixelStage) {
+				customSkin = nonRGBCustomPixelNote;
+			}
+			if(Paths.fileExists('images/$customSkin.png', IMAGE)) skin = customSkin;
+		}
 		if(PlayState.SONG.splashSkin != null && PlayState.SONG.splashSkin.length > 0) skin = PlayState.SONG.splashSkin;
 
 		loadAnims(skin);
@@ -25,12 +34,29 @@ class NoteSplash extends FlxSprite
 		antialiasing = ClientPrefs.data.antialiasing;
 	}
 
+	public static function getNoteSkinPostfix(ogSkin:String)
+	{
+		var skin:String = '';
+		if(ClientPrefs.data.noteSplashSkin != ClientPrefs.defaultData.noteSplashSkin)
+			skin = '-' + ClientPrefs.data.noteSplashSkin.trim().toLowerCase().replace(' ', '_');
+		return skin;
+	}
+
 	public function setupNoteSplash(x:Float, y:Float, note:Int = 0, texture:String = null, hueColor:Float = 0, satColor:Float = 0, brtColor:Float = 0) {
 		setPosition(x - Note.swagWidth * 0.95, y - Note.swagWidth);
 		alpha = 0.6;
 
 		if(texture == null) {
 			texture = 'noteSplashes';
+			if (PlayState.isPixelStage && ClientPrefs.data.noteSplashSkin == 'Default') texture = 'pixelUI/noteSplashes';
+			else if (ClientPrefs.data.noteSplashSkin != 'Default') {
+				var customSkin:String = 'noteSplashSkins/${texture}' + getNoteSkinPostfix(texture);
+				var nonRGBCustomPixelNote:String = 'pixelUI/noteSplashSkins/${texture}' + getNoteSkinPostfix(texture);
+				if(Paths.fileExists('images/' + nonRGBCustomPixelNote + '.png', IMAGE) && PlayState.isPixelStage) {
+					customSkin = nonRGBCustomPixelNote;
+				}
+				if(Paths.fileExists('images/$customSkin.png', IMAGE)) texture = customSkin;
+			}
 			if(PlayState.SONG.splashSkin != null && PlayState.SONG.splashSkin.length > 0) texture = PlayState.SONG.splashSkin;
 		}
 

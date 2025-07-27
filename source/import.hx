@@ -110,6 +110,18 @@ import flixel.tweens.FlxTween;
 import flixel.group.FlxSpriteGroup;
 import flixel.group.FlxGroup.FlxTypedGroup;
 import flixel.graphics.frames.FlxAtlasFrames;
+
+import flixel.FlxSprite;
+import flixel.FlxG;
+import flixel.FlxBasic;
+import flixel.FlxCamera;
+import flixel.FlxObject;
+import flixel.math.FlxMath;
+import flixel.tweens.FlxEase;
+import flixel.util.FlxDestroyUtil;
+import hxcodec.flixel.FlxVideo;
+import psychlua.LuaUtils;
+import haxe.ds.StringMap;
 #end
 
 using StringTools;

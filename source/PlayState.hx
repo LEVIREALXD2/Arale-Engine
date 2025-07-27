@@ -3475,6 +3475,13 @@ class PlayState extends MusicBeatState
 		var skin:String = 'noteSplashes';
 		if(PlayState.SONG.splashSkin != null && PlayState.SONG.splashSkin.length > 0) skin = PlayState.SONG.splashSkin;
 
+		var customSkin:String = NoteSplash.getNoteSkinPostfix(skin);
+		var nonRGBCustomPixelNote:String = NoteSplash.getNoteSkinPostfix(skin);
+		if(Paths.fileExists('images/pixelUI/' + nonRGBCustomPixelNote + '.png', IMAGE) && PlayState.isPixelStage && ClientPrefs.data.noteSplashSkin != 'Default') {
+			customSkin = nonRGBCustomPixelNote;
+		}
+		if(Paths.fileExists('images/$customSkin.png', IMAGE)) skin = customSkin;
+
 		var hue:Float = 0;
 		var sat:Float = 0;
 		var brt:Float = 0;

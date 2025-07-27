@@ -4,6 +4,7 @@ class SkinGroup extends OptionCata
 {
 	var noteSkinOption:Option;
 	var noteSkins:Array<String>;
+	var noteSplashSkins:Array<String>;
 	public function new(X:Float, Y:Float, width:Float, height:Float)
 	{
 		super(X, Y, width, height);
@@ -20,7 +21,8 @@ class SkinGroup extends OptionCata
 		);
 		addOption(option);
 
-		noteSkins = addNoteSkins();
+		noteSkins = addSkins('noteSkins');
+		noteSplashSkins = addSkins('noteSplashSkins');
 
 		if (noteSkins.length > 0)
 		{
@@ -53,16 +55,30 @@ class SkinGroup extends OptionCata
 		option.onChange = () -> openNotesSubState();
 		addOption(option);
 
+		if (noteSplashSkins.length > 0)
+		{
+			noteSplashSkins.insert(0, ClientPrefs.defaultData.noteSplashSkin);
+
+			var option:Option = new Option(this,
+				'Note Splash Skin',
+				'Choose your Note Splash Skin!',
+				'noteSplashSkin',
+				STRING,
+				noteSplashSkins
+			);
+			addOption(option, true);
+		}
+
 		changeHeight(0); //初始化真正的height
 	}
 
-	function addNoteSkins():Array<String> {
+	function addSkins(Path:String):Array<String> {
 		var output:Array<String> = [];
-		if (ClientPrefs.data.useRGB) {
-			if (Mods.mergeAllTextsNamed('images/noteSkins/list.txt', 'shared').length > 0)
-				output = Mods.mergeAllTextsNamed('images/noteSkins/list.txt');
+		if (ClientPrefs.data.useRGB || Path == 'noteSplashSkins') {
+			if (Mods.mergeAllTextsNamed('images/${Path}/list.txt', 'shared').length > 0)
+				output = Mods.mergeAllTextsNamed('images/${Path}/list.txt');
 			else
-				output = CoolUtil.coolTextFile(Paths.getPreloadPath('images/noteSkins/list.txt'));
+				output = CoolUtil.coolTextFile(Paths.getPreloadPath('images/${Path}/list.txt'));
 		}
 		else {
 			if (Mods.mergeAllTextsNamed('images/NoteSkin/DataSet/noteSkinList.txt', 'shared').length > 0)
@@ -80,7 +96,7 @@ class SkinGroup extends OptionCata
 
 	function onChangeRGBShader() {
 		ClientPrefs.saveSettings();
-		noteSkins = addNoteSkins();
+		noteSkins = addSkins('noteSkins');
 		noteSkins.insert(0, ClientPrefs.defaultData.noteSkin); //I forgot to add this, cuz I'm a idiot
 		if(noteSkinOption.stringRect.isOpend) noteSkinOption.stringRect.change(); //close the old String Thing
 		noteSkinOption.strGroup = noteSkins; //Change between NF's and Psych's Note Skin Folders (`.options` changed with `.strGroup`)

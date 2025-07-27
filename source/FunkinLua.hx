@@ -798,8 +798,6 @@ class FunkinLua {
 				result = getVarInArray(getPropertyLoopThingWhatever(killMe), killMe[killMe.length-1]);
 			else
 				result = getVarInArray(getInstance(), variable);
-
-			if(result == null) Lua.pushnil(lua);
 			return result;
 		});
 		Lua_helper.add_callback(lua, "setProperty", function(variable:String, value:Dynamic) {
@@ -927,6 +925,57 @@ class FunkinLua {
 			}
 			setVarInArray(Type.resolveClass(classVar), variable, value);
 			return true;
+		});
+
+		Lua_helper.add_callback(lua, "callMethod", function(funcToRun:String, ?args:Array<Dynamic> = null) {
+			return callMethodFromObject(PlayState.instance, funcToRun, args);
+
+		});
+
+		Lua_helper.add_callback(lua, "callMethodFromClass", function(className:String, funcToRun:String, ?args:Array<Dynamic> = null) {
+			return callMethodFromObject(Type.resolveClass(className), funcToRun, args);
+		});
+
+		Lua_helper.add_callback(lua, "createInstance", function(variableToSave:String, className:String, ?args:Array<Dynamic> = null) {
+			variableToSave = variableToSave.trim().replace('.', '');
+			if(!PlayState.instance.variables.exists(variableToSave))
+			{
+				if(args == null) args = [];
+				var myType:Dynamic = Type.resolveClass(className);
+
+				if(myType == null)
+				{
+					FunkinLua.luaTrace('createInstance: Variable $variableToSave is already being used and cannot be replaced!', false, false, FlxColor.RED);
+					return false;
+				}
+
+				var obj:Dynamic = Type.createInstance(myType, args);
+				if(obj != null)
+					PlayState.instance.variables.set(variableToSave, obj);
+				else
+					FunkinLua.luaTrace('createInstance: Failed to create $variableToSave, arguments are possibly wrong.', false, false, FlxColor.RED);
+
+				return (obj != null);
+			}
+			else FunkinLua.luaTrace('createInstance: Variable $variableToSave is already being used and cannot be replaced!', false, false, FlxColor.RED);
+			return false;
+		});
+
+		Lua_helper.add_callback(lua, "addInstance", function(objectName:String, ?inFront:Bool = false) {
+			if(PlayState.instance.variables.exists(objectName))
+			{
+				var obj:Dynamic = PlayState.instance.variables.get(objectName);
+				if (inFront)
+					FunkinLua.getInstance().add(obj);
+				else
+				{
+					if(!PlayState.instance.isDead)
+						PlayState.instance.insert(PlayState.instance.members.indexOf(FunkinLua.getLowestCharacterGroup()), obj);
+					else
+						GameOverSubstate.instance.insert(GameOverSubstate.instance.members.indexOf(GameOverSubstate.instance.boyfriend), obj);
+				}
+			}
+			else FunkinLua.luaTrace('addInstance: Can\'t add what doesn\'t exist~ ($objectName)', false, false, FlxColor.RED);
 		});
 
 		//shitass stuff for epic coders like me B)  *image of obama giving himself a medal*
@@ -1261,6 +1310,10 @@ class FunkinLua {
 			if(!color.startsWith('0x')) color = '0xff' + color;
 			return Std.parseInt(color);
 		});
+
+		Lua_helper.add_callback(lua, "FlxColor", function(?color:String = '') return FlxColor.fromString(color));
+		Lua_helper.add_callback(lua, "getColorFromName", function(?color:String = '') return FlxColor.fromString(color));
+		Lua_helper.add_callback(lua, "getColorFromString", function(?color:String = '') return FlxColor.fromString(color));
 
 		Lua_helper.add_callback(lua, "keyboardJustPressed", function(name:String)
 		{
@@ -3025,7 +3078,7 @@ class FunkinLua {
 		return NORMAL;
 	}
 
-	function cameraFromString(cam:String):FlxCamera {
+	public static function cameraFromString(cam:String):FlxCamera {
 		switch(cam.toLowerCase()) {
 			case 'camhud' | 'hud': return PlayState.instance.camHUD;
 			case 'camother' | 'other': return PlayState.instance.camOther;
@@ -3250,6 +3303,30 @@ class FunkinLua {
 		*/
 	}
 
+	static function callMethodFromObject(classObj:Dynamic, funcStr:String, args:Array<Dynamic> = null)
+	{
+		if(args == null) args = [];
+
+		var split:Array<String> = funcStr.split('.');
+		var funcToRun:Dynamic = null;
+		var obj:Dynamic = classObj;
+		//trace('start: $obj');
+		if(obj == null)
+		{
+			return null;
+		}
+
+		for (i in 0...split.length)
+		{
+			obj = FunkinLua.getVarInArray(obj, split[i].trim());
+			//trace(obj, split[i]);
+		}
+
+		funcToRun = cast obj;
+		//trace('end: $obj');
+		return funcToRun != null ? Reflect.callMethod(obj, funcToRun, args) : null;
+	}
+
 	#if TOUCH_CONTROLS
 	public static function varCheck(className:Dynamic, variable:String):String{
 		return variable;
@@ -3328,6 +3405,26 @@ class FunkinLua {
 		callbacks.set(name, myFunction);
 		Lua_helper.add_callback(lua, name, null); //just so that it gets called
 		#end
+	}
+
+	public static inline function getLowestCharacterGroup():FlxSpriteGroup
+	{
+		var group:FlxSpriteGroup = PlayState.instance.gfGroup;
+		var pos:Int = PlayState.instance.members.indexOf(group);
+		var newPos:Int = PlayState.instance.members.indexOf(PlayState.instance.boyfriendGroup);
+		if(newPos < pos)
+		{
+			group = PlayState.instance.boyfriendGroup;
+			pos = newPos;
+		}
+		
+		newPos = PlayState.instance.members.indexOf(PlayState.instance.dadGroup);
+		if(newPos < pos)
+		{
+			group = PlayState.instance.dadGroup;
+			pos = newPos;
+		}
+		return group;
 	}
 
 	public static function getBuildTarget():String
@@ -3692,6 +3789,7 @@ class HScript extends SScript
 		set('FlxText', flixel.text.FlxText);
 		set('FlxCamera', flixel.FlxCamera);
 		set('PsychCamera', backend.PsychCamera);
+		set('LuaUtils', FunkinLua); //You Suck
 		set('FlxTimer', flixel.util.FlxTimer);
 		set('FlxTween', flixel.tweens.FlxTween);
 		set('FlxEase', flixel.tweens.FlxEase);
@@ -4094,11 +4192,12 @@ class HScriptOG
 		interp.variables.set('FlxG', flixel.FlxG);
 		interp.variables.set('FlxSprite', flixel.FlxSprite);
 		interp.variables.set('FlxCamera', flixel.FlxCamera);
+		interp.variables.set('LuaUtils', FunkinLua); //You Suck
 		interp.variables.set('FlxTimer', flixel.util.FlxTimer);
 		interp.variables.set('FlxTween', flixel.tweens.FlxTween);
 		interp.variables.set('FlxEase', flixel.tweens.FlxEase);
 		interp.variables.set('PlayState', PlayState);
-		interp.variables.set('game', PlayState.instance);
+		interp.variables.set('game', FlxG.state);
 		interp.variables.set('Paths', Paths);
 		interp.variables.set('Conductor', Conductor);
 		interp.variables.set('ClientPrefs', ClientPrefs.data);
