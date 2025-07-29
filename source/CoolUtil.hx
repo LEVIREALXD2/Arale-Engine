@@ -30,20 +30,18 @@ class CoolUtil
 
 	public static function coolTextFile(path:String):Array<String>
 	{
-		var daList:Array<String> = [];
-		#if sys
-		if(FileSystem.exists(path)) daList = File.getContent(path).trim().split('\n');
+		var daList:String = null;
+		#if (sys && MODS_ALLOWED)
+		var formatted:Array<String> = path.split(':'); //prevent "shared:", "preload:" and other library names on file path
+		path = formatted[formatted.length-1];
+		if(FileSystem.exists(path)) daList = File.getContent(path);
 		#else
-		if(Assets.exists(path)) daList = Assets.getText(path).trim().split('\n');
+		if(Assets.exists(path)) daList = Assets.getText(path);
 		#end
 
-		for (i in 0...daList.length)
-		{
-			daList[i] = daList[i].trim();
-		}
-
-		return daList;
+		return daList != null ? listFromString(daList) : [];
 	}
+
 	public static function listFromString(string:String):Array<String>
 	{
 		var daList:Array<String> = [];

@@ -215,6 +215,11 @@ class PlayState extends MusicBeatState
 	public var health:Float = 1;
 	public var combo:Int = 0;
 
+	#if EXTRA_FREEPLAY
+	public static var NoteMs:Array<Float> = [];
+	public static var NoteTime:Array<Float> = [];
+	#end
+
 	private var healthBarBG:AttachedSprite;
 	public var healthBar:FlxBar;
 	var songPercent:Float = 0;
@@ -470,6 +475,11 @@ class PlayState extends MusicBeatState
 		DAD_X = stageData.opponent[0];
 		DAD_Y = stageData.opponent[1];
 
+		#if EXTRA_FREEPLAY
+		NoteMs = [];
+		NoteTime = [];
+		#end
+
 		if(stageData.camera_speed != null)
 			cameraSpeed = stageData.camera_speed;
 
@@ -621,9 +631,9 @@ class PlayState extends MusicBeatState
 			timeTxt.y += 3;
 		}
 
-		var splash:NoteSplash = new NoteSplash(100, 100, 0);
+		var splash:NoteSplash = new NoteSplash(100, 100);
 		grpNoteSplashes.add(splash);
-		splash.alpha = 0.0;
+		splash.alpha = 0.000001; //cant make it invisible or it won't allow precaching
 
 		opponentStrums = new FlxTypedGroup<StrumNote>();
 		playerStrums = new FlxTypedGroup<StrumNote>();
@@ -2683,7 +2693,7 @@ class PlayState extends MusicBeatState
 				#if !switch
 				var percent:Float = ratingPercent;
 				if(Math.isNaN(percent)) percent = 0;
-				Highscore.saveScore(SONG.song, songScore, storyDifficulty, percent);
+				Highscore.saveScore(SONG.song, songScore, storyDifficulty, percent #if EXTRA_FREEPLAY , NoteMs, NoteTime #end);
 				#end
 			}
 			playbackRate = 1;
@@ -2761,7 +2771,7 @@ class PlayState extends MusicBeatState
 				if(FlxTransitionableState.skipNextTransIn) {
 					CustomFadeTransition.nextCamera = null;
 				}
-				MusicBeatState.switchState(new FreeplayState());
+				CustomSwitchState.switchMenus('Freeplay');
 				FlxG.sound.playMusic(Paths.music('freakyMenu'));
 				changedDifficulty = false;
 			}
@@ -2815,9 +2825,14 @@ class PlayState extends MusicBeatState
 	private function popUpScore(note:Note = null):Void
 	{
 		var noteDiff:Float = Math.abs(note.strumTime - Conductor.songPosition + ClientPrefs.data.ratingOffset);
+		#if EXTRA_FREEPLAY var noteDiffNOVA:Float = note.strumTime - Conductor.songPosition + ClientPrefs.data.ratingOffset; #end
 		//trace(noteDiff, ' ' + Math.abs(note.strumTime - Conductor.songPosition));
 
 		// boyfriend.playAnim('hey');
+		#if EXTRA_FREEPLAY
+		NoteMs.push(noteDiffNOVA / playbackRate);
+		NoteTime.push(note.strumTime);
+		#end
 		vocals.volume = 1;
 
 		var placement:String = Std.string(combo);
@@ -3463,43 +3478,16 @@ class PlayState extends MusicBeatState
 	}
 
 	public function spawnNoteSplashOnNote(note:Note) {
-		if(ClientPrefs.data.noteSplashes && note != null) {
+		if((ClientPrefs.data.splashSkin != '(DISABLED)' && ClientPrefs.data.useRGB || ClientPrefs.data.noteSplashes && !ClientPrefs.data.useRGB) && note != null) {
 			var strum:StrumNote = playerStrums.members[note.noteData];
-			if(strum != null) {
+			if(strum != null)
 				spawnNoteSplash(strum.x, strum.y, note.noteData, note);
-			}
 		}
 	}
 
 	public function spawnNoteSplash(x:Float, y:Float, data:Int, ?note:Note = null) {
-		var skin:String = 'noteSplashes';
-		if(PlayState.SONG.splashSkin != null && PlayState.SONG.splashSkin.length > 0) skin = PlayState.SONG.splashSkin;
-
-		var customSkin:String = NoteSplash.getNoteSkinPostfix(skin);
-		var nonRGBCustomPixelNote:String = NoteSplash.getNoteSkinPostfix(skin);
-		if(Paths.fileExists('images/pixelUI/' + nonRGBCustomPixelNote + '.png', IMAGE) && PlayState.isPixelStage && ClientPrefs.data.noteSplashSkin != 'Default') {
-			customSkin = nonRGBCustomPixelNote;
-		}
-		if(Paths.fileExists('images/$customSkin.png', IMAGE)) skin = customSkin;
-
-		var hue:Float = 0;
-		var sat:Float = 0;
-		var brt:Float = 0;
-		if (data > -1 && data < ClientPrefs.data.arrowHSV.length)
-		{
-			hue = ClientPrefs.data.arrowHSV[data][0] / 360;
-			sat = ClientPrefs.data.arrowHSV[data][1] / 100;
-			brt = ClientPrefs.data.arrowHSV[data][2] / 100;
-			if(note != null) {
-				skin = note.noteSplashTexture;
-				hue = note.noteSplashHue;
-				sat = note.noteSplashSat;
-				brt = note.noteSplashBrt;
-			}
-		}
-
 		var splash:NoteSplash = grpNoteSplashes.recycle(NoteSplash);
-		splash.setupNoteSplash(x, y, data, skin, hue, sat, brt);
+		splash.setupNoteSplash(x, y, data, note);
 		grpNoteSplashes.add(splash);
 	}
 

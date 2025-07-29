@@ -81,6 +81,7 @@ class Note extends FlxSprite
 	public var noteSplashDisabled:Bool = false;
 	public var noteSplashTexture:String = null;
 	public var noteSplashGlobalShader:Bool = false;
+	public var noteSplashAlpha:Float = 0.6;
 	public var noteSplashHue:Float = 0;
 	public var noteSplashSat:Float = 0;
 	public var noteSplashBrt:Float = 0;
@@ -184,6 +185,7 @@ class Note extends FlxSprite
 						colorSwap.saturation = 0;
 						colorSwap.brightness = 0;
 					}
+					noteSplashTexture = 'noteSplashes_SHOCK';
 					// gameplay data
 					lowPriority = true;
 					if(isSustainNote)

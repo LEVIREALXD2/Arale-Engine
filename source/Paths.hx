@@ -255,10 +255,10 @@ class Paths
 		return inst;
 	}
 
-	inline static public function image(key:String, ?library:String):FlxGraphic
+	inline static public function image(key:String, ?library:String, ?extraLoad:Bool = false):FlxGraphic
 	{
 		// streamlined the assets process more
-		var returnAsset:FlxGraphic = returnGraphic(key, library);
+		var returnAsset:FlxGraphic = returnGraphic(key, library, extraLoad);
 		return returnAsset;
 	}
 
@@ -301,15 +301,15 @@ class Paths
 		return 'assets/fonts/$key';
 	}
 
-	inline static public function fileExists(key:String, type:AssetType, ?ignoreMods:Bool = false, ?library:String)
+	inline static public function fileExists(key:String, type:AssetType, ?ignoreMods:Bool = false, ?library:String = null)
 	{
 		#if MODS_ALLOWED
-		if(FileSystem.exists(mods(Mods.currentModDirectory + '/' + key)) || FileSystem.exists(mods(key))) {
+		if(!ignoreMods && (FileSystem.exists(mods(Mods.currentModDirectory + '/' + key)) || FileSystem.exists(mods(key)))) {
 			return true;
 		}
 		#end
 
-		if(OpenFlAssets.exists(getPath(key, type))) {
+		if(OpenFlAssets.exists(getPath(key, type, library, false))) {
 			return true;
 		}
 		return false;
@@ -383,9 +383,11 @@ class Paths
 
 	// completely rewritten asset loading? fuck!
 	public static var currentTrackedAssets:Map<String, FlxGraphic> = [];
-	public static function returnGraphic(key:String, ?library:String) {
+	public static function returnGraphic(key:String, ?library:String, ?extraLoad:Bool = false) {
 		#if MODS_ALLOWED
 		var modKey:String = modsImages(key);
+		if (extraLoad)
+			modKey = modFolders(key + '.png');
 		if(FileSystem.exists(modKey)) {
 			if(!currentTrackedAssets.exists(modKey)) {
 				var newBitmap:BitmapData = BitmapData.fromFile(modKey);
@@ -419,7 +421,7 @@ class Paths
 			localTrackedAssets.push(normalPath);
 			return currentTrackedAssets.get(normalPath);
 		}
-		trace('oh no its returning null NOOOO');
+		trace('returnGraphic returned null: $key');
 		return null;
 	}
 

@@ -54,6 +54,7 @@
 	<!-- <classpath name="cne-openfl" /> --> <!-- This thing will be removed later bc it's useless -->
 	
 	<!-- PSYCH ENGINE CUSTOMIZATION -->
+	<define name="EXTRA_FREEPLAY" unless="extras_disabled"/>
 	<define name="MODS_ALLOWED" if="desktop || mobile" />
 	<define name="HSCRIPT_ALLOWED" if="desktop || mobile" />
 	<define name="SCRIPTING_ALLOWED" /> <!-- Allow to change states with hscript -->
@@ -161,9 +162,13 @@
 	<haxelib name="faxe" if='switch'/>
 	<!--<haxelib name="polymod"/> -->
 	<haxelib name="discord_rpc" if="desktop"/>
-	<haxelib name="flxanimate" />
 	<haxelib name="SScript" if="HSCRIPT_ALLOWED"/>
-	<haxelib name="hscript-improved" if="HSCRIPT_ALLOWED"/> <!-- Using for FlxAxes and Others Right now -->
+	<haxelib name="hscript-improved" if="HSCRIPT_ALLOWED"/> <!-- Better Than SScript (Folders: `songs/scriptname.hx` and `songs/songname/scripts/scriptname.hx`) -->
+
+	<!-- Extra packages-->
+	<haxelib name="flxanimate" />
+	<haxelib name="funkin.vis"/>
+	<haxelib name="grig.audio" />
 
 	<!-- <haxelib name="markdown" /> -->
 	<!-- <haxelib name="HtmlParser" /> -->

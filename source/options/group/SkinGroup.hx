@@ -3,8 +3,10 @@ package options.group;
 class SkinGroup extends OptionCata
 {
 	var noteSkinOption:Option;
+	var splashSkinOption:Option;
 	var noteSkins:Array<String>;
-	var noteSplashSkins:Array<String>;
+	var splashSkins:Array<String>;
+
 	public function new(X:Float, Y:Float, width:Float, height:Float)
 	{
 		super(X, Y, width, height);
@@ -16,27 +18,15 @@ class SkinGroup extends OptionCata
 		addOption(option);
 
 		var option:Option = new Option(this,
-			'Note',
+			'Note Skins',
 			TEXT
 		);
 		addOption(option);
 
 		noteSkins = addSkins('noteSkins');
-		noteSplashSkins = addSkins('noteSplashSkins');
-
-		if (noteSkins.length > 0)
-		{
-			noteSkins.insert(0, ClientPrefs.defaultData.noteSkin);
-
-			noteSkinOption = new Option(this,
-				'Note Skin',
-				'Choose your Note Skin!',
-				'noteSkin',
-				STRING,
-				noteSkins
-			);
-			addOption(noteSkinOption);
-		}
+		splashSkins = (ClientPrefs.data.useRGB ? addSkins('noteSplashes') : addSkins('noteSplashSkins'));
+		if (ClientPrefs.data.useRGB) splashSkins.insert(0, 'Psych');
+		else splashSkins.insert(0, ClientPrefs.defaultData.splashSkin);
 
 		var option:Option = new Option(this,
 			'use RGB Shader',
@@ -45,7 +35,18 @@ class SkinGroup extends OptionCata
 			BOOL
 		);
 		option.onChange = () -> onChangeRGBShader();
-		addOption(option, true);
+		addOption(option);
+
+		noteSkins.insert(0, ClientPrefs.defaultData.noteSkin);
+
+		noteSkinOption = new Option(this,
+			'Note Skin',
+			'Choose your Note Skin!',
+			'noteSkin',
+			STRING,
+			noteSkins
+		);
+		addOption(noteSkinOption, true);
 
 		var option:Option = new Option(this,
 			'Open Note Color Picker',
@@ -55,36 +56,27 @@ class SkinGroup extends OptionCata
 		option.onChange = () -> openNotesSubState();
 		addOption(option);
 
-		if (noteSplashSkins.length > 0)
-		{
-			noteSplashSkins.insert(0, ClientPrefs.defaultData.noteSplashSkin);
-
-			var option:Option = new Option(this,
-				'Note Splash Skin',
-				'Choose your Note Splash Skin!',
-				'noteSplashSkin',
-				STRING,
-				noteSplashSkins
-			);
-			addOption(option, true);
-		}
+		splashSkinOption = new Option(this,
+			'Note Splash Skin',
+			'Choose your Note Splash Skin!',
+			'splashSkin',
+			STRING,
+			splashSkins
+		);
+		addOption(splashSkinOption, true);
 
 		changeHeight(0); //初始化真正的height
 	}
 
 	function addSkins(Path:String):Array<String> {
 		var output:Array<String> = [];
-		if (ClientPrefs.data.useRGB || Path == 'noteSplashSkins') {
+		if (ClientPrefs.data.useRGB || Path == 'noteSplashSkins' || Path == 'noteSplashes') {
 			if (Mods.mergeAllTextsNamed('images/${Path}/list.txt', 'shared').length > 0)
 				output = Mods.mergeAllTextsNamed('images/${Path}/list.txt');
-			else
-				output = CoolUtil.coolTextFile(Paths.getPreloadPath('images/${Path}/list.txt'));
 		}
 		else {
 			if (Mods.mergeAllTextsNamed('images/NoteSkin/DataSet/noteSkinList.txt', 'shared').length > 0)
 				output = Mods.mergeAllTextsNamed('images/NoteSkin/DataSet/noteSkinList.txt');
-			else
-				output = CoolUtil.coolTextFile(Paths.getPreloadPath('images/NoteSkin/DataSet/noteSkinList.txt'));
 		}
 		return output;
 	}
@@ -96,21 +88,33 @@ class SkinGroup extends OptionCata
 
 	function onChangeRGBShader() {
 		ClientPrefs.saveSettings();
+
+		/* Note Skins */
 		noteSkins = addSkins('noteSkins');
 		noteSkins.insert(0, ClientPrefs.defaultData.noteSkin); //I forgot to add this, cuz I'm a idiot
-		if(noteSkinOption.stringRect.isOpend) noteSkinOption.stringRect.change(); //close the old String Thing
-		noteSkinOption.strGroup = noteSkins; //Change between NF's and Psych's Note Skin Folders (`.options` changed with `.strGroup`)
-		noteSkinOption.select.options = noteSkins;
-		noteSkinOption.reloadStringSelection();
+		updateOption(noteSkinOption, noteSkins, ClientPrefs.data.noteSkin);
 
-		if(!noteSkins.contains(ClientPrefs.data.noteSkin))
+		/* Note Splash Skins */
+		splashSkins = (ClientPrefs.data.useRGB ? addSkins('noteSplashes') : addSkins('noteSplashSkins'));
+		if (ClientPrefs.data.useRGB) splashSkins.insert(0, 'Psych');
+		else splashSkins.insert(0, ClientPrefs.defaultData.splashSkin);
+		updateOption(splashSkinOption, splashSkins, ClientPrefs.data.splashSkin);
+	}
+
+	function updateOption(option:Option, array:Array<String>, variable:Dynamic) {
+		if(option.stringRect.isOpend) option.stringRect.change(); //close the old String Thing
+		option.strGroup = array; //Change between Psych Extended and Psych's Skin Folders (`.options` changed with `.strGroup`)
+		option.select.options = array; //change selector too
+		option.reloadStringSelection(); //Reload Selection Screen
+
+		if(!array.contains(variable))
 		{
-			noteSkinOption.defaultValue = noteSkinOption.strGroup[0]; //Reset to default if saved noteskin couldnt be found in between folders
+			option.defaultValue = option.strGroup[0]; //Reset to default if saved skin couldnt be found in between folders
 
 			//update text
-			noteSkinOption.setValue(noteSkinOption.strGroup[0]);
-			noteSkinOption.updateDisText();
-			noteSkinOption.change();
+			option.setValue(option.strGroup[0]);
+			option.updateDisText();
+			option.change();
 		}
 	}
 }

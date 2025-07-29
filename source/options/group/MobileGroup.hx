@@ -15,9 +15,14 @@ class MobileGroup extends OptionCata
 		HitboxTypes = Mods.mergeAllTextsNamed('mobile/Hitbox/HitboxModes/hitboxModeList.txt');
 
 		var option:Option = new Option(this,
-			'Mobile',
-			'Mobile',
+			'Controls',
 			TITLE
+		);
+		addOption(option);
+
+		var option:Option = new Option(this,
+			'Desktop',
+			TEXT
 		);
 		addOption(option);
 
@@ -32,6 +37,12 @@ class MobileGroup extends OptionCata
 		option.onChange = () -> OptionsState.instance.openSubState(new ControlsSubState());
 
 		#if TOUCH_CONTROLS
+		var option:Option = new Option(this,
+			'Mobile',
+			TEXT
+		);
+		addOption(option);
+		
 		var option:Option = new Option(this,
 			'Open Mobile Control Selector',
 			'Select Your In-game Control (MobilePad Controls will be removed soon for better modding)',
@@ -121,6 +132,7 @@ class MobileGroup extends OptionCata
 		addOption(option);
 		#end
 
+		#if mobile
 		var option:Option = new Option(this,
 			'Wide Screen Mode',
 			'If checked, The game will stetch to fill your whole screen. (WARNING: Can result in bad visuals & break some mods that resizes the game/cameras)',
@@ -151,6 +163,7 @@ class MobileGroup extends OptionCata
 		);
 		addOption(option);
 		option.onChange = () -> LoadingState.loadAndSwitchState(new mobile.states.CopyState());
+		#end
 
 		changeHeight(0);
 	}

@@ -33,7 +33,8 @@ class MobileControlSelectSubState extends MusicBeatSubstate
 	var config:Config;
 	var extendConfig:Config;
 	
-	var bg:FlxBackdrop;
+	var bg:FlxSprite;
+	var grid:FlxBackdrop;
 	var ui:FlxCamera;
 	public static var exit:UIButton;
 	public static var reset:UIButton;
@@ -48,20 +49,23 @@ class MobileControlSelectSubState extends MusicBeatSubstate
 		#if desktop FlxG.mouse.visible = true; #end
 
 		// Transparent background and UI
-		bg = new FlxBackdrop(FlxGridOverlay.createGrid(80, 80, 160, 160, true,
-			FlxColor.fromRGB(FlxG.random.int(0, 255), FlxG.random.int(0, 255), FlxG.random.int(0, 255)),
-			FlxColor.fromRGB(FlxG.random.int(0, 255), FlxG.random.int(0, 255), FlxG.random.int(0, 255))));
-		bg.velocity.set(40, 40);
+		bg = new FlxSprite(0, 0).makeGraphic(FlxG.width, FlxG.height, FlxColor.WHITE);
+		bg.scrollFactor.set();
 		bg.alpha = 0;
-		bg.antialiasing = ClientPrefs.data.antialiasing;
-		FlxTween.tween(bg, {alpha: 0.45}, 0.3, {
+		FlxTween.tween(bg, {alpha: 0.45}, 0.3, {ease: FlxEase.quadOut});
+		add(bg);
+
+		grid = new FlxBackdrop(FlxGridOverlay.createGrid(80, 80, 160, 160, true, 0x33FFFFFF, 0x0));
+		grid.velocity.set(40, 40);
+		grid.alpha = 0;
+		FlxTween.tween(grid, {alpha: 0.45}, 0.3, {
 			ease: FlxEase.quadOut,
 			onComplete: (twn:FlxTween) ->
 			{
 				FlxTween.tween(ui, {alpha: 1}, 0.2, {ease: FlxEase.circOut});
 			}
 		});
-		add(bg);
+		add(grid);
 
 		ui = new FlxCamera();
 		ui.bgColor.alpha = 0;

@@ -15,6 +15,17 @@ class UIGroup extends OptionCata
 
 		///////////////////////////////
 
+		#if EXTRA_FREEPLAY
+		var option:Option = new Option(this,
+			'Freeplay Menu Style:',
+			"Choose your Freeplay Menu Style",
+			'FreeplayMenu',
+			STRING,
+			['Psych', 'NovaFlare']
+		);
+		addOption(option);
+		#end
+
 		var option:Option = new Option(this,
 			'Note Splashes',
 			"If unchecked, hitting \"Sick!\" notes won't show particles.",

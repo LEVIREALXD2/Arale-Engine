@@ -58,7 +58,7 @@ class OptionsState extends MusicBeatState
 			'Visual & UI',
 			'Note Skins',
 			'Gameplay',
-			'Mobile'
+			'Controls'
 		];
 
 		mouseEvent = new MouseEvent();
@@ -217,7 +217,7 @@ class OptionsState extends MusicBeatState
 				obj = new SkinGroup(outputX, outputY, outputWidth, outputHeight);
 			case 'Gameplay':
 				obj = new GameplayGroup(outputX, outputY, outputWidth, outputHeight);
-			case 'Mobile':
+			case 'Controls':
 				obj = new MobileGroup(outputX, outputY, outputWidth, outputHeight);
 			default:
 				//nothing lol
@@ -331,7 +331,7 @@ class OptionsState extends MusicBeatState
 					MusicBeatState.switchState(new MainMenuState());
 					FlxG.mouse.visible = false;
 				case 1:
-						MusicBeatState.switchState(new FreeplayState());
+						CustomSwitchState.switchMenus('Freeplay');
 				case 2:
 					MusicBeatState.switchState(new PlayState());
 					FlxG.mouse.visible = false;

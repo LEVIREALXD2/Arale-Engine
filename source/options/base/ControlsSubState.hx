@@ -68,28 +68,24 @@ class ControlsSubState extends MusicBeatSubstate {
 	private var grpInputsAlt:Array<AttachedText> = [];
 	var rebindingKey:Bool = false;
 	var nextAccept:Int = 5;
-	var bg:FlxBackdrop;
+	var bg:FlxSprite;
+	var grid:FlxBackdrop;
 
 	public function new() {
 		super();
 
-		// Transparent background and UI
-		bg = new FlxBackdrop(FlxGridOverlay.createGrid(80, 80, 160, 160, true,
-			FlxColor.fromRGB(FlxG.random.int(0, 255), FlxG.random.int(0, 255), FlxG.random.int(0, 255)),
-			FlxColor.fromRGB(FlxG.random.int(0, 255), FlxG.random.int(0, 255), FlxG.random.int(0, 255))));
-		bg.velocity.set(40, 40);
-		bg.alpha = 0.45;
-		bg.antialiasing = ClientPrefs.data.antialiasing;
-		/*
-		FlxTween.tween(bg, {alpha: 0.45}, 0.3, {
-			ease: FlxEase.quadOut,
-			onComplete: (twn:FlxTween) ->
-			{
-				FlxTween.tween(ui, {alpha: 1}, 0.2, {ease: FlxEase.circOut});
-			}
-		});
-		*/
+		// Transparent background
+		bg = new FlxSprite(0, 0).makeGraphic(FlxG.width, FlxG.height, FlxColor.WHITE);
+		bg.scrollFactor.set();
+		bg.alpha = 0;
+		FlxTween.tween(bg, {alpha: 0.45}, 0.3, {ease: FlxEase.quadOut});
 		add(bg);
+
+		grid = new FlxBackdrop(FlxGridOverlay.createGrid(80, 80, 160, 160, true, 0x33FFFFFF, 0x0));
+		grid.velocity.set(40, 40);
+		grid.alpha = 0;
+		FlxTween.tween(grid, {alpha: 0.45}, 0.3, {ease: FlxEase.quadOut});
+		add(grid);
 
 		grpOptions = new FlxTypedGroup<Alphabet>();
 		add(grpOptions);

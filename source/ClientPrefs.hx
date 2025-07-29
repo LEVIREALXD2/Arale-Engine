@@ -24,7 +24,10 @@ import TitleState;
 		[0xFF71E300, 0xFFF6FFE6, 0xFF003100],
 		[0xFFFF884E, 0xFFFFFAF5, 0xFF6C0000]];
 	public var noteSkin:String = 'Default';
-	public var noteSplashSkin:String = 'Default';
+	public var splashSkin:String = 'Default';
+	#if EXTRA_FREEPLAY
+	public var FreeplayMenu:String = 'Psych';
+	#end
 	public var wideScreen:Bool = false;
 	public var hscriptversion:String = 'HScript Old';
 	public var chartLoadSystem:String = '0.4-0.7x';
