@@ -57,9 +57,9 @@ import TitleState;
 	
 	#if EXTRA_FPSCOUNTER
 	public var FPSCounter:String = 'Psych';
+	#end
 	public var rainbowFPS:Bool = true;
 	public var memoryType:Int = 0;
-	#end
 
 	//PsychEngine
 	public var downScroll:Bool = false;

@@ -3,8 +3,10 @@ package;
 import mobile.backend.CrashHandler;
 import openfl.events.UncaughtErrorEvent;
 import debug.FPSCounter;
+#if EXTRA_FPSCOUNTER
 import objects.screen.Graphics;
 import objects.screen.FPS;
+#end
 import Highscore;
 import flixel.FlxGame;
 import haxe.io.Path;
@@ -42,7 +44,9 @@ class Main extends Sprite
 	};
 
 	public static var fpsVar:FPSCounter;
+	#if EXTRA_FPSCOUNTER
 	public static var fpsVarNova:FPS;
+	#end
 
 	public static final platform:String = #if mobile "Phones" #else "PCs" #end;
 
