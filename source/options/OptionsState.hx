@@ -52,6 +52,8 @@ class OptionsState extends MusicBeatState
 		persistentUpdate = persistentDraw = true;
 		instance = this;
 		FlxG.mouse.visible = true;
+		Main.fpsVar.visible = false;
+		Main.fpsVarNova.visible = false;
 
 		naviArray = [
 			'Graphics',
@@ -324,7 +326,7 @@ class OptionsState extends MusicBeatState
 			else
 			#end
 				ClientPrefs.saveSettings();
-			Main.fpsVar.visible = ClientPrefs.data.showFPS;
+			#if EXTRA_FPSCOUNTER onChangeFPSCounterShit(); #end
 			switch (stateType)
 			{
 				case 0:
@@ -339,4 +341,17 @@ class OptionsState extends MusicBeatState
 			stateType = 0;
 		}
 	}
+
+	#if EXTRA_FPSCOUNTER
+	public static function onChangeFPSCounterShit()
+	{
+		Main.fpsVar.visible = false;
+		Main.fpsVarNova.visible = false;
+
+		if (ClientPrefs.data.FPSCounter == 'NovaFlare')
+			Main.fpsVarNova.visible = ClientPrefs.data.showFPS;
+		else if (ClientPrefs.data.FPSCounter == 'Psych')
+			Main.fpsVar.visible = ClientPrefs.data.showFPS;
+	}
+	#end
 }

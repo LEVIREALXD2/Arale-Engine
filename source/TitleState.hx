@@ -237,6 +237,7 @@ class TitleState extends MusicBeatState
 
 	function startIntro()
 	{
+		FPSCounterShit();
 		if (!initialized)
 		{
 			/*var diamond:FlxGraphic = FlxGraphic.fromClass(GraphicTransTileDiamond);
@@ -784,5 +785,18 @@ class TitleState extends MusicBeatState
 			}
 			skippedIntro = true;
 		}
+	}
+
+	function FPSCounterShit()
+	{
+		Main.fpsVar.visible = false;
+		#if EXTRA_FPSCOUNTER
+		Main.fpsVarNova.visible = false;
+
+		if (ClientPrefs.data.FPSCounter == 'NovaFlare')
+			Main.fpsVarNova.visible = ClientPrefs.data.showFPS;
+		else if (ClientPrefs.data.FPSCounter == 'Psych')
+		#end
+			Main.fpsVar.visible = ClientPrefs.data.showFPS;
 	}
 }

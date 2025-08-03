@@ -34,7 +34,7 @@ typedef AnimArray = {
 	var offsets:Array<Int>;
 }
 
-class Character extends FlxSprite
+class Character extends FlxSkewedSprite //FlxSprite can usable too but I don't recommend it
 {
 	/**
 	 * In case a character is missing, it will use this on its place

@@ -342,6 +342,14 @@ class Controls extends FlxActionSet
 		}
 	}
 
+	public function setCustomOverlaps(Overlap1:Dynamic, Overlap2:Dynamic, Overlap3:Dynamic, Overlap4:Dynamic)
+	{
+		inline forEachBound(Control.NOTE_UP, (action, state) -> FlxG.mouse.overlaps(Overlap1) && FlxG.mouse.justPressed);
+		inline forEachBound(Control.NOTE_DOWN, (action, state) -> FlxG.mouse.overlaps(Overlap2) && FlxG.mouse.justPressed);
+		inline forEachBound(Control.NOTE_LEFT, (action, state) -> FlxG.mouse.overlaps(Overlap3) && FlxG.mouse.justPressed);
+		inline forEachBound(Control.NOTE_RIGHT, (action, state) -> FlxG.mouse.overlaps(Overlap4) && FlxG.mouse.justPressed);
+	}
+
 	public function setMobilePadUI(MobilePad:MobilePad, DPad:String, Action:String):Void
 	{
 		if (MobilePad == null)

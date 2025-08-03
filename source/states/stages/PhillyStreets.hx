@@ -4,6 +4,7 @@ import openfl.filters.ShaderFilter;
 import shaders.RainShader;
 
 import flixel.addons.display.FlxTiledSprite;
+import flixel.addons.transition.FlxTransitionableState;
 import flixel.graphics.frames.FlxAtlasFrames;
 
 import states.stages.objects.*;
@@ -247,7 +248,6 @@ class PhillyStreets extends BaseStage
 	{
 		game.moveCamera(false);
 		camFollow.x += 250;
-		camFollowPos.x = camFollow.x;
 		FlxG.camera.snapToTarget();
 		FlxG.camera.zoom = 1.3;
 		spraycan.cutscene = true;
@@ -523,6 +523,7 @@ class PhillyStreets extends BaseStage
 	var animationFinished:Bool = false;
 	override function update(elapsed:Float)
 	{
+		if (game.inCutscene && camFollowPos != null && camFollowPos.x != camFollow.x) camFollowPos.x = camFollow.x; //fixes the camera issue
 		if(scrollingSky != null) scrollingSky.scrollX -= elapsed * 22;
 
 		if(rainShader != null)

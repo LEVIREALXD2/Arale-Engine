@@ -48,11 +48,17 @@ import TitleState;
 	public var extraKeyReturn7:String = 'S';
 	public var extraKeyReturn8:String = 'D';
 	public var hitboxhint:Bool = false;
-	public var hitboxmode:String = 'New'; //starting new way to change between hitboxes yay
+	public var hitboxmode:String = 'Normal (New)'; //starting new way to change between hitboxes yay
 	public var hitboxtype:String = 'Gradient';
 	public var extraKeys:Int = 2;
 	public var hitboxLocation:String = 'Bottom';
 	public var hitboxalpha:Float = #if mobile 0.7 #else 0 #end; //someone request this lol
+	#end
+	
+	#if EXTRA_FPSCOUNTER
+	public var FPSCounter:String = 'Psych';
+	public var rainbowFPS:Bool = true;
+	public var memoryType:Int = 0;
 	#end
 
 	//PsychEngine

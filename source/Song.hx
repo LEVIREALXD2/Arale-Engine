@@ -28,6 +28,10 @@ typedef SwagSong =
 	var stage:String;
 	var format:String;
 
+	@:optional var chartSystem:String; //Doesn't work for now
+	@:optional var cameraMode:String;
+	@:optional var disableVSliceControls:Bool; //for mechanics
+
 	@:optional var gameOverChar:String;
 	@:optional var gameOverSound:String;
 	@:optional var gameOverLoop:String;
@@ -66,7 +70,7 @@ class Song
 		if(songJson.gfVersion == null)
 		{
 			songJson.gfVersion = songJson.player3;
-			if (ClientPrefs.data.chartLoadSystem == '1.0x') if(Reflect.hasField(songJson, 'player3')) Reflect.deleteField(songJson, 'player3');
+			if (ClientPrefs.data.chartLoadSystem == '1.0x' || PlayState.forcedChartLoadSystem == '1.0x') if(Reflect.hasField(songJson, 'player3')) Reflect.deleteField(songJson, 'player3');
 			else songJson.player3 = null;
 		}
 
@@ -95,7 +99,7 @@ class Song
 		}
 
 		var sectionsData:Array<SwagSection> = songJson.notes;
-		if (ClientPrefs.data.chartLoadSystem == '1.0x')
+		if (ClientPrefs.data.chartLoadSystem == '1.0x' || PlayState.forcedChartLoadSystem == '1.0x')
 		{
 			if(sectionsData == null) return;
 			for (section in sectionsData)
@@ -168,7 +172,16 @@ class Song
 
 	public static function loadFromJson(jsonInput:String, ?folder:String):SwagSong
 	{
-		if (ClientPrefs.data.chartLoadSystem == '1.0x')
+		PlayState.forcedChartLoadSystem = null;
+		//forced charts (only changes the chart loading, if you want to use editor you need to change Chart Load System From Options)
+		var loadedSongFolder = 'data/' + Paths.formatToSongPath(folder) + '/1.0-Chart.txt'; //Forces to load 1.0x charts
+		var loadedOldSongFolder = 'data/' + Paths.formatToSongPath(folder) + '/0.6-Chart.txt'; //Only useful for base game songs
+		var chartOption = ClientPrefs.data.chartLoadSystem;
+
+		if(Paths.fileExists(loadedSongFolder, TEXT, false) && chartOption != '1.0x') PlayState.forcedChartLoadSystem = '1.0x';
+		else if(Paths.fileExists(loadedOldSongFolder, TEXT, false) && chartOption != '0.4-0.7x') PlayState.forcedChartLoadSystem = '0.4-0.7x';
+
+		if (ClientPrefs.data.chartLoadSystem == '1.0x' || PlayState.forcedChartLoadSystem == '1.0x')
 		{
 			trace('Current Chart System: 1.0');
 			if(folder == null) folder = jsonInput;
@@ -214,6 +227,7 @@ class Song
 			loadedSongName = folder;
 			if(jsonInput != 'events') StageData.loadDirectory(songJson);
 			onLoadJson(songJson);
+			if (ClientPrefs.data.chartLoadSystem == '1.0x') PlayState.SONG = songJson; //1.0 option fix
 			return songJson;
 		}
 	}

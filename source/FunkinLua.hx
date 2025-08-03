@@ -3793,7 +3793,7 @@ class HScript extends SScript
 		set('FlxTimer', flixel.util.FlxTimer);
 		set('FlxTween', flixel.tweens.FlxTween);
 		set('FlxEase', flixel.tweens.FlxEase);
-		set('Countdown', PlayState.Countdown);
+		set('Countdown', backend.Countdown);
 		set('PlayState', PlayState);
 		set('Paths', Paths);
 		set('Conductor', Conductor);

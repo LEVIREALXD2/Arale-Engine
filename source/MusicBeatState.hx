@@ -28,6 +28,9 @@ class MusicBeatState extends FlxUIState
 
 	private var curStep:Int = 0;
 	private var curBeat:Int = 0;
+	public var curStepFloat:Float;
+	public var curBeatFloat:Float;
+	public static var stepsPerBeat:Float = 4;
 
 	private var curDecStep:Float = 0;
 	private var curDecBeat:Float = 0;
@@ -197,6 +200,7 @@ class MusicBeatState extends FlxUIState
 		var oldStep:Int = curStep;
 		oldStepThing = curStep;
 
+		updateCurFloats();
 		updateCurStep();
 		updateBeat();
 
@@ -271,6 +275,13 @@ class MusicBeatState extends FlxUIState
 		var shit = ((Conductor.songPosition - ClientPrefs.data.noteOffset) - lastChange.songTime) / lastChange.stepCrochet;
 		curDecStep = lastChange.stepTime + shit;
 		curStep = lastChange.stepTime + Math.floor(shit);
+	}
+
+	private function updateCurFloats():Void
+	{
+		var lastChange = Conductor.getBPMFromSeconds(Conductor.songPosition);
+		curStepFloat = lastChange.stepTime + ((Conductor.songPosition - lastChange.songTime) / lastChange.stepCrochet);
+		curBeatFloat = curStepFloat / stepsPerBeat;
 	}
 
 	public static function switchState(nextState:FlxState = null) {

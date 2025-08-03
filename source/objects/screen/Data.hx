@@ -1,7 +1,5 @@
 package objects.screen;
 
-import cpp.vm.Gc;
-
 class DataGet
 {
 	static public var currentFPS:Float = 0;
@@ -33,7 +31,7 @@ class DataGet
 		if (FlxG.stage.window.frameRate != ClientPrefs.data.framerate)
 			FlxG.stage.window.frameRate = ClientPrefs.data.framerate;
 
-		var mem = cpp.vm.Gc.memInfo64(cpp.vm.Gc.MEM_INFO_USAGE); // 转化为MB
+		var mem = FlxMath.roundDecimal(Gc.memInfo64(ClientPrefs.data.memoryType) / 1000000, 1); // 转化为MB
 		if (Math.abs(mem) < 1000)
 		{
 			memory = Math.abs(mem);
@@ -52,7 +50,7 @@ class DataGet
 
 	static public function getMem():Float
 	{
-		return cpp.vm.Gc.memInfo64(cpp.vm.Gc.MEM_INFO_USAGE); // 转化为MB
+		return FlxMath.roundDecimal(Gc.memInfo64(ClientPrefs.data.memoryType) / 1000000, 1); // 转化为MB
 	}
 }
 

@@ -232,7 +232,7 @@ class PauseSubState extends MusicBeatSubstate
 				{
 					if(menuItems.length - 1 != curSelected && difficultyChoices.contains(daSelected))
 					{
-						if (ClientPrefs.data.chartLoadSystem == '1.0x') Song.loadFromJson(poop, songLowercase);
+						if (ClientPrefs.data.chartLoadSystem == '1.0x' || PlayState.forcedChartLoadSystem == '1.0x') Song.loadFromJson(poop, songLowercase);
 						else PlayState.SONG = Song.loadFromJson(poop, songLowercase);
 						PlayState.storyDifficulty = curSelected;
 						MusicBeatState.resetState();

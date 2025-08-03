@@ -26,6 +26,18 @@ class UIGroup extends OptionCata
 		addOption(option);
 		#end
 
+		#if EXTRA_FPSCOUNTER
+		var option:Option = new Option(this,
+			'FPS Counter Style:',
+			"Choose your FPS Counter Style",
+			'FPSCounter',
+			STRING,
+			['Psych', 'NovaFlare']
+		);
+		addOption(option);
+		//option.onChange = OptionsState.onChangeFPSCounterShit;
+		#end
+
 		var option:Option = new Option(this,
 			'Note Splashes',
 			"If unchecked, hitting \"Sick!\" notes won't show particles.",

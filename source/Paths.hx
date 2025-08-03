@@ -122,12 +122,12 @@ class Paths
 		{
 			var levelPath:String = '';
 			if(currentLevel != 'shared') {
-				levelPath = getLibraryPathForce(file, currentLevel);
+				levelPath = getLibraryPathForce(file, 'week_assets', 'week_assets/' + currentLevel);
 				if (OpenFlAssets.exists(levelPath, type))
 					return levelPath;
 			}
 
-			levelPath = getLibraryPathForce(file, "shared");
+			levelPath = getLibraryPathForce(file, "shared", "shared");
 			if (OpenFlAssets.exists(levelPath, type))
 				return levelPath;
 		}
@@ -137,12 +137,13 @@ class Paths
 
 	static public function getLibraryPath(file:String, library = "preload")
 	{
-		return if (library == "preload" || library == "default") getPreloadPath(file); else getLibraryPathForce(file, library);
+		return if (library == "preload" || library == "default") getPreloadPath(file); else getLibraryPathForce(file, library, library);
 	}
 
-	inline static function getLibraryPathForce(file:String, library:String)
+	inline static function getLibraryPathForce(file:String, library:String, ?level:String)
 	{
-		var returnPath = '$library:assets/$library/$file';
+		if(level == null) level = library;
+		var returnPath = '$library:assets/$level/$file';
 		return returnPath;
 	}
 
@@ -277,12 +278,12 @@ class Paths
 		{
 			var levelPath:String = '';
 			if(currentLevel != 'shared') {
-				levelPath = getLibraryPathForce(key, currentLevel);
+				levelPath = getLibraryPathForce(key, 'week_assets', 'week_assets/' + currentLevel);
 				if (FileSystem.exists(levelPath))
 					return File.getContent(levelPath);
 			}
 
-			levelPath = getLibraryPathForce(key, 'shared');
+			levelPath = getLibraryPathForce(key, 'shared', 'shared');
 			if (FileSystem.exists(levelPath))
 				return File.getContent(levelPath);
 		}

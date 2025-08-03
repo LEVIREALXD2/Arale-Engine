@@ -480,7 +480,7 @@ class FreeplayStateNOVA extends MusicBeatState
 					destroyFreeplayVocals();
 					FlxG.sound.music.stop();
 					//ChartingState.isFreePlay = true;
-					LoadingState.loadAndSwitchState(new ChartingState());
+					CustomSwitchState.switchMenus('Charting', true);
 				}
 			case 4: 
 				if (Math.abs(lerpPosition - position) > 1) return;

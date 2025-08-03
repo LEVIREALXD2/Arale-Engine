@@ -35,6 +35,15 @@ class GameOverSubstate extends MusicBeatSubstate
 		loopSoundName = 'gameOver';
 		endSoundName = 'gameOverEnd';
 		deathDelay = 0;
+
+		var _song = PlayState.SONG;
+		if(_song != null)
+		{
+			if(_song.gameOverChar != null && _song.gameOverChar.trim().length > 0) characterName = _song.gameOverChar;
+			if(_song.gameOverSound != null && _song.gameOverSound.trim().length > 0) deathSoundName = _song.gameOverSound;
+			if(_song.gameOverLoop != null && _song.gameOverLoop.trim().length > 0) loopSoundName = _song.gameOverLoop;
+			if(_song.gameOverEnd != null && _song.gameOverEnd.trim().length > 0) endSoundName = _song.gameOverEnd;
+		}
 	}
 
 	var charX:Float = 0;
@@ -69,14 +78,58 @@ class GameOverSubstate extends MusicBeatSubstate
 		FlxG.camera.follow(camFollow, LOCKON, 0.01);
 		add(camFollow);
 		
-		PlayState.instance.setOnLuas('inGameOver', true);
-		PlayState.instance.callOnLuas('onGameOverStart', []);
+		PlayState.instance.setOnScripts('inGameOver', true);
+		PlayState.instance.callOnScripts('onGameOverStart', []);
 		FlxG.sound.music.loadEmbedded(Paths.music(loopSoundName), true);
 
 		#if TOUCH_CONTROLS
 		addMobilePad("NONE", "A_B");
 		addMobilePadCamera();
 		#end
+
+		// For Pico Mix Mods ig
+		if(characterName == 'pico-dead')
+		{
+			overlay = new FlxSprite(boyfriend.x + 205, boyfriend.y - 80);
+			overlay.frames = Paths.getSparrowAtlas('Pico_Death_Retry');
+			overlay.animation.addByPrefix('deathLoop', 'Retry Text Loop', 24, true);
+			overlay.animation.addByPrefix('deathConfirm', 'Retry Text Confirm', 24, false);
+			overlay.antialiasing = ClientPrefs.data.antialiasing;
+			overlayConfirmOffsets.set(250, 200);
+			overlay.visible = false;
+			add(overlay);
+
+			boyfriend.animation.callback = function(name:String, frameNumber:Int, frameIndex:Int)
+			{
+				switch(name)
+				{
+					case 'firstDeath':
+						if(frameNumber >= 36 - 1)
+						{
+							overlay.visible = true;
+							overlay.animation.play('deathLoop');
+							boyfriend.animation.callback = null;
+						}
+					default:
+						boyfriend.animation.callback = null;
+				}
+			}
+
+			if(PlayState.instance.gf != null && PlayState.instance.gf.curCharacter == 'nene')
+			{
+				var neneKnife:FlxSprite = new FlxSprite(boyfriend.x - 450, boyfriend.y - 250);
+				neneKnife.frames = Paths.getSparrowAtlas('NeneKnifeToss');
+				neneKnife.animation.addByPrefix('anim', 'knife toss', 24, false);
+				neneKnife.antialiasing = ClientPrefs.data.antialiasing;
+				neneKnife.animation.finishCallback = function(_)
+				{
+					remove(neneKnife);
+					neneKnife.destroy();
+				}
+				insert(0, neneKnife);
+				neneKnife.animation.play('anim', true);
+			}
+		}
 
 		super.create();
 	}
@@ -85,7 +138,7 @@ class GameOverSubstate extends MusicBeatSubstate
 	{
 		super.update(elapsed);
 
-		PlayState.instance.callOnLuas('onUpdate', [elapsed]);
+		PlayState.instance.callOnScripts('onUpdate', [elapsed]);
 
 		var justPlayedLoop:Bool = false;
 		if (!boyfriend.isAnimationNull() && boyfriend.getAnimationName() == 'firstDeath' && boyfriend.isAnimationFinished())
@@ -121,7 +174,7 @@ class GameOverSubstate extends MusicBeatSubstate
 					CustomSwitchState.switchMenus('Freeplay');
 	
 				FlxG.sound.playMusic(Paths.music('freakyMenu'));
-				PlayState.instance.callOnLuas('onGameOverConfirm', [false]);
+				PlayState.instance.callOnScripts('onGameOverConfirm', [false]);
 			}
 			else if (justPlayedLoop)
 			{
@@ -150,7 +203,7 @@ class GameOverSubstate extends MusicBeatSubstate
 				Conductor.songPosition = FlxG.sound.music.time;
 			}
 		}
-		PlayState.instance.callOnLuas('onUpdatePost', [elapsed]);
+		PlayState.instance.callOnScripts('onUpdatePost', [elapsed]);
 	}
 
 	var isEnding:Bool = false;
@@ -185,7 +238,7 @@ class GameOverSubstate extends MusicBeatSubstate
 					MusicBeatState.resetState();
 				});
 			});
-			PlayState.instance.callOnLuas('onGameOverConfirm', [true]);
+			PlayState.instance.callOnScripts('onGameOverConfirm', [true]);
 		}
 	}
 

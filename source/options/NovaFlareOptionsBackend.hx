@@ -826,6 +826,7 @@ class BoolButton extends FlxSpriteGroup {
 				}
 			}
 		}
+		updateBgColor();
 	}
 
 	function change(data:Bool) {
@@ -848,8 +849,12 @@ class BoolButton extends FlxSpriteGroup {
 		moveTween = FlxTween.tween(dis, { x: follow.followX + follow.innerX + innerX + targetX}, 0.2, { ease: FlxEase.quadOut });
 
 		// Tween the background color
-		var targetColor = follow.defaultValue ? 0x63FF75 : 0xFF6363;
 		//FlxTween.color(bg, 0.2, bg.color, targetColor, { ease: FlxEase.quadOut });
-		bg.color = targetColor; //为什么几把不能用tween
+		//bg.color = targetColor; //为什么几把不能用tween
+	}
+	
+	function updateBgColor(){
+		var targetColor = follow.defaultValue ? 0x63FF75 : 0xFF6363;
+		bg.color = FlxColor.interpolate(bg.color, targetColor, 0.2);
 	}
 }

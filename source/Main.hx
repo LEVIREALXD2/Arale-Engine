@@ -3,6 +3,8 @@ package;
 import mobile.backend.CrashHandler;
 import openfl.events.UncaughtErrorEvent;
 import debug.FPSCounter;
+import objects.screen.Graphics;
+import objects.screen.FPS;
 import Highscore;
 import flixel.FlxGame;
 import haxe.io.Path;
@@ -40,6 +42,7 @@ class Main extends Sprite
 	};
 
 	public static var fpsVar:FPSCounter;
+	public static var fpsVarNova:FPS;
 
 	public static final platform:String = #if mobile "Phones" #else "PCs" #end;
 
@@ -119,13 +122,19 @@ class Main extends Sprite
 		#if ACHIEVEMENTS_ALLOWED Achievements.load(); #end
 		addChild(new FlxGame(game.width, game.height, #if (mobile && MODS_ALLOWED) CopyState.checkExistingFiles() ? game.initialState : CopyState #else game.initialState #end, #if (flixel < "5.0.0") game.zoom, #end game.framerate, game.framerate, game.skipSplash, game.startFullscreen));
 
+		#if EXTRA_FPSCOUNTER
+		/* Note to future myself: don't forget the add FPS.tff into fonts folder because if font can't found game instantly crashes, if you forget it you're a idiot */
+		fpsVarNova = new FPS(5, 5);
+		addChild(fpsVarNova);
+		if (fpsVarNova != null) { fpsVarNova.scaleX = fpsVarNova.scaleY = 1; fpsVarNova.visible = false; }
+		#end
+
 		fpsVar = new FPSCounter(10, 3, 0xFFFFFF);
 		addChild(fpsVar);
+		if(fpsVar != null) fpsVar.visible = false;
+
 		Lib.current.stage.align = "tl";
 		Lib.current.stage.scaleMode = StageScaleMode.NO_SCALE;
-		if(fpsVar != null) {
-			fpsVar.visible = ClientPrefs.data.showFPS;
-		}
 
 		#if linux
 		var icon = Image.fromFile("icon.png");

@@ -9,6 +9,15 @@ import Note;
 import Character;
 import Note.EventNote;
 
+enum Countdown
+{
+	THREE;
+	TWO;
+	ONE;
+	GO;
+	START;
+}
+
 class BaseStage extends FlxBasic
 {
 	private var game(get, never):Dynamic;
