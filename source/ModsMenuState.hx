@@ -19,6 +19,8 @@ import lime.utils.Assets;
 
 class ModsMenuState extends MusicBeatState
 {
+	public static var isFreePlay:Bool = false;
+
 	var bg:FlxSprite;
 	var icon:FlxSprite;
 	var modName:Alphabet;
@@ -356,8 +358,14 @@ class ModsMenuState extends MusicBeatState
 					FreeplayState.vocals = null;
 				}
 				FlxG.camera.fade(FlxColor.BLACK, 0.5, false, FlxG.resetGame, false);
+				isFreePlay = false;
 			}
-			else MusicBeatState.switchState(new MainMenuState());
+			else if (isFreePlay)
+			{
+				CustomSwitchState.switchMenus('Freeplay');
+				isFreePlay = false;
+			}
+			else CustomSwitchState.switchMenus('MainMenu');
 
 			persistentUpdate = false;
 			FlxG.autoPause = true;

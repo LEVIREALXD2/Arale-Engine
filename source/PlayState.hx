@@ -67,7 +67,8 @@ import sys.io.File;
 #end
 
 #if VIDEOS_ALLOWED
-import vlc.MP4Handler;
+//import vlc.MP4Handler;
+import objects.VideoSprite;
 #end
 
 // stages
@@ -340,6 +341,7 @@ class PlayState extends MusicBeatState
 		debugKeysChart = ClientPrefs.copyKey(ClientPrefs.keyBinds.get('debug_1'));
 		debugKeysCharacter = ClientPrefs.copyKey(ClientPrefs.keyBinds.get('debug_2'));
 		PauseSubState.songName = null; //Reset to default
+		#if EXTRA_PAUSE PauseSubStateNOVA.songName = null; #end //Reset to default
 		playbackRate = ClientPrefs.getGameplaySetting('songspeed', 1);
 
 		keysArray = [
@@ -409,6 +411,7 @@ class PlayState extends MusicBeatState
 
 		FlxG.cameras.setDefaultDrawTarget(camGame, true);
 		CustomFadeTransition.nextCamera = camOther;
+		#if EXTRA_TRANSITIONS CustomFadeTransitionNOVA.nextCamera = camOther; #end
 
 		persistentUpdate = persistentDraw = true;
 
@@ -811,8 +814,12 @@ class PlayState extends MusicBeatState
 		precacheList.set('missnote2', 'sound');
 		precacheList.set('missnote3', 'sound');
 
-		if (PauseSubState.songName != null) {
+		if (PauseSubState.songName != null #if EXTRA_PAUSE && ClientPrefs.data.PauseMenuStyle == 'Psych' #end) {
 			precacheList.set(PauseSubState.songName, 'music');
+		#if EXTRA_PAUSE
+		} else if (PauseSubStateNOVA.songName != null && ClientPrefs.data.PauseMenuStyle == 'NovaFlare') {
+			precacheList.set(PauseSubStateNOVA.songName, 'music');
+		#end
 		} else if(ClientPrefs.data.pauseMusic != 'None') {
 			precacheList.set(Paths.formatToSongPath(ClientPrefs.data.pauseMusic), 'music');
 		}
@@ -852,6 +859,7 @@ class PlayState extends MusicBeatState
 		Paths.clearUnusedMemory();
 		
 		CustomFadeTransition.nextCamera = camOther;
+		#if EXTRA_TRANSITIONS CustomFadeTransitionNOVA.nextCamera = camOther; #end
 	}
 
 	#if (!flash && sys)
@@ -1069,45 +1077,65 @@ class PlayState extends MusicBeatState
 		char.y += char.positionArray[1];
 	}
 
-	var videoCutscene:MP4Handler = null;
-	public function startVideo(name:String)
+	public var videoCutscene:VideoSprite = null;
+	public function startVideo(name:String, forMidSong:Bool = false, canSkip:Bool = true, loop:Bool = false, playOnLoad:Bool = true)
 	{
 		#if VIDEOS_ALLOWED
-		inCutscene = true;
+		inCutscene = !forMidSong;
+		canPause = forMidSong;
 
-		var filepath:String = Paths.video(name);
+		var foundFile:Bool = false;
+		var fileName:String = Paths.video(name);
+
 		#if sys
-		if(!FileSystem.exists(filepath))
+		if (FileSystem.exists(fileName))
 		#else
-		if(!OpenFlAssets.exists(filepath))
+		if (OpenFlAssets.exists(fileName))
 		#end
-		{
-			FlxG.log.warn('Couldnt find video file: ' + name);
-			startAndEnd();
-			return;
-		}
+		foundFile = true;
 
-		videoCutscene = new MP4Handler();
-		#if (hxCodec < "3.0.0" && !ios)
-		videoCutscene.playVideo(filepath);
-		videoCutscene.finishCallback = function()
+		if (foundFile)
 		{
-			startAndEnd();
-			return;
+			videoCutscene = new VideoSprite(fileName, forMidSong, canSkip, loop);
+			if(forMidSong) videoCutscene.videoSprite.bitmap.rate = playbackRate;
+
+			// Finish callback
+			if (!forMidSong)
+			{
+				function onVideoEnd()
+				{
+					if (!isDead && generatedMusic && PlayState.SONG.notes[Std.int(curStep / 16)] != null && !endingSong && !isCameraOnForcedPos)
+					{
+						moveCameraSection();
+						FlxG.camera.snapToTarget();
+					}
+					videoCutscene = null;
+					canPause = true;
+					inCutscene = false;
+					startAndEnd();
+				}
+				videoCutscene.finishCallback = onVideoEnd;
+				videoCutscene.onSkip = onVideoEnd;
+			}
+			if (GameOverSubstate.instance != null && isDead) GameOverSubstate.instance.add(videoCutscene);
+			else add(videoCutscene);
+
+			/*
+			if (playOnLoad)
+				videoCutscene.play();
+			*/
+			return videoCutscene;
 		}
+		#if (LUA_ALLOWED || HSCRIPT_ALLOWED)
+		else addTextToDebug("Video not found: " + fileName, FlxColor.RED);
 		#else
-		videoCutscene.play(filepath);
-		videoCutscene.onEndReached.add(function(){
-			videoCutscene.dispose();
-			startAndEnd();
-			return;
-		});
+		else FlxG.log.error("Video not found: " + fileName);
 		#end
 		#else
 		FlxG.log.warn('Platform not supported!');
 		startAndEnd();
-		return;
 		#end
+		return null;
 	}
 
 	function startAndEnd()
@@ -1292,6 +1320,7 @@ class PlayState extends MusicBeatState
 
 				swagCounter += 1;
 			}, 5);
+			#if NEW_HSCRIPT scripts.call("onPostStartCountdown"); #end
 		}
 	}
 
@@ -1455,6 +1484,7 @@ class PlayState extends MusicBeatState
 
 	function startSong():Void
 	{
+		#if NEW_HSCRIPT scripts.call("onSongStart"); #end
 		startingSong = false;
 
 		previousFrameTime = FlxG.game.ticks;
@@ -1492,6 +1522,7 @@ class PlayState extends MusicBeatState
 		#end
 		setOnScripts('songLength', songLength);
 		callOnScripts('onSongStart');
+		#if NEW_HSCRIPT scripts.call("onStartSong"); #end
 	}
 
 	var debugNum:Int = 0;
@@ -1911,6 +1942,8 @@ class PlayState extends MusicBeatState
 		}
 		vocals.play();
 		opponentVocals.play();
+
+		#if NEW_HSCRIPT scripts.call("onVocalsResync"); #end
 	}
 
 	public var paused:Bool = false;
@@ -2202,8 +2235,13 @@ class PlayState extends MusicBeatState
 			vocals.pause();
 			opponentVocals.pause();
 		}
-		openSubState(new PauseSubState(/* boyfriend.getScreenPosition().x, boyfriend.getScreenPosition().y */));
-		//}
+
+		#if EXTRA_PAUSE
+		if (ClientPrefs.data.PauseMenuStyle == 'NovaFlare')
+			openSubState(new PauseSubStateNOVA());
+		else
+		#end
+			openSubState(new PauseSubState(/* boyfriend.getScreenPosition().x, boyfriend.getScreenPosition().y */));
 
 		#if DISCORD_ALLOWED
 		DiscordClient.changePresence(detailsPausedText, SONG.song + " (" + storyDifficultyText + ")", iconP2.getCharacter());
@@ -2633,6 +2671,7 @@ class PlayState extends MusicBeatState
 	public var transitioning = false;
 	public function endSong()
 	{
+		#if NEW_HSCRIPT scripts.call("onSongEnd"); #end
 		//Should kill you if you tried to cheat
 		if(!startingSong) {
 			notes.forEach(function(daNote:Note) {
@@ -2702,6 +2741,7 @@ class PlayState extends MusicBeatState
 					cancelMusicFadeTween();
 					if(FlxTransitionableState.skipNextTransIn) {
 						CustomFadeTransition.nextCamera = null;
+						#if EXTRA_TRANSITIONS CustomFadeTransitionNOVA.nextCamera = null; #end
 					}
 					canResync = false;
 					MusicBeatState.switchState(new StoryMenuState());
@@ -2755,6 +2795,7 @@ class PlayState extends MusicBeatState
 				cancelMusicFadeTween();
 				if(FlxTransitionableState.skipNextTransIn) {
 					CustomFadeTransition.nextCamera = null;
+					#if EXTRA_TRANSITIONS CustomFadeTransitionNOVA.nextCamera = null; #end
 				}
 				canResync = false;
 				CustomSwitchState.switchMenus('Freeplay');
@@ -3478,6 +3519,7 @@ class PlayState extends MusicBeatState
 	}
 
 	override function destroy() {
+		#if NEW_HSCRIPT scripts.call("destroy"); #end
 		stagesFunc(function(stage:BaseStage)
 		{
 			stage.destroy();
@@ -3555,6 +3597,7 @@ class PlayState extends MusicBeatState
 		lastStepHit = curStep;
 		setOnScripts('curStep', curStep);
 		callOnScripts('onStepHit');
+		#if NEW_HSCRIPT scripts.call("stepHit", [curStep]); #end
 	}
 
 	var lastBeatHit:Int = -1;
@@ -3854,11 +3897,13 @@ class PlayState extends MusicBeatState
 	public function callOnHScript(funcToCall:String, args:Array<Dynamic> = null, ?ignoreStops:Bool = false, exclusions:Array<String> = null, excludeValues:Array<Dynamic> = null):Dynamic {
 		#if NEW_HSCRIPT
 		var cneLikeFunctions = funcToCall;
+		var doNotCall:Bool = false;
 		if (funcToCall == 'onCreatePost') cneLikeFunctions = 'postCreate';
 		else if (funcToCall == 'onUpdate') cneLikeFunctions = 'update';
 		else if (funcToCall == 'onUpdatePost') cneLikeFunctions = 'postUpdate';
+		else if (funcToCall == 'onSongStart') doNotCall = true;
 
-		if (scripts != null) scripts.call(cneLikeFunctions, args);
+		if (scripts != null && !doNotCall) scripts.call(cneLikeFunctions, args);
 		#end
 		var returnVal:Dynamic = FunkinLua.Function_Continue;
 

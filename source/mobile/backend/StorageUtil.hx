@@ -4,8 +4,9 @@ import lime.system.System as LimeSystem;
 import haxe.io.Path;
 import haxe.Exception;
 #if android
-import android.Tools;
-import android.callback.CallBack;
+import extension.androidtools.Tools;
+import extension.androidtools.callback.CallBack;
+import extension.androidtools.jni.JNICache; //make it manual
 #end
 
 /**
@@ -97,9 +98,16 @@ class StorageUtil
 	#end
 
 	#if android
+	/* getGrantedPermissions Function (Idk how can I new one) */
+	public static inline function getGrantedPermissions(?useNew:Bool):Array<String>
+	{
+		if(useNew) return AndroidPermissions.getGrantedPermissions();
+		else return JNICache.createStaticMethod('org/haxe/extension/Tools', 'getGrantedPermissions', '()[Ljava/lang/String;')();
+	}
+
 	public static function requestPermissions():Void
 	{
-		if (AndroidVersion.SDK_INT >= AndroidVersionCode.TIRAMISU)
+		if (AndroidVersion.SDK_INT >= 33) //AndroidVersionCode.TIRAMISU
 			AndroidPermissions.requestPermissions(['READ_MEDIA_IMAGES', 'READ_MEDIA_VIDEO', 'READ_MEDIA_AUDIO', 'READ_MEDIA_VISUAL_USER_SELECTED']);
 		else
 			AndroidPermissions.requestPermissions(['READ_EXTERNAL_STORAGE', 'WRITE_EXTERNAL_STORAGE']);
@@ -112,9 +120,9 @@ class StorageUtil
 		}
 
 		if ((AndroidVersion.SDK_INT >= AndroidVersionCode.TIRAMISU
-			&& !AndroidPermissions.getGrantedPermissions().contains('android.permission.READ_MEDIA_IMAGES'))
+			&& !getGrantedPermissions().contains('android.permission.READ_MEDIA_IMAGES'))
 			|| (AndroidVersion.SDK_INT < AndroidVersionCode.TIRAMISU
-				&& !AndroidPermissions.getGrantedPermissions().contains('android.permission.READ_EXTERNAL_STORAGE')))
+				&& !getGrantedPermissions().contains('android.permission.READ_EXTERNAL_STORAGE')))
 			CoolUtil.showPopUp('If you accepted the permissions you are all good!' + '\nIf you didn\'t then expect a crash' + '\nPress OK to see what happens',
 				'Notice!');
 

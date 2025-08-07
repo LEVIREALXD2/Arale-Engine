@@ -36,13 +36,15 @@ class MobileGroup extends OptionCata
 		addOption(option);
 		option.onChange = () -> OptionsState.instance.openSubState(new ControlsSubState());
 
-		#if TOUCH_CONTROLS
+		#if (TOUCH_CONTROLS || mobile)
 		var option:Option = new Option(this,
 			'Mobile',
 			TEXT
 		);
 		addOption(option);
-		
+		#end
+
+		#if TOUCH_CONTROLS
 		var option:Option = new Option(this,
 			'Open Mobile Control Selector',
 			'Select Your In-game Control (MobilePad Controls will be removed soon for better modding)',

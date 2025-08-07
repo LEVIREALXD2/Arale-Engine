@@ -28,6 +28,9 @@ import funkin.backend.FunkinSprite;
 import funkin.backend.shaders.FunkinShader;
 import funkin.backend.shaders.CustomShader;
 
+//Returns hxCodec requests to hxvlc
+//import vlc.MP4Handler;
+
 import backend.BaseStage;
 import Song.SwagSong;
 import Section.SwagSection;
@@ -71,15 +74,15 @@ import mobile.backend.MobileScaleMode;
 
 // Android
 #if android
-import android.Tools as AndroidTools;
-import android.Settings as AndroidSettings;
-import android.widget.Toast as AndroidToast;
-import android.content.Context as AndroidContext;
-import android.Permissions as AndroidPermissions;
-import android.os.Build.VERSION as AndroidVersion;
-import android.os.Environment as AndroidEnvironment;
-import android.os.BatteryManager as AndroidBatteryManager;
-import android.os.Build.VERSION_CODES as AndroidVersionCode;
+import extension.androidtools.Tools as AndroidTools;
+import extension.androidtools.Settings as AndroidSettings;
+import extension.androidtools.widget.Toast as AndroidToast;
+import extension.androidtools.content.Context as AndroidContext;
+import extension.androidtools.Permissions as AndroidPermissions;
+import extension.androidtools.os.Build.VERSION as AndroidVersion;
+import extension.androidtools.os.Environment as AndroidEnvironment;
+//import extension.androidtools.os.BatteryManager as AndroidBatteryManager;
+import extension.androidtools.os.Build.VERSION_CODES as AndroidVersionCode;
 #end
 
 // Lua
@@ -120,7 +123,7 @@ import flixel.FlxObject;
 import flixel.math.FlxMath;
 import flixel.tweens.FlxEase;
 import flixel.util.FlxDestroyUtil;
-import hxcodec.flixel.FlxVideo;
+//import hxcodec.flixel.FlxVideo;
 import psychlua.LuaUtils;
 import haxe.ds.StringMap;
 #end

@@ -152,6 +152,11 @@ class Paths
 		return 'assets/$file';
 	}
 
+	inline public static function getSharedPath(file:String = '')
+	{
+		return 'shared:assets/shared/$file';
+	}
+
 	inline static public function file(file:String, type:AssetType = TEXT, ?library:String)
 	{
 		return getPath(file, type, library);

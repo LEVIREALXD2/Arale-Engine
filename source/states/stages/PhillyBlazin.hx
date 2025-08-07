@@ -115,9 +115,9 @@ class PhillyBlazin extends BaseStage
 			camFollowPos.x = camFollow.x;
 			camFollowPos.y = camFollow.y;
 		}
-		*/
-		if (ClientPrefs.data.UseNewCamSystem) FlxG.camera.focusOn(camFollow.getPosition());
-		else FlxG.camera.focusOn(camFollow);
+		if (ClientPrefs.data.UseNewCamSystem) */
+		FlxG.camera.focusOn(camFollow.getPosition());
+		//else FlxG.camera.focusOn(camFollow);
 		FlxG.camera.fade(FlxColor.BLACK, 1.5, true, null, true);
 
 		for (character in boyfriendGroup.members)

@@ -330,12 +330,13 @@ class OptionsState extends MusicBeatState
 			switch (stateType)
 			{
 				case 0:
-					MusicBeatState.switchState(new MainMenuState());
+					CustomSwitchState.switchMenus('MainMenu');
 					FlxG.mouse.visible = false;
 				case 1:
 						CustomSwitchState.switchMenus('Freeplay');
 				case 2:
-					MusicBeatState.switchState(new PlayState());
+					StageData.loadDirectory(PlayState.SONG); //Load Stage Directory (fixes null object issues)
+					LoadingState.loadAndSwitchState(new PlayState());
 					FlxG.mouse.visible = false;
 			}
 			stateType = 0;

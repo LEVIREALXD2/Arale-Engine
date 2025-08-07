@@ -58,6 +58,7 @@ enum abstract WaveformTarget(String)
 
 class ChartingStateNew extends MusicBeatState implements PsychUIEventHandler.PsychUIEvent
 {
+	public static var isFreePlay:Bool = false;
 	var useDesktopThings:Bool = #if TOUCH_CONTROLS (ClientPrefs.data.KeyboardFixes ? true : false) #else true #end;
 
 	public static final defaultEvents:Array<Array<String>> =
@@ -127,7 +128,6 @@ class ChartingStateNew extends MusicBeatState implements PsychUIEventHandler.Psy
 	var sectionFirstNoteID:Int = 0;
 	var sectionFirstEventID:Int = 0;
 	public static var curSec:Int = 0;
-	public static var isFreePlay:Bool = false;
 
 	var chartEditorSave:FlxSave;
 	var mainBox:PsychUIBox;
@@ -4302,8 +4302,9 @@ class ChartingStateNew extends MusicBeatState implements PsychUIEventHandler.Psy
 		var btn:PsychUIButton = new PsychUIButton(btnX, btnY, '  Exit', function()
 		{
 			PlayState.chartingMode = false;
-			MusicBeatState.switchState(new editors.MasterEditorMenu());
-			isFreePlay = false;
+			if (isFreePlay) CustomSwitchState.switchMenus('Freeplay');
+			else MusicBeatState.switchState(new editors.MasterEditorMenu());
+			editors.ChartingState.isFreePlay = isFreePlay = false;
 			FlxG.sound.playMusic(Paths.music('freakyMenu'));
 			FlxG.mouse.visible = false;
 		}, btnWid);

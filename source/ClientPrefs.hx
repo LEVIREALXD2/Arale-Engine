@@ -8,32 +8,21 @@ import TitleState;
 
 // Add a variable here and it will get automatically saved
 @:structInit class SaveVariables {
-	public var uiScale:Float = 1;
-	public var UseNewCamSystem:Bool = false;
+
+	/* Psych Extended Options */
 	public var KeyboardFixes:Bool = false;
 	public var Modpack:Bool = false;
-	public var useRGB:Bool = false;
-	public var arrowRGB:Array<Array<FlxColor>> = [
-		[0xFFC24B99, 0xFFFFFFFF, 0xFF3C1F56],
-		[0xFF00FFFF, 0xFFFFFFFF, 0xFF1542B7],
-		[0xFF12FA05, 0xFFFFFFFF, 0xFF0A4447],
-		[0xFFF9393F, 0xFFFFFFFF, 0xFF651038]];
-	public var arrowRGBPixel:Array<Array<FlxColor>> = [
-		[0xFFE276FF, 0xFFFFF9FF, 0xFF60008D],
-		[0xFF3DCAFF, 0xFFF4FFFF, 0xFF003060],
-		[0xFF71E300, 0xFFF6FFE6, 0xFF003100],
-		[0xFFFF884E, 0xFFFFFAF5, 0xFF6C0000]];
-	public var noteSkin:String = 'Default';
-	public var splashSkin:String = 'Default';
-	#if EXTRA_FREEPLAY
-	public var FreeplayMenu:String = 'Psych';
-	#end
-	public var wideScreen:Bool = false;
+
+	/* 0.7 Support */
 	public var hscriptversion:String = 'HScript Old';
 	public var chartLoadSystem:String = '0.4-0.7x';
+	public var UseNewCamSystem:Bool = false;
+	
+	/* Mobile */
+	public var wideScreen:Bool = false;
 	#if android public var storageType:String = "EXTERNAL_DATA"; #end
-	public var discordRPC:Bool = true;
 
+	/* Mobile Controls */
 	#if TOUCH_CONTROLS
 	public var mobilePadTexture:String = "VirtualPad";
 	public var mobilePadSkin:String = 'original';
@@ -55,13 +44,33 @@ import TitleState;
 	public var hitboxalpha:Float = #if mobile 0.7 #else 0 #end; //someone request this lol
 	#end
 	
-	#if EXTRA_FPSCOUNTER
-	public var FPSCounter:String = 'Psych';
-	#end
+	/* Note Things */
+	public var useRGB:Bool = false;
+	public var arrowRGB:Array<Array<FlxColor>> = [
+		[0xFFC24B99, 0xFFFFFFFF, 0xFF3C1F56],
+		[0xFF00FFFF, 0xFFFFFFFF, 0xFF1542B7],
+		[0xFF12FA05, 0xFFFFFFFF, 0xFF0A4447],
+		[0xFFF9393F, 0xFFFFFFFF, 0xFF651038]];
+	public var arrowRGBPixel:Array<Array<FlxColor>> = [
+		[0xFFE276FF, 0xFFFFF9FF, 0xFF60008D],
+		[0xFF3DCAFF, 0xFFF4FFFF, 0xFF003060],
+		[0xFF71E300, 0xFFF6FFE6, 0xFF003100],
+		[0xFFFF884E, 0xFFFFFAF5, 0xFF6C0000]];
+	public var noteSkin:String = 'Default';
+	public var splashSkin:String = 'Default';
+
+	/* NovaFlare Things*/
+	#if EXTRA_TRANSITIONS public var TransitionStyle:String = 'Psych'; #end
+	#if EXTRA_FPSCOUNTER public var FPSCounter:String = 'Psych'; #end
+	#if EXTRA_FREEPLAY public var FreeplayMenu:String = 'Psych'; #end
+	#if EXTRA_MAINMENU public var MainMenuStyle:String = 'Psych'; #end
+	#if EXTRA_PAUSE public var PauseMenuStyle:String = 'Psych'; #end
 	public var rainbowFPS:Bool = true;
 	public var memoryType:Int = 0;
+	public var uiScale:Float = 1;
 
-	//PsychEngine
+	/* Psych Engine */
+	public var discordRPC:Bool = true;
 	public var downScroll:Bool = false;
 	public var marvelousRating:Bool = true;
 	public var marvelousSprite:Bool = true;

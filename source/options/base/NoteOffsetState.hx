@@ -56,6 +56,7 @@ class NoteOffsetState extends MusicBeatState
 
 		FlxG.cameras.setDefaultDrawTarget(camGame, true);
 		CustomFadeTransition.nextCamera = camOther;
+		#if EXTRA_TRANSITIONS CustomFadeTransitionNOVA.nextCamera = camOther; #end
 		FlxG.camera.scroll.set(120, 130);
 
 		persistentUpdate = true;
@@ -360,6 +361,7 @@ class NoteOffsetState extends MusicBeatState
 
 			persistentUpdate = false;
 			CustomFadeTransition.nextCamera = camOther;
+			#if EXTRA_TRANSITIONS CustomFadeTransitionNOVA.nextCamera = camOther; #end
 			MusicBeatState.switchState(new options.OptionsState());
 			FlxG.sound.playMusic(Paths.music('freakyMenu'), 1, true);
 			FlxG.mouse.visible = false;

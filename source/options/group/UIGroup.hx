@@ -17,7 +17,7 @@ class UIGroup extends OptionCata
 
 		#if EXTRA_FREEPLAY
 		var option:Option = new Option(this,
-			'Freeplay Menu Style:',
+			'Freeplay Menu Style',
 			"Choose your Freeplay Menu Style",
 			'FreeplayMenu',
 			STRING,
@@ -28,14 +28,44 @@ class UIGroup extends OptionCata
 
 		#if EXTRA_FPSCOUNTER
 		var option:Option = new Option(this,
-			'FPS Counter Style:',
+			'FPS Counter Style',
 			"Choose your FPS Counter Style",
 			'FPSCounter',
 			STRING,
 			['Psych', 'NovaFlare']
 		);
-		addOption(option);
+		addOption(option #if EXTRA_FREEPLAY ,true #end);
 		//option.onChange = OptionsState.onChangeFPSCounterShit;
+		#end
+
+		#if EXTRA_TRANSITIONS
+		var option:Option = new Option(this,
+			'Transition Style',
+			"Choose your Transition Style",
+			'TransitionStyle',
+			STRING,
+			['Psych', 'NovaFlare']);
+		addOption(option #if (!EXTRA_FREEPLAY && EXTRA_FPSCOUNTER) ,true #end);
+		#end
+
+		#if EXTRA_MAINMENU
+		var option:Option = new Option(this,
+			'Main Menu Style',
+			"Choose your Main Menu Style",
+			'MainMenuStyle',
+			STRING,
+			['Psych', 'NovaFlare']);
+		addOption(option #if EXTRA_TRANSITIONS ,true #end);
+		#end
+
+		#if EXTRA_PAUSE
+		var option:Option = new Option(this,
+			'Pause Menu Style',
+			"Choose your Pause Menu Style",
+			'PauseMenuStyle',
+			STRING,
+			['Psych', 'NovaFlare']);
+		addOption(option);
 		#end
 
 		var option:Option = new Option(this,

@@ -27,6 +27,9 @@ class CustomSwitchState
 				case 'Freeplay':
 					#if EXTRA_FREEPLAY if (CP.FreeplayMenu == 'NovaFlare') switchState(new FreeplayStateNOVA());
 					else #end switchState(new FreeplayState());
+				case 'MainMenu':
+					#if EXTRA_MAINMENU if (CP.MainMenuStyle == 'NovaFlare') switchState(new MainMenuStateNOVA());
+					else #end switchState(new MainMenuState());
 			}
 	}
 

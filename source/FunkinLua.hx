@@ -882,6 +882,7 @@ class FunkinLua {
 			//Old ClientPrefs And Custom PauseMenu Support
 			if (variable == 'globalAntialiasing') variable = 'data.antialiasing';
 			if (classVar == 'ClientPrefs' && !classVar.startsWith('data.')) variable = 'data.' + variable;
+			#if EXTRA_PAUSE if (classVar == 'PauseSubState' && ClientPrefs.data.PauseMenuStyle == 'NovaFlare') classVar = 'PauseSubStateNOVA'; #end
 			#if TOUCH_CONTROLS
 			var myClass:Dynamic = classCheck(classVar);
 			var variableplus:String = varCheck(myClass, variable);
@@ -914,6 +915,7 @@ class FunkinLua {
 			//Old ClientPrefs And Custom PauseMenu Support
 			if (variable == 'globalAntialiasing') variable = 'data.antialiasing';
 			if (classVar == 'ClientPrefs' && !classVar.startsWith('data.')) variable = 'data.' + variable;
+			#if EXTRA_PAUSE if (classVar == 'PauseSubState' && ClientPrefs.data.PauseMenuStyle == 'NovaFlare') classVar = 'PauseSubStateNOVA'; #end
 			var killMe:Array<String> = variable.split('.');
 			if(killMe.length > 1) {
 				var coverMeInPiss:Dynamic = getVarInArray(Type.resolveClass(classVar), killMe[0]);
@@ -1520,8 +1522,11 @@ class FunkinLua {
 
 			PlayState.cancelMusicFadeTween();
 			CustomFadeTransition.nextCamera = PlayState.instance.camOther;
-			if(FlxTransitionableState.skipNextTransIn)
+			#if EXTRA_TRANSITIONS CustomFadeTransitionNOVA.nextCamera = PlayState.instance.camOther; #end
+			if(FlxTransitionableState.skipNextTransIn) {
 				CustomFadeTransition.nextCamera = null;
+				#if EXTRA_TRANSITIONS CustomFadeTransitionNOVA.nextCamera = null; #end
+			}
 
 			if(PlayState.isStoryMode)
 				MusicBeatState.switchState(new StoryMenuState());
@@ -2144,12 +2149,20 @@ class FunkinLua {
 			}
 			return false;
 		});
-		Lua_helper.add_callback(lua, "startVideo", function(videoFile:String) {
+		Lua_helper.add_callback(lua, "startVideo", function(videoFile:String, ?canSkip:Bool = true) {
 			#if VIDEOS_ALLOWED
-			if(FileSystem.exists(Paths.video(videoFile))) {
-				PlayState.instance.startVideo(videoFile);
+			if(FileSystem.exists(Paths.video(videoFile)))
+			{
+				if(game.videoCutscene != null)
+				{
+					game.remove(game.videoCutscene);
+					game.videoCutscene.destroy();
+				}
+				game.videoCutscene = game.startVideo(videoFile, false, canSkip);
 				return true;
-			} else {
+			}
+			else 
+			{
 				luaTrace('startVideo: Video file not found: ' + videoFile, false, false, FlxColor.RED);
 			}
 			return false;

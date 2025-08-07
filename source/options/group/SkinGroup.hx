@@ -73,10 +73,14 @@ class SkinGroup extends OptionCata
 		if (ClientPrefs.data.useRGB || Path == 'noteSplashSkins' || Path == 'noteSplashes') {
 			if (Mods.mergeAllTextsNamed('images/${Path}/list.txt', 'shared').length > 0)
 				output = Mods.mergeAllTextsNamed('images/${Path}/list.txt');
+			else
+				output = CoolUtil.coolTextFile(Paths.getSharedPath('images/${Path}/list.txt'));
 		}
 		else {
 			if (Mods.mergeAllTextsNamed('images/NoteSkin/DataSet/noteSkinList.txt', 'shared').length > 0)
 				output = Mods.mergeAllTextsNamed('images/NoteSkin/DataSet/noteSkinList.txt');
+			else
+				output = CoolUtil.coolTextFile(Paths.getSharedPath('images/NoteSkin/DataSet/noteSkinList.txt'));
 		}
 		return output;
 	}

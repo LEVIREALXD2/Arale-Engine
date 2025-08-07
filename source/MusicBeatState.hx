@@ -188,7 +188,12 @@ class MusicBeatState extends FlxUIState
 		super.create();
 
 		if(!skip) {
-			openSubState(new CustomFadeTransition(0.7, true));
+			#if EXTRA_TRANSITIONS
+			if (ClientPrefs.data.TransitionStyle == 'NovaFlare')
+				openSubState(new CustomFadeTransitionNOVA(0.7, true));
+			else
+			#end
+				openSubState(new CustomFadeTransition(0.7, true));
 		}
 		FlxTransitionableState.skipNextTransOut = false;
 	}
@@ -309,11 +314,31 @@ class MusicBeatState extends FlxUIState
 		if(nextState == null)
 			nextState = FlxG.state;
 
+		#if EXTRA_TRANSITIONS
+		if (ClientPrefs.data.TransitionStyle == 'NovaFlare')
+			FlxG.state.openSubState(new CustomFadeTransitionNOVA(0.6, false));
+		else
+		#end
 			FlxG.state.openSubState(new CustomFadeTransition(0.6, false));
+
+		#if EXTRA_TRANSITIONS
+		if (ClientPrefs.data.TransitionStyle == 'NovaFlare')
+		{
+			if(nextState == FlxG.state)
+				CustomFadeTransitionNOVA.finishCallback = function() FlxG.resetState();
+			else
+				CustomFadeTransitionNOVA.finishCallback = function() FlxG.switchState(nextState);
+		}
+		else
+		{
+		#end
 			if(nextState == FlxG.state)
 				CustomFadeTransition.finishCallback = function() FlxG.resetState();
 			else
 				CustomFadeTransition.finishCallback = function() FlxG.switchState(nextState);
+		#if EXTRA_TRANSITIONS
+		}
+		#end
 	}
 
 	public static function getState():MusicBeatState {

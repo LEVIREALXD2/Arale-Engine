@@ -25,6 +25,7 @@ import MainMenuState;
 import PlayState;
 import LoadingState;
 import editors.ChartingState;
+import editors.ChartingStateNew;
 import options.OptionsState;
 
 class FreeplayStateNOVA extends MusicBeatState
@@ -90,6 +91,8 @@ class FreeplayStateNOVA extends MusicBeatState
 
 	override function create()
 	{
+		Paths.clearStoredMemory();
+		Paths.clearUnusedMemory();
 		super.create();
 
 		instance = this;
@@ -389,7 +392,7 @@ class FreeplayStateNOVA extends MusicBeatState
 			FlxG.sound.playMusic(Paths.music('freakyMenu'), 0);
 			FlxTween.tween(FlxG.sound.music, {volume: 1}, 1);
 
-			MusicBeatState.switchState(new MainMenuState());
+			CustomSwitchState.switchMenus('MainMenu');
 		}
 	}
 
@@ -465,7 +468,7 @@ class FreeplayStateNOVA extends MusicBeatState
 
 				FlxG.sound.playMusic(Paths.music('freakyMenu'), 1);
 				
-				//ModsMenuState.isFreePlay = true;
+				ModsMenuState.isFreePlay = true;
 				MusicBeatState.switchState(new ModsMenuState());
 			case 2:
 				if (Math.abs(lerpPosition - position) > 1) return;
@@ -479,7 +482,8 @@ class FreeplayStateNOVA extends MusicBeatState
 					eventPressCheck = true;
 					destroyFreeplayVocals();
 					FlxG.sound.music.stop();
-					//ChartingState.isFreePlay = true;
+					ChartingState.isFreePlay = true;
+					ChartingStateNew.isFreePlay = true;
 					CustomSwitchState.switchMenus('Charting', true);
 				}
 			case 4: 

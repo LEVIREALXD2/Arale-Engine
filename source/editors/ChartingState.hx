@@ -49,6 +49,7 @@ import flash.media.Sound;
 
 class ChartingState extends MusicBeatState
 {
+	public static var isFreePlay:Bool = false;
 	var useDesktopThings:Bool = #if TOUCH_CONTROLS (ClientPrefs.data.KeyboardFixes ? true : false) #else true #end;
 	public static var noteTypeList:Array<String> = //Used for backwards compatibility with 0.1 - 0.3.2 charts, though, you should add your hardcoded custom note types here too.
 	[
@@ -1951,7 +1952,10 @@ class ChartingState extends MusicBeatState
 				// Protect against lost data when quickly leaving the chart editor.
 				autosaveSong();
 				PlayState.chartingMode = false;
-				MusicBeatState.switchState(new editors.MasterEditorMenu());
+				if (isFreePlay) CustomSwitchState.switchMenus('Freeplay');
+				else MusicBeatState.switchState(new editors.MasterEditorMenu());
+				editors.ChartingStateNew.isFreePlay = isFreePlay = false;
+
 				FlxG.sound.playMusic(Paths.music('freakyMenu'));
 				FlxG.mouse.visible = false;
 				return;

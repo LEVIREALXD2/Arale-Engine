@@ -5,7 +5,7 @@ import flixel.util.FlxSave;
 import mobile.backend.TouchFunctions;
 import FunkinLua.CustomSubstate;
 #if android
-import android.widget.Toast as AndroidToast;
+import extension.androidtools.widget.Toast as AndroidToast;
 #end
 
 class MobileFunctions

@@ -12,7 +12,7 @@ class PauseSubState extends MusicBeatSubstate
 	var menuItems:Array<String> = [];
 	//it looks weird
 	//var menuItemsOG:Array<String> = ['Resume', 'Restart Song', 'Skip Time', 'Botplay', 'Practice Mode', 'End Song', 'Options', 'Change Gameplay Settings', 'Change Difficulty' #if mobile, 'Chart Editor' #end, 'Exit to menu', 'Exit to main menu'];
-	var menuItemsOG:Array<String> = ['Resume', 'Restart Song', 'Skip Time', 'Botplay', 'Practice Mode', 'End Song', 'Change Difficulty' #if mobile, 'Chart Editor' #end, 'Exit to menu', 'Exit to main menu'];
+	var menuItemsOG:Array<String> = ['Resume', 'Restart Song', 'Skip Time', 'Botplay', 'Practice Mode', 'End Song', 'Options', 'Change Difficulty' #if mobile, 'Chart Editor' #end, 'Exit to menu', 'Exit to main menu'];
 	var difficultyChoices = [];
 	var curSelected:Int = 0;
 
@@ -314,11 +314,16 @@ class PauseSubState extends MusicBeatSubstate
 					CustomSwitchState.switchMenus('Charting');
 					PlayState.chartingMode = true;
 				case 'Options':
-					//options.OptionsState.stateType = 3;
-					PlayState.deathCounter = 0;
-					PlayState.seenCutscene = false;
-					//CustomSwitchState.switchMenus('Options');
-					FlxG.sound.playMusic(Paths.music('freakyMenu'));
+					PlayState.instance.paused = true; // For lua
+					PlayState.instance.vocals.volume = 0;
+					options.OptionsState.stateType = 2;
+					LoadingState.loadAndSwitchState(new options.OptionsState());
+					if(ClientPrefs.data.pauseMusic != 'None')
+					{
+						FlxG.sound.playMusic(Paths.music(Paths.formatToSongPath(ClientPrefs.data.pauseMusic)), pauseMusic.volume);
+						FlxTween.tween(FlxG.sound.music, {volume: 1}, 0.8);
+						FlxG.sound.music.time = pauseMusic.time;
+					}
 				case "Change Gameplay Settings":
 					persistentUpdate = false;
 					#if TOUCH_CONTROLS removeMobilePad(); #end
@@ -343,7 +348,7 @@ class PauseSubState extends MusicBeatSubstate
 					PlayState.seenCutscene = false;
 
 					Mods.loadTopMod();
-					MusicBeatState.switchState(new MainMenuState());
+					CustomSwitchState.switchMenus('MainMenu');
 					//PlayState.cancelMusicFadeTween();
 					FlxG.sound.playMusic(Paths.music('freakyMenu'));
 					PlayState.changedDifficulty = false;
