@@ -2,9 +2,11 @@
 <project>
 	<!-- _________________________ Application Settings _________________________ -->
 
-	<!-- ___ Test ___ -->
-	<architecture exclude="armv7" if="android" />
-	<architecture exclude="armeabi-v7a" if="android" />
+	<!-- ___ Build with spesific libraries ___ -->
+	<architecture exclude="armv7" if="ONLY_ARM64" />
+	<architecture exclude="armeabi-v7a" if="ONLY_ARM64" />
+	<architecture exclude="arm64" if="ONLY_ARMV7" />
+	<architecture exclude="arm64-v8a" if="ONLY_ARMV7" />
 
 	<app title="FNF': Psych Extended Rebase" file="PsychEngine" packageName="com.kraloyuncu.psychextendedrebase" package="com.kraloyuncu.psychextendedrebase" main="Main" version="0.2.8" company="KralOyuncu" />
 
