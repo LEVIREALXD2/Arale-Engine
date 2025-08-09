@@ -238,6 +238,7 @@ class TitleState extends MusicBeatState
 	function startIntro()
 	{
 		FPSCounterShit();
+		#if SCRIPTING_ALLOWED if (event("onStartIntro", new CancellableEvent()).cancelled) return; #end
 		if (!initialized)
 		{
 			/*var diamond:FlxGraphic = FlxGraphic.fromClass(GraphicTransTileDiamond);
@@ -407,6 +408,8 @@ class TitleState extends MusicBeatState
 		ngSpr.antialiasing = ClientPrefs.data.antialiasing;
 
 		FlxTween.tween(credTextShit, {y: credTextShit.y + 20}, 2.9, {ease: FlxEase.quadInOut, type: PINGPONG});
+
+		#if SCRIPTING_ALLOWED if (event("onStartIntroPost", new CancellableEvent()).cancelled) return; #end
 
 		if (initialized)
 			skipIntro();
@@ -631,6 +634,7 @@ class TitleState extends MusicBeatState
 		}
 
 		if(!closedState) {
+			#if SCRIPTING_ALLOWED if (event("onPreIntroStarted", new CancellableEvent()).cancelled) return; #end
 			sickBeats++;
 			switch (sickBeats)
 			{
@@ -698,6 +702,7 @@ class TitleState extends MusicBeatState
 					addMoreText('Funkin'); // credTextShit.text += '\nFunkin';
 
 				case 17:
+					#if SCRIPTING_ALLOWED if (event("onPreIntroFinished", new CancellableEvent()).cancelled) return; #end
 					skipIntro();
 			}
 		}
@@ -707,6 +712,7 @@ class TitleState extends MusicBeatState
 	var increaseVolume:Bool = false;
 	function skipIntro():Void
 	{
+		#if SCRIPTING_ALLOWED if (event("onSkipIntro", new CancellableEvent()).cancelled) return; #end
 		if (!skippedIntro)
 		{
 			if (playJingle) //Ignore deez

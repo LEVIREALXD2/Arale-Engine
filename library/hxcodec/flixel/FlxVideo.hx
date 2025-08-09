@@ -48,7 +48,15 @@ class FlxVideo extends VLCBitmap
 	public override function stop() {
 		super.stop();
 	}
-	
+
+	public override function pause() {
+		super.pause();
+	}
+
+	public override function resume() {
+		super.resume();
+	}
+
 	public function killVideo() {
 		stop();
 		dispose();
