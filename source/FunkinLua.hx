@@ -167,6 +167,7 @@ class FunkinLua {
 		set('ratingName', '');
 		set('ratingFC', '');
 		set('version', MainMenuState.psychEngineVersion.trim());
+		set('engineVersion', MainMenuState.psychExtendedVersion.trim());
 
 		set('inGameOver', false);
 		set('mustHitSection', false);
@@ -2149,20 +2150,12 @@ class FunkinLua {
 			}
 			return false;
 		});
-		Lua_helper.add_callback(lua, "startVideo", function(videoFile:String, ?canSkip:Bool = true) {
+		Lua_helper.add_callback(lua, "startVideo", function(videoFile:String) {
 			#if VIDEOS_ALLOWED
-			if(FileSystem.exists(Paths.video(videoFile)))
-			{
-				if(game.videoCutscene != null)
-				{
-					game.remove(game.videoCutscene);
-					game.videoCutscene.destroy();
-				}
-				game.videoCutscene = game.startVideo(videoFile, false, canSkip);
+			if(FileSystem.exists(Paths.video(videoFile))) {
+				PlayState.instance.startVideo(videoFile);
 				return true;
-			}
-			else 
-			{
+			} else {
 				luaTrace('startVideo: Video file not found: ' + videoFile, false, false, FlxColor.RED);
 			}
 			return false;

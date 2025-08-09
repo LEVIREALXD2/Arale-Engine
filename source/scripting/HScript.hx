@@ -123,6 +123,7 @@ class HScript extends Script {
 
 		trace("ERROR Caused in " + err);
 		CoolUtil.showPopUp("ERROR Caused in " + err, "HSCRIPT IMPROVED ERROR");
+		//Main.addDebugText('HSCRIPT IMPROVED ERROR: ERROR Caused in ' + err, FlxColor.RED);
 	}
 
 	public override function setParent(parent:Dynamic) {
@@ -180,6 +181,89 @@ class HScript extends Script {
 
 	public override function set(variable:String, value:Dynamic){
 		interp.variables.set(variable, value);
+	}
+
+	/* Some PlayState things */
+	public override function setupPlayState() {
+		set('setVar', function(name:String, value:Dynamic) {
+			PlayState.instance.variables.set(name, value);
+			return value;
+		});
+		set('getVar', function(name:String) {
+			var result:Dynamic = null;
+			if(PlayState.instance.variables.exists(name)) result = PlayState.instance.variables.get(name);
+			return result;
+		});
+		set('removeVar', function(name:String)
+		{
+			if(PlayState.instance.variables.exists(name))
+			{
+				PlayState.instance.variables.remove(name);
+				return true;
+			}
+			return false;
+		});
+
+		set('debugPrint', function(text:String, ?color:FlxColor = null) {
+			if(color == null) color = FlxColor.WHITE;
+			PlayState.instance.addTextToDebug(text, color);
+		});
+
+		// For adding your own callbacks
+		#if TOUCH_CONTROLS
+		//OMG
+		set('luaMobilePadPressed', function(buttonPostfix:String):Bool
+		{
+			return PlayState.checkMPadPress(buttonPostfix, 'pressed');
+		});
+		
+		set('luaMobilePadJustPressed', function(buttonPostfix:String):Bool
+		{
+			return PlayState.checkMPadPress(buttonPostfix, 'justPressed');
+		});
+		
+		set('luaMobilePadReleased', function(buttonPostfix:String):Bool
+		{
+			return PlayState.checkMPadPress(buttonPostfix, 'released');
+		});
+		
+		set('luaMobilePadJustReleased', function(buttonPostfix:String):Bool
+		{
+			return PlayState.checkMPadPress(buttonPostfix, 'justReleased');
+		});
+		
+		set('addLuaMobilePad', function(DPad:String, Action:String, ?addToCustomSubstate:Bool = false, ?posAtCustomSubstate:Int = -1):Void
+		{
+			PlayState.instance.makeLuaMobilePad(DPad, Action);
+			if (addToCustomSubstate)
+			{
+				if (PlayState.instance.luaMobilePad != null || !PlayState.instance.members.contains(PlayState.instance.luaMobilePad))
+					CustomSubstate.insertLuaMpad(posAtCustomSubstate);
+			}
+			else
+				PlayState.instance.addLuaMobilePad();
+		});
+		
+		set('addLuaMobilePadCamera', function():Void
+		{
+			PlayState.instance.addLuaMobilePadCamera();
+		});
+		
+		set('removeLuaMobilePad', function():Void
+		{
+			PlayState.instance.removeLuaMobilePad();
+		});
+		#end
+
+		set('createGlobalCallback', function(name:String, func:Dynamic)
+		{
+			#if LUA_ALLOWED
+			for (script in PlayState.instance.luaArray)
+				if(script != null && script.lua != null && !script.closed)
+					Lua_helper.add_callback(script.lua, name, func);
+			#end
+			FunkinLua.customFunctions.set(name, func);
+		});
 	}
 
 	public override function trace(v:Dynamic) {
@@ -279,6 +363,10 @@ class Script extends FlxBasic implements IFlxDestroyable {
 			"FlxAnimate"		=> flxanimate.PsychFlxAnimate,
 			"Alphabet"		  => Alphabet,
 			"CoolUtil"		  => CoolUtil,
+			"MP4Handler"		  => vlc.MP4Handler,
+			"MP4Sprite"		  => vlc.MP4Sprite,
+			"VideoHandler"		  => VideoHandler,
+			"VideoSprite"		  => VideoSprite,
 		];
 	}
 
@@ -469,6 +557,8 @@ class Script extends FlxBasic implements IFlxDestroyable {
 	 */
 	public function set(variable:String, value:Dynamic):Void {}
 
+	public function setupPlayState():Void {}
+
 	/**
 	 * Shows an error from this script.
 	 * @param text Text of the error (ex: Null Object Reference).
@@ -621,6 +711,10 @@ class ScriptPack extends Script {
 
 	public override function set(val:String, value:Dynamic) {
 		for(e in scripts) e.set(val, value);
+	}
+
+	public override function setupPlayState() {
+		for(e in scripts) e.setupPlayState();
 	}
 
 	public override function setParent(parent:Dynamic) {

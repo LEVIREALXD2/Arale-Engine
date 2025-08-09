@@ -9,12 +9,12 @@ haxelib git flixel https://github.com/kittycathy233/flixel --quiet
 haxelib install flixel-addons 3.2.2 --quiet
 haxelib install flixel-ui 2.4.0 --quiet
 haxelib git SScript https://github.com/PsychExtendedThings/SScript --quiet
-haxelib git hscript-improved https://github.com/PsychExtendedThings/HScript-Improved --quiet
+haxelib git hscript-improved https://github.com/PsychExtendedThings/hscript-improved-Psych --quiet
 haxelib install hscript 2.4.0 --quiet
 haxelib install tjson 1.4.0 --quiet
-haxelib install hxCodec 3.0.2 --quiet
-haxelib git hxcpp https://github.com/kittycathy233/hxcpp --quiet
-haxelib git lime https://github.com/PsychExtendedThings/lime-termux --quiet
+haxelib git hxCodec https://github.com/PsychExtendedThings/hxCodec-0.6.3 --quiet
+haxelib git hxcpp https://github.com/beihu235/hxcpp --quiet
+haxelib git lime https://github.com/beihu235/lime --quiet
 haxelib install openfl 9.3.3 --quiet
 haxelib git flxanimate https://github.com/Psych-Slice/FlxAnimate.git 42f1b5d193b4345ca7d6933380ab3105985b44a3 --quiet
 haxelib git funkin.vis https://github.com/beihu235/funkVis-FrequencyFixed main --quiet

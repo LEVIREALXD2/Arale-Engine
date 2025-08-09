@@ -6,6 +6,7 @@ import flixel.group.FlxGroup;
 import lime.net.curl.CURLCode;
 import flixel.graphics.FlxGraphic;
 import WeekData;
+import mobile.backend.TouchUtil.Swipe; //Swipe Class
 
 class StoryMenuState extends MusicBeatState
 {
@@ -485,76 +486,4 @@ class StoryMenuState extends MusicBeatState
 		intendedScore = Highscore.getWeekScore(loadedWeeks[curWeek].fileName, curDifficulty);
 		#end
 	}
-}
-
-class Swipe
-{
-  /**
-   * Indicates if there is a down swipe gesture detected.
-   */
-  public static var Down(get, never):Bool;
-
-  /**
-   * Indicates if there is a right swipe gesture detected.
-   */
-  public static var Right(get, never):Bool;
-
-  /**
-   * Indicates if there is an up swipe gesture detected.
-   */
-  public static var Up(get, never):Bool;
-
-  /**
-   * Determines if there is a down swipe in the FlxG.swipes array.
-   *
-   * @return True if any swipe direction is down, false otherwise.
-   */
-  @:noCompletion
-  static function get_Down():Bool
-  {
-	#if FLX_POINTER_INPUT
-	for (swipe in FlxG.swipes)
-	{
-	  if (swipe.degrees > -135 && swipe.degrees < -45 && swipe.distance > 20) return true;
-	}
-	#end
-
-	return false;
-  }
-
-  /**
-   * Determines if there is a right swipe in the FlxG.swipes array.
-   *
-   * @return True if any swipe direction is right, false otherwise.
-   */
-  @:noCompletion
-  static function get_Right():Bool
-  {
-	#if FLX_POINTER_INPUT
-	for (swipe in FlxG.swipes)
-	{
-	  if (swipe.degrees > -45 && swipe.degrees < 45 && swipe.distance > 20) return true;
-	}
-	#end
-
-	return false;
-  }
-
-  /**
-   * Determines if there is an up swipe in the FlxG.swipes array.
-   *
-   * @return True if any swipe direction is up, false otherwise.
-   */
-  @:noCompletion
-  static function get_Up():Bool
-  {
-	#if FLX_POINTER_INPUT
-	for (swipe in FlxG.swipes)
-	{
-	  if (swipe.degrees > 45 && swipe.degrees < 135 && swipe.distance > 20) return true;
-	}
-	#end
-
-	return false;
-  }
 }

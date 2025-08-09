@@ -21,6 +21,7 @@ using StringTools;
 
 class MainMenuState extends MusicBeatState
 {
+	public static var psychExtendedVersion:String = '1.0.2';
 	public static var psychEngineVersion:String = '0.6.3'; //This is also used for Discord RPC
 	public static var curSelected:Int = 0;
 
@@ -42,6 +43,10 @@ class MainMenuState extends MusicBeatState
 	var camFollow:FlxObject;
 	var camFollowPos:FlxObject;
 	var debugKeys:Array<FlxKey>;
+
+	var psychextendedVersionShit:FlxText;
+	var psychengineVersionShit:FlxText;
+	var funkinVersionShit:FlxText;
 
 	override function create()
 	{
@@ -126,14 +131,20 @@ class MainMenuState extends MusicBeatState
 
 		FlxG.camera.follow(camFollowPos, null, 1);
 
-		var versionShit:FlxText = new FlxText(12, FlxG.height - 44, 0, "Psych Engine v" + psychEngineVersion, 12);
-		versionShit.scrollFactor.set();
-		versionShit.setFormat("VCR OSD Mono", 16, FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
-		add(versionShit);
-		var versionShit:FlxText = new FlxText(12, FlxG.height - 24, 0, "Friday Night Funkin' v" + Application.current.meta.get('version'), 12);
-		versionShit.scrollFactor.set();
-		versionShit.setFormat("VCR OSD Mono", 16, FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
-		add(versionShit);
+		psychextendedVersionShit = new FlxText(12, FlxG.height - 64, 0, "Psych Extended v" + psychExtendedVersion, 12);
+		psychextendedVersionShit.scrollFactor.set();
+		psychextendedVersionShit.setFormat("VCR OSD Mono", 16, FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		add(psychextendedVersionShit);
+
+		psychengineVersionShit = new FlxText(12, FlxG.height - 44, 0, "Psych Engine v" + psychEngineVersion, 12);
+		psychengineVersionShit.scrollFactor.set();
+		psychengineVersionShit.setFormat("VCR OSD Mono", 16, FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		add(psychengineVersionShit);
+
+		funkinVersionShit = new FlxText(12, FlxG.height - 24, 0, "Friday Night Funkin' v" + Application.current.meta.get('version'), 12);
+		funkinVersionShit.scrollFactor.set();
+		funkinVersionShit.setFormat("VCR OSD Mono", 16, FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
+		add(funkinVersionShit);
 
 		// NG.core.calls.event.logEvent('swag').send();
 
@@ -149,7 +160,7 @@ class MainMenuState extends MusicBeatState
 		Achievements.reloadList();
 		#end
 		#end
-		
+
 		#if TOUCH_CONTROLS
 		addMobilePad("UP_DOWN", "A_B_E");
 		#end

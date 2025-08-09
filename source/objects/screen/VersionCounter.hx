@@ -39,7 +39,7 @@ class VersionCounter extends Sprite
 		this.EngineName.y -= 18;
 		this.onlyVersion.y -= 18;
 
-		this.EngineName.text = 'PsychExtended\nv1.0.2';
+		this.EngineName.text = 'PsychExtended\nv${MainMenuState.psychExtendedVersion}';
 		this.onlyVersion.text = "1.0.2";
 
 		this.EngineName.visible = true;
