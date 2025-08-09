@@ -15,6 +15,20 @@ jobs:
             artifactName: windowsBuild-x86_64
             artifactPath: export\release\windows\bin\*
             system: Windows
+          - name: Android-Arm64
+            os: ubuntu-24.04
+            buildArgs: "android -D officialBuild -D ONLY_ARM64 -final" 
+            setupCommand: sh ./setup/unix.sh
+            artifactName: androidBuild-Arm64
+            artifactPath: "export/release/android/bin/app/build/outputs/apk/release/*.apk"
+            system: Android
+          - name: Android-Armv7
+            os: ubuntu-24.04
+            buildArgs: "android -D officialBuild -D ONLY_ARMV7 -final"
+            setupCommand: sh ./setup/unix.sh
+            artifactName: androidBuild-Armv7
+            artifactPath: "export/release/android/bin/app/build/outputs/apk/release/*.apk"
+            system: Android
           - name: Android-Both
             os: ubuntu-24.04
             buildArgs: "android -D officialBuild -final" 

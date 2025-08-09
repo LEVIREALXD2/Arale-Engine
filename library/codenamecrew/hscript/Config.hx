@@ -8,7 +8,7 @@ class Config {
 		//Psych Extended Source Code
 		"objects",
 		//"options",
-		"debug",
+		//"debug",
 		"backend",
 		"shaders",
 		"cutscenes",
@@ -19,7 +19,7 @@ class Config {
 		"funkin",
 		"vlc", //Extending vlc can be fun
 		"hxcodec",
-		"PauseSubState", //I'll try to extend class with this and open it
+		"PauseSubState", //I'll try to extend class with this and open it (doesn't work lol)
 	];
 
 	// Runs support for abstract support in these
