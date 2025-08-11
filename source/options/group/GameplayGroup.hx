@@ -56,6 +56,14 @@ class GameplayGroup extends OptionCata
 		addOption(option);
 
 		var option:Option = new Option(this,
+			'Codename Functions',
+			'If checked, you can use some function from Codename Engine, simple enough.',
+			'codenameFunctions',
+			BOOL
+		);
+		addOption(option);
+
+		var option:Option = new Option(this,
 			'Downscroll',
 			'If checked, notes go Down instead of Up, simple enough.',
 			'downScroll',

@@ -1,3 +1,30 @@
+# Friday Night Funkin' - Psych Extended
+![PsychionalExtendedLogo](docs/img/PsychExtendedLogo.png)
+
+Engine originally used on [Sansational Sans Mix](https://gamebanana.com/mods/301107), intended to be unlocks a Official Psych's limitations for the while keeping the mod support of PsychEngine 0.6.3 aspect of it. Also aiming to be an Codename Engine alternative to PsychEngine coders.
+
+## Softcoding (.hsc)
+For this you can head over to [the wiki](https://PsychExtendedThings.github.io/HScript-Improved)!
+
+## Credits:
+* KralOyuncu 2010x - Creator of PsychExtended & Head Porter of Psych Engine Android.
+* Alone Dark - Co-Owner of PsychExtended, she's working on her game.
+
+## Code Credits
+* beihu235 - I personally used some codes from NovaFlare.
+* CodenameCrew - I'm using their HScript Library.
+
+## Installation:
+You must have [the most up-to-date version of Haxe](https://haxe.org/download/), seriously, stop using 4.1.5, it misses some stuff.
+
+Follow a Friday Night Funkin' Psych Engine source code compilation tutorial, after this you will need to install All Needed Libraries, you can find them into `setup/windows.bat` file.
+
+If you get an error about StatePointer when using Lua, run `haxelib remove linc_luajit` into Command Prompt/PowerShell, then re-install linc_luajit.
+
+If you want video support on your mod, simply do `haxelib install hxCodec` on a Command prompt/PowerShell
+
+otherwise, you can delete the "VIDEOS_ALLOWED" Line on Project.xml
+
 # Friday Night Funkin' - Psych Engine
 Engine originally used on [Mind Games Mod](https://gamebanana.com/mods/301107), intended to be a fix for the vanilla version's many issues while keeping the casual play aspect of it. Also aiming to be an easier alternative to newbie coders.
 

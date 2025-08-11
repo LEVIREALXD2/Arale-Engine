@@ -1176,7 +1176,9 @@ class PlayState extends MusicBeatState
 	public static var startOnTime:Float = 0;
 
 	public var introAssets:Map<String, Array<String>> = new Map<String, Array<String>>();
+	public var introSounds:Map<String, Array<String>> = new Map<String, Array<String>>();
 	public var AllowCountdownThree:Bool = false; //Allow countdown Three for Codename Engine Mods (You Need to add your Countdown Three Sprite)
+	public var countdownVolume:Float = 0.6; //for Codename Mods (Again)
 
 	function cacheCountdown()
 	{
@@ -1217,6 +1219,7 @@ class PlayState extends MusicBeatState
 			generateStaticArrows(0);
 			generateStaticArrows(1);
 			#if TOUCH_CONTROLS
+			if (ClientPrefs.data.VSliceControl) VSliceControls = true;
 			if (VSliceControls && !PlayState.SONG.disableVSliceControls) enableVSliceControls();
 			#end
 
@@ -1250,6 +1253,12 @@ class PlayState extends MusicBeatState
 				return;
 			}
 
+			if (ClientPrefs.data.codenameFunctions) {
+				//almost same as the CNE
+				startTimer = new FlxTimer().start(Conductor.crochet / 1000 / playbackRate, (tmr:FlxTimer) -> {
+					countdown(swagCounter++);
+				}, 5);
+			} else {
 			startTimer = new FlxTimer().start(Conductor.crochet / 1000 / playbackRate, function(tmr:FlxTimer)
 			{
 				characterBopper(tmr.loopsLeft);
@@ -1266,19 +1275,19 @@ class PlayState extends MusicBeatState
 				{
 					case 0:
 						if (AllowCountdownThree) countdownThree = createCountdownSprite(introAlts[3], antialias);
-						try { FlxG.sound.play(Paths.sound('intro3' + introSoundsSuffix), 0.6); } catch(e:Dynamic) {}
+						try { FlxG.sound.play(Paths.sound('intro3' + introSoundsSuffix), countdownVolume); } catch(e:Dynamic) {}
 						tick = THREE;
 					case 1:
 						countdownReady = createCountdownSprite(introAlts[0], antialias);
-						try { FlxG.sound.play(Paths.sound('intro2' + introSoundsSuffix), 0.6); } catch(e:Dynamic) {}
+						try { FlxG.sound.play(Paths.sound('intro2' + introSoundsSuffix), countdownVolume); } catch(e:Dynamic) {}
 						tick = TWO;
 					case 2:
 						countdownSet = createCountdownSprite(introAlts[1], antialias);
-						try { FlxG.sound.play(Paths.sound('intro1' + introSoundsSuffix), 0.6); } catch(e:Dynamic) {}
+						try { FlxG.sound.play(Paths.sound('intro1' + introSoundsSuffix), countdownVolume); } catch(e:Dynamic) {}
 						tick = ONE;
 					case 3:
 						countdownGo = createCountdownSprite(introAlts[2], antialias);
-						try { FlxG.sound.play(Paths.sound('introGo' + introSoundsSuffix), 0.6); } catch(e:Dynamic) {}
+						try { FlxG.sound.play(Paths.sound('introGo' + introSoundsSuffix), countdownVolume); } catch(e:Dynamic) {}
 						tick = GO;
 					case 4:
 						tick = START;
@@ -1300,8 +1309,71 @@ class PlayState extends MusicBeatState
 
 				swagCounter += 1;
 			}, 5);
+			}
 			#if NEW_HSCRIPT scripts.call("onPostStartCountdown"); #end
 		}
+	}
+
+	/**
+	 * Creates a fake countdown.
+	 * This function taken from CNE.
+	 */
+	public function countdown(swagCounter:Int) {
+		introSounds.set('default', ['intro3', 'intro2', 'intro1', 'introGo']);
+		var introSounds:Array<String> = introSounds.get('default');
+		var introSprites:Array<String> = introAssets.get('default');
+		var event:CountdownEvent = scripts.event("onCountdown", EventManager.get(CountdownEvent).recycle(
+			swagCounter,
+			1,
+			introSounds[swagCounter],
+			introSprites[swagCounter],
+			0.6, true, null, null, null));
+
+		var sprite:FlxSprite = null;
+		var sound:FlxSound = null;
+		var tween:FlxTween = null;
+
+		if (!event.cancelled) {
+			if (event.spritePath != null) {
+				//sprite = new FlxSprite().loadGraphic(spr);
+				sprite = new FlxSprite().loadGraphic(Paths.image(event.spritePath));
+				sprite.scrollFactor.set();
+				sprite.scale.set(event.scale, event.scale);
+				sprite.updateHitbox();
+				sprite.screenCenter();
+				sprite.antialiasing = event.antialiasing;
+				add(sprite);
+				tween = FlxTween.tween(sprite, {y: sprite.y + 100, alpha: 0}, Conductor.crochet / 1000, {
+					ease: FlxEase.cubeInOut,
+					onComplete: function(twn:FlxTween)
+					{
+						sprite.destroy();
+						remove(sprite, true);
+					}
+				});
+			}
+			if (event.soundPath != null) {
+				var sfx = Paths.sound(event.soundPath);
+				//if (!Assets.exists(sfx)) sfx = Paths.sound(spr);
+				sound = FlxG.sound.play(sfx, event.volume);
+			}
+		}
+		event.sprite = sprite;
+		event.sound = sound;
+		event.spriteTween = tween;
+		event.cancelled = false;
+
+		notes.forEachAlive(function(note:Note) {
+			if(ClientPrefs.data.opponentStrums || note.mustPress)
+			{
+				note.copyAlpha = false;
+				note.alpha = note.multAlpha;
+				if(ClientPrefs.data.middleScroll && !note.mustPress)
+					note.alpha *= 0.35;
+			}
+		});
+
+		scripts.event("onPostCountdown", event);
 	}
 
 	inline private function createCountdownSprite(image:String, antialias:Bool):FlxSprite
@@ -1403,6 +1475,10 @@ class PlayState extends MusicBeatState
 
 	public function updateScore(miss:Bool = false)
 	{
+		var ret:Dynamic = callOnScripts('preUpdateScore', [miss], true);
+		if (ret == LuaUtils.Function_Stop)
+			return;
+
 		scoreTxt.text = 'Score: ' + songScore
 		+ ' | Misses: ' + songMisses
 		+ ' | Rating: ' + ratingName
@@ -3606,8 +3682,8 @@ class PlayState extends MusicBeatState
 
 		lastBeatHit = curBeat;
 
-		setOnScripts('curSection', curSection);
-		callOnScripts('onSectionHit');
+		setOnScripts('curBeat', curBeat);
+		callOnScripts('onBeatHit');
 		#if NEW_HSCRIPT
 		if (scripts != null) scripts.call('beatHit'); //why not
 		#end
@@ -3641,7 +3717,7 @@ class PlayState extends MusicBeatState
 			setOnScripts('altAnim', SONG.notes[curSection].altAnim);
 			setOnScripts('gfSection', SONG.notes[curSection].gfSection);
 		}
-		
+
 		setOnScripts('curSection', curSection);
 		callOnScripts('onSectionHit');
 	}

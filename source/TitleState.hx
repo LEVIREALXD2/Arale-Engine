@@ -55,6 +55,7 @@ class TitleState extends MusicBeatState
 	public static var volumeUpKeys:Array<FlxKey> = [FlxKey.NUMPADPLUS, FlxKey.PLUS];
 
 	public static var initialized:Bool = false;
+	public static var inGame:Bool = false;
 
 	var blackScreen:FlxSprite;
 	var credGroup:FlxGroup;
@@ -217,16 +218,29 @@ class TitleState extends MusicBeatState
 			#end
 
 			if (initialized)
-				startIntro();
+				startCutscenesIn();
 			else
 			{
 				new FlxTimer().start(1, function(tmr:FlxTimer)
 				{
-					startIntro();
+					startCutscenesIn();
 				});
 			}
 		}
 		#end
+	}
+
+	function startCutscenesIn()
+	{
+		if (event("onCutscenesIn", new CancellableEvent()).cancelled) return;
+		startIntro();
+	}
+
+	function startCutscenesOut()
+	{
+		if (event("onCutscenesOut", new CancellableEvent()).cancelled) return;
+		inGame = true;
+		startIntro();
 	}
 
 	var logoBl:FlxSprite;
@@ -237,8 +251,8 @@ class TitleState extends MusicBeatState
 
 	function startIntro()
 	{
+		if (event("onStartIntro", new CancellableEvent()).cancelled) return;
 		FPSCounterShit();
-		#if SCRIPTING_ALLOWED if (event("onStartIntro", new CancellableEvent()).cancelled) return; #end
 		if (!initialized)
 		{
 			/*var diamond:FlxGraphic = FlxGraphic.fromClass(GraphicTransTileDiamond);
@@ -409,7 +423,7 @@ class TitleState extends MusicBeatState
 
 		FlxTween.tween(credTextShit, {y: credTextShit.y + 20}, 2.9, {ease: FlxEase.quadInOut, type: PINGPONG});
 
-		#if SCRIPTING_ALLOWED if (event("onStartIntroPost", new CancellableEvent()).cancelled) return; #end
+		if (event("onStartIntroPost", new CancellableEvent()).cancelled) return;
 
 		if (initialized)
 			skipIntro();
@@ -634,7 +648,7 @@ class TitleState extends MusicBeatState
 		}
 
 		if(!closedState) {
-			#if SCRIPTING_ALLOWED if (event("onPreIntroStarted", new CancellableEvent()).cancelled) return; #end
+			if (event("onPreIntroStarted", new CancellableEvent()).cancelled) return;
 			sickBeats++;
 			switch (sickBeats)
 			{
@@ -702,7 +716,7 @@ class TitleState extends MusicBeatState
 					addMoreText('Funkin'); // credTextShit.text += '\nFunkin';
 
 				case 17:
-					#if SCRIPTING_ALLOWED if (event("onPreIntroFinished", new CancellableEvent()).cancelled) return; #end
+					if (event("onPreIntroFinished", new CancellableEvent()).cancelled) return;
 					skipIntro();
 			}
 		}
@@ -712,7 +726,7 @@ class TitleState extends MusicBeatState
 	var increaseVolume:Bool = false;
 	function skipIntro():Void
 	{
-		#if SCRIPTING_ALLOWED if (event("onSkipIntro", new CancellableEvent()).cancelled) return; #end
+		if (event("onSkipIntro", new CancellableEvent()).cancelled) return;
 		if (!skippedIntro)
 		{
 			if (playJingle) //Ignore deez

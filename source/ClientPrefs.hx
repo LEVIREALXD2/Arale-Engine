@@ -9,25 +9,28 @@ import TitleState;
 // Add a variable here and it will get automatically saved
 @:structInit class SaveVariables {
 
-	/* Psych Extended Options */
-	public var KeyboardFixes:Bool = false;
-	public var Modpack:Bool = false;
-
-	/* 0.7 Support */
-	public var hscriptversion:String = 'HScript Old';
-	public var chartLoadSystem:String = '0.4-0.7x';
-	public var UseNewCamSystem:Bool = false;
-	
 	/* Mobile */
 	public var wideScreen:Bool = false;
 	#if android public var storageType:String = "EXTERNAL_DATA"; #end
 
 	/* Mobile Controls */
 	#if TOUCH_CONTROLS
-	public var mobilePadTexture:String = "VirtualPad";
-	public var mobilePadSkin:String = 'original';
-	public var mobilePadAlpha:Float = #if mobile 0.6 #else 0 #end;
+	/* Bool Options */
+	public var hitboxhint:Bool = false;
 	public var coloredvpad:Bool = true;
+
+	/* Int/Float Options */
+	public var extraKeys:Int = 2;
+	public var hitboxalpha:Float = #if mobile 0.7 #else 0 #end;
+	public var mobilePadAlpha:Float = #if mobile 0.6 #else 0 #end;
+
+	/* String Options */
+	public var hitboxtype:String = 'Gradient';
+	public var hitboxLocation:String = 'Bottom';
+	public var mobilePadSkin:String = 'original';
+	public var hitboxmode:String = 'Normal (New)';
+	public var mobilePadTexture:String = "VirtualPad";
+
 	public var extraKeyReturn1:String = 'SHIFT';
 	public var extraKeyReturn2:String = 'SPACE';
 	public var extraKeyReturn3:String = 'Q';
@@ -36,16 +39,36 @@ import TitleState;
 	public var extraKeyReturn6:String = 'A';
 	public var extraKeyReturn7:String = 'S';
 	public var extraKeyReturn8:String = 'D';
-	public var hitboxhint:Bool = false;
-	public var hitboxmode:String = 'Normal (New)'; //starting new way to change between hitboxes yay
-	public var hitboxtype:String = 'Gradient';
-	public var extraKeys:Int = 2;
-	public var hitboxLocation:String = 'Bottom';
-	public var hitboxalpha:Float = #if mobile 0.7 #else 0 #end; //someone request this lol
 	#end
-	
-	/* Note Things */
+
+	/* Psych Extended */
 	public var useRGB:Bool = false;
+	public var Modpack:Bool = false;
+	public var KeyboardFixes:Bool = false;
+	public var UseNewCamSystem:Bool = false;
+	public var chartLoadSystem:String = '0.4-0.7x';
+	public var hscriptversion:String = 'HScript Old';
+
+	/* Codename Engine */
+	public var codenameFunctions:Bool = false; //experimental
+
+	/* V-Slice */
+	public var VSliceControl:Bool = false;
+
+	/* NovaFlare Engine */
+	public var uiScale:Float = 1;
+	public var memoryType:Int = 0;
+	public var rainbowFPS:Bool = true;
+	#if EXTRA_PAUSE public var PauseMenuStyle:String = 'Psych'; #end
+	#if EXTRA_FREEPLAY public var FreeplayMenu:String = 'Psych'; #end
+	#if EXTRA_FPSCOUNTER public var FPSCounter:String = 'Psych'; #end
+	#if EXTRA_MAINMENU public var MainMenuStyle:String = 'Psych'; #end
+	#if EXTRA_TRANSITIONS public var TransitionStyle:String = 'Psych'; #end
+
+	/* Psych Engine 0.7x */
+	public var discordRPC:Bool = true;
+	public var noteSkin:String = 'Default';
+	public var splashSkin:String = 'Default';
 	public var arrowRGB:Array<Array<FlxColor>> = [
 		[0xFFC24B99, 0xFFFFFFFF, 0xFF3C1F56],
 		[0xFF00FFFF, 0xFFFFFFFF, 0xFF1542B7],
@@ -56,21 +79,8 @@ import TitleState;
 		[0xFF3DCAFF, 0xFFF4FFFF, 0xFF003060],
 		[0xFF71E300, 0xFFF6FFE6, 0xFF003100],
 		[0xFFFF884E, 0xFFFFFAF5, 0xFF6C0000]];
-	public var noteSkin:String = 'Default';
-	public var splashSkin:String = 'Default';
 
-	/* NovaFlare Things*/
-	#if EXTRA_TRANSITIONS public var TransitionStyle:String = 'Psych'; #end
-	#if EXTRA_FPSCOUNTER public var FPSCounter:String = 'Psych'; #end
-	#if EXTRA_FREEPLAY public var FreeplayMenu:String = 'Psych'; #end
-	#if EXTRA_MAINMENU public var MainMenuStyle:String = 'Psych'; #end
-	#if EXTRA_PAUSE public var PauseMenuStyle:String = 'Psych'; #end
-	public var rainbowFPS:Bool = true;
-	public var memoryType:Int = 0;
-	public var uiScale:Float = 1;
-
-	/* Psych Engine */
-	public var discordRPC:Bool = true;
+	/* Psych Engine 0.6.3 */
 	public var downScroll:Bool = false;
 	public var marvelousRating:Bool = true;
 	public var marvelousSprite:Bool = true;

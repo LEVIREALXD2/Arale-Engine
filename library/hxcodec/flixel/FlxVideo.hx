@@ -88,11 +88,9 @@ class FlxVideo extends VLCBitmap
 	 * @param Loop Loop the video.
 	 * @param PauseMusic Pause music until the video ends.
 	 */
-	public function play(Path:String, Loop:Bool = false, PauseMusic:Bool = false):Void
+	override public function load(?location:String = null, repeat:Int = 0):Bool
 	{
-		pauseMusic = PauseMusic;
-
-		if (FlxG.sound.music != null && PauseMusic)
+		if (FlxG.sound.music != null && pauseMusic)
 			FlxG.sound.music.pause();
 
 		// Probably won't help with anything but ok.
@@ -108,10 +106,10 @@ class FlxVideo extends VLCBitmap
 
 		// in case if you want to use another dir then the application one.
 		// android can already do this, it can't use application's storage.
-		if (FileSystem.exists(Sys.getCwd() + Path))
-			playVideo(Sys.getCwd() + Path, Loop);
+		if (FileSystem.exists(Sys.getCwd() + location))
+			return super.load(Sys.getCwd() + location, repeat);
 		else
-			playVideo(Path, Loop);
+			return super.load(location, repeat);
 	}
 
 	private function update(?E:Event):Void

@@ -80,22 +80,23 @@ class FlxVideoSprite extends FlxSprite
 	}
 
 	public var usedLoadFunction:Bool = false;
-	public function load(Path:String, Loop:Bool = false, PauseMusic:Bool = false):Void
+	public function load(location:String, repeat:Int = 0):Bool
 	{
-		bitmap.play(Path, Loop, PauseMusic);
-		bitmap.pause();
+		if (bitmap == null)
+			return false;
+
+		if (FileSystem.exists(Sys.getCwd() + location))
+			return bitmap.load(Sys.getCwd() + location, repeat);
+
+		return bitmap.load(location, repeat);
 	}
 
-	public function play():Void
-		resume();
+	public function play():Bool
+	{
+		if (bitmap == null)
+			return false;
 
-	/**
-	 * Native video support for Flixel & OpenFL
-	 * @param Path Example: `your/video/here.mp4`
-	 * @param Loop Loop the video.
-	 * @param PauseMusic Pause music until the video ends.
-	 */
-	public function playVideo(Path:String, Loop:Bool = false, PauseMusic:Bool = false):Void
-		bitmap.play(Path, Loop, PauseMusic);
+		return bitmap.play();
+	}
 }
 #end

@@ -163,21 +163,14 @@ class VLCBitmap extends Bitmap
 	}
 
 	// Playback Methods
-	public function playVideo(?location:String = null, loop:Bool = false):Void
+	public function load(?location:String = null, repeat:Int = 0):Bool
 	{
-		final path:String = #if windows Path.normalize(location).split("/").join("\\") #else Path.normalize(location) #end;
-
-		trace("setting path to: " + path);
-
-		mediaItem = LibVLC.media_new_path(instance, path);
+		mediaItem = LibVLC.media_new_path(instance, #if windows Path.normalize(location).split("/").join("\\") #else Path.normalize(location) #end);
 		mediaPlayer = LibVLC.media_player_new_from_media(mediaItem);
 
 		LibVLC.media_parse(mediaItem);
 
-		if (loop)
-			LibVLC.media_add_option(mediaItem, #if android "input-repeat=65535" #else "input-repeat=-1" #end);
-		else
-			LibVLC.media_add_option(mediaItem, "input-repeat=0");
+		LibVLC.media_add_option(mediaItem, "input-repeat=" + Math.min(repeat, 65535));
 
 		LibVLC.media_release(mediaItem);
 
@@ -212,7 +205,22 @@ class VLCBitmap extends Bitmap
 		LibVLC.event_attach(eventManager, LibVLC_EventType.MediaPlayerForward, untyped __cpp__('callbacks'), untyped __cpp__('this'));
 		LibVLC.event_attach(eventManager, LibVLC_EventType.MediaPlayerBackward, untyped __cpp__('callbacks'), untyped __cpp__('this'));
 
-		LibVLC.media_player_play(mediaPlayer);
+		return true;
+	}
+
+	/**
+	 * Call this function to play a video.
+	 *
+	 * @return `true` if the video started playing or `false` if there's an error.
+	 */
+	public function play():Bool
+	{
+		if (mediaPlayer != null) {
+			LibVLC.media_player_play(mediaPlayer);
+			return true;
+		}
+
+		return false;
 	}
 
 	public function stop():Void
