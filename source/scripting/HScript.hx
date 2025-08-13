@@ -364,6 +364,11 @@ class Script extends FlxBasic implements IFlxDestroyable {
 			"Alphabet"		  => Alphabet,
 			"CoolUtil"		  => CoolUtil,
 
+			/* Custom Menus */
+			"ModGroup"		  => options.group.ModGroup,
+			"ModState"		  => funkin.backend.scripting.ModState,
+			//"ModSubState"		  => funkin.backend.scripting.ModSubState,
+
 			/* for returning hxCodec 3.x.x requests to hxCodec 2.5.1 */
 			"FlxVideo"		  => hxcodec.flixel.FlxVideo,
 			"FlxVideoSprite"		  => hxcodec.flixel.FlxVideoSprite,

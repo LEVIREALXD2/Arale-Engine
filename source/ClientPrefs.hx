@@ -8,6 +8,8 @@ import TitleState;
 
 // Add a variable here and it will get automatically saved
 @:structInit class SaveVariables {
+	public var customIntOptions:Map<String, Int> = [];
+	public var customBoolOptions:Map<String, Bool> = [];
 
 	/* Mobile */
 	public var wideScreen:Bool = false;
@@ -43,11 +45,11 @@ import TitleState;
 
 	/* Psych Extended */
 	public var useRGB:Bool = false;
-	public var Modpack:Bool = false;
 	public var KeyboardFixes:Bool = false;
 	public var UseNewCamSystem:Bool = false;
 	public var chartLoadSystem:String = '0.4-0.7x';
 	public var hscriptversion:String = 'HScript Old';
+	public var currentModPack:String = null; //it's more easier than using .txt shit
 
 	/* Codename Engine */
 	public var codenameFunctions:Bool = false; //experimental

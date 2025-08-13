@@ -1,7 +1,7 @@
 # Friday Night Funkin' - Psych Extended
 ![PsychionalExtendedLogo](docs/img/PsychExtendedLogo.png)
 
-Engine originally used on [Sansational Sans Mix](https://gamebanana.com/mods/301107), intended to be unlocks a Official Psych's limitations for the while keeping the mod support of PsychEngine 0.6.3 aspect of it. Also aiming to be an Codename Engine alternative to PsychEngine coders.
+Engine originally used on [Sansational Sans Mix](https://youtu.be/ROtW8QMdWb4), intended to be unlocks a Official Psych's limitations for the while keeping the mod support of PsychEngine 0.6.3 aspect of it. Also aiming to be an Codename Engine alternative to PsychEngine coders.
 
 ## Softcoding (.hsc)
 For this you can head over to [the wiki](https://PsychExtendedThings.github.io/HScript-Improved)!

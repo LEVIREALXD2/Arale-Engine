@@ -22,14 +22,6 @@ class GameplayGroup extends OptionCata
 		addOption(option);
 
 		var option:Option = new Option(this,
-			'Modpack Folder',
-			'If checked, game uses modpack folder instead of mods folder.',
-			'Modpack',
-			BOOL
-		);
-		addOption(option);
-
-		var option:Option = new Option(this,
 			'Use Experimental (0.7x) Cameras',
 			"If checked, game uses 0.7x's Camera System instead of 0.6x's.\n(If you have a any camera issue, enable or disable this)",
 			'UseNewCamSystem',

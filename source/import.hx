@@ -14,6 +14,8 @@ import Discord.DiscordClient;
 #end
 
 //import them for now
+import options.group.ModGroup;
+import funkin.backend.scripting.ModState;
 import funkin.backend.scripting.*;
 import funkin.backend.scripting.events.*;
 import backend.mouse.*;
@@ -27,9 +29,6 @@ import funkin.backend.FunkinText;
 import funkin.backend.FunkinSprite;
 import funkin.backend.shaders.FunkinShader;
 import funkin.backend.shaders.CustomShader;
-
-//Returns hxCodec requests to hxvlc
-//import vlc.MP4Handler;
 
 import backend.BaseStage;
 import Song.SwagSong;

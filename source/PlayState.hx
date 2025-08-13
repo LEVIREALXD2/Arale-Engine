@@ -1712,7 +1712,7 @@ class PlayState extends MusicBeatState
 					{
 						oldNote = unspawnNotes[Std.int(unspawnNotes.length - 1)];
 
-						var sustainNote:Note = new Note(daStrumTime + (Conductor.stepCrochet * susNote) + (Conductor.stepCrochet / FlxMath.roundDecimal(songSpeed, 2)), daNoteData, oldNote, true);
+						var sustainNote:Note = new Note(daStrumTime + (Conductor.stepCrochet * susNote), daNoteData, oldNote, true);
 						if (ClientPrefs.data.chartLoadSystem == '1.0x' || forcedChartLoadSystem == '1.0x')
 						{
 							sustainNote.animSuffix = swagNote.animSuffix;
@@ -1729,6 +1729,19 @@ class PlayState extends MusicBeatState
 						swagNote.tail.push(sustainNote);
 						sustainNote.parent = swagNote;
 						unspawnNotes.push(sustainNote);
+
+						sustainNote.correctionOffset = swagNote.height / 2;
+						if(!PlayState.isPixelStage)
+						{
+							if(oldNote.isSustainNote)
+							{
+								oldNote.scale.y *= Note.SUSTAIN_SIZE / oldNote.frameHeight;
+								oldNote.updateHitbox();
+							}
+
+							if(ClientPrefs.data.downScroll)
+								sustainNote.correctionOffset = 0;
+						}
 
 						if (sustainNote.mustPress)
 						{
@@ -3432,10 +3445,7 @@ class PlayState extends MusicBeatState
 			vocals.volume = 1;
 
 		var time:Float = 0.15;
-		if(note.isSustainNote && !note.animation.curAnim.name.endsWith('end')) {
-			time += 0.15;
-		}
-		StrumPlayAnim(true, Std.int(Math.abs(note.noteData)), time);
+		strumPlayAnim(true, Std.int(Math.abs(note.noteData)), Conductor.stepCrochet * 1.5 / 1000);
 		note.hitByOpponent = true;
 
 		var result:Dynamic = callOnLuas('opponentNoteHit', [notes.members.indexOf(note), Math.abs(note.noteData), note.noteType, note.isSustainNote]);
@@ -3528,19 +3538,12 @@ class PlayState extends MusicBeatState
 				}
 			}
 
-			if(cpuControlled) {
-				var time:Float = 0.15;
-				if(note.isSustainNote && !note.animation.curAnim.name.endsWith('end')) {
-					time += 0.15;
-				}
-				StrumPlayAnim(false, Std.int(Math.abs(note.noteData)), time);
-			} else {
+			if(!cpuControlled)
+			{
 				var spr = playerStrums.members[note.noteData];
-				if(spr != null)
-				{
-					spr.playAnim('confirm', true);
-				}
+				if(spr != null) spr.playAnim('confirm', true);
 			}
+			else strumPlayAnim(false, Std.int(Math.abs(note.noteData)), Conductor.stepCrochet * 1.5 / 1000);
 			note.wasGoodHit = true;
 			vocals.volume = 1;
 
@@ -4029,10 +4032,10 @@ class PlayState extends MusicBeatState
 		#end
 	}
 
-	function StrumPlayAnim(isDad:Bool, id:Int, time:Float) {
+	function strumPlayAnim(isDad:Bool, id:Int, time:Float) {
 		var spr:StrumNote = null;
 		if(isDad) {
-			spr = strumLineNotes.members[id];
+			spr = opponentStrums.members[id];
 		} else {
 			spr = playerStrums.members[id];
 		}

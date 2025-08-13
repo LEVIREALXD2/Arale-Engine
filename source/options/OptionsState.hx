@@ -18,7 +18,13 @@ class OptionsState extends MusicBeatState
 
 	var filePath:String = 'menuExtend/OptionsState/';
 
-	var naviArray = [];
+	var naviArray = [
+		'Graphics',
+		'Visual & UI',
+		'Note Skins',
+		'Gameplay',
+		'Controls'
+	];
 
 	////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -55,14 +61,6 @@ class OptionsState extends MusicBeatState
 		Main.fpsVar.visible = false;
 		#if EXTRA_FPSCOUNTER Main.fpsVarNova.visible = false; #end
 
-		naviArray = [
-			'Graphics',
-			'Visual & UI',
-			'Note Skins',
-			'Gameplay',
-			'Controls'
-		];
-
 		mouseEvent = new MouseEvent();
 		add(mouseEvent);
 
@@ -72,19 +70,24 @@ class OptionsState extends MusicBeatState
 		naviBG = new RoundRect(0, 0, UIScale.adjust(FlxG.width * 0.2), FlxG.height, 0, LEFT_CENTER,  mainColor);
 		add(naviBG);
 
-		for (i in 0...naviArray.length)
-		{
-			var naviSprite = new NaviSprite(UIScale.adjust(FlxG.width * 0.005), UIScale.adjust(FlxG.height * 0.005) + i * UIScale.adjust(FlxG.height * 0.1), UIScale.adjust(FlxG.width * 0.19), UIScale.adjust(FlxG.height * 0.09), naviArray[i], i, false);
-			naviSprite.antialiasing = ClientPrefs.data.antialiasing;
-			add(naviSprite);
-			naviSpriteGroup.push(naviSprite);
+		super.create(); //put this there otherwise you cannot change anything
+
+		call('baseCreate');
+
+		var naviCreation = event("onNaviCreate", new CancellableEvent());
+		if (!naviCreation.cancelled) {
+			for (i in 0...naviArray.length)
+			{
+				var naviSprite = new NaviSprite(UIScale.adjust(FlxG.width * 0.005), UIScale.adjust(FlxG.height * 0.005) + i * UIScale.adjust(FlxG.height * 0.1), UIScale.adjust(FlxG.width * 0.19), UIScale.adjust(FlxG.height * 0.09), naviArray[i], i, false);
+				naviSprite.antialiasing = ClientPrefs.data.antialiasing;
+				add(naviSprite);
+				naviSpriteGroup.push(naviSprite);
+
+				addCata(naviArray[i]);
+			}
 		}
 
 		/////////////////////////////////////////////////////////////////
-
-		for (i in 0...naviArray.length) {
-			addCata(naviArray[i]);
-		}
 
 		var moveHeight:Float = 100;
 		for (num in cataGroup) {
@@ -143,7 +146,7 @@ class OptionsState extends MusicBeatState
 		backButton = new GeneralBack(0, 720 - 72, UIScale.adjust(FlxG.width * 0.2), UIScale.adjust(FlxG.height * 0.1), 'Back', EngineSet.mainColor, backMenu);
 		add(backButton);
 
-		super.create();
+		call('basePostCreate');
 	}
 
 	public var ignoreCheck:Bool = false;
@@ -209,23 +212,33 @@ class OptionsState extends MusicBeatState
 		var outputY:Float = 100; //等待被初始化
 		var outputHeight:Float = 200; //等待被初始化
 
-		switch (type) 
-		{
-			case 'Graphics':
-				obj = new GraphicsGroup(outputX, outputY, outputWidth, outputHeight);
-			case 'Visual & UI':
-				obj = new UIGroup(outputX, outputY, outputWidth, outputHeight);
-			case 'Note Skins':
-				obj = new SkinGroup(outputX, outputY, outputWidth, outputHeight);
-			case 'Gameplay':
-				obj = new GameplayGroup(outputX, outputY, outputWidth, outputHeight);
-			case 'Controls':
-				obj = new MobileGroup(outputX, outputY, outputWidth, outputHeight);
-			default:
-				//nothing lol
+		stateScripts.set('outputX', outputX);
+		stateScripts.set('outputWidth', outputWidth);
+		stateScripts.set('outputY', outputY);
+		stateScripts.set('outputHeight', outputHeight);
+
+		//idk how can I merge them, so I'm using it like that
+		call('addCata', [type, obj]);
+		var naviCreation = event("CataCreation", new CancellableEvent());
+		if (!naviCreation.cancelled) {
+			switch (type) 
+			{
+				case 'Graphics':
+					obj = new GraphicsGroup(outputX, outputY, outputWidth, outputHeight);
+				case 'Visual & UI':
+					obj = new UIGroup(outputX, outputY, outputWidth, outputHeight);
+				case 'Note Skins':
+					obj = new SkinGroup(outputX, outputY, outputWidth, outputHeight);
+				case 'Gameplay':
+					obj = new GameplayGroup(outputX, outputY, outputWidth, outputHeight);
+				case 'Controls':
+					obj = new MobileGroup(outputX, outputY, outputWidth, outputHeight);
+				default:
+					//nothing lol
+			}
+			cataGroup.push(obj);
+			add(obj);
 		}
-		cataGroup.push(obj);
-		add(obj);
 	}
 
 	public function addMove(tar:MouseMove) {

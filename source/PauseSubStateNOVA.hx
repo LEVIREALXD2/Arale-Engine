@@ -577,7 +577,7 @@ class PauseSubStateNOVA extends MusicBeatSubstate
 
 					Mods.loadTopMod();
 					if(PlayState.isStoryMode)
-						CustomSwitchState.switchMenus('StoryMenu');
+						MusicBeatState.switchState(new StoryMenuState());
 					else
 						CustomSwitchState.switchMenus('Freeplay');
 					FlxG.sound.playMusic(Paths.music('freakyMenu'));

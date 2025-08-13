@@ -162,7 +162,7 @@ class MainMenuState extends MusicBeatState
 		#end
 
 		#if TOUCH_CONTROLS
-		addMobilePad("UP_DOWN", "A_B_E");
+		addMobilePad("UP_DOWN", "SELECTOR_0.6.3");
 		#end
 
 		super.create();
@@ -265,6 +265,12 @@ class MainMenuState extends MusicBeatState
 				selectedSomethin = true;
 				MusicBeatState.switchState(new MasterEditorMenu());
 			}
+			else if (FlxG.keys.justPressed.TAB #if TOUCH_CONTROLS || mobilePad.buttonSELECTOR.justPressed #end) //use unused button
+			{
+				persistentUpdate = false;
+				openSubState(new ModPackSwitchMenu());
+				#if TOUCH_CONTROLS removeMobilePad(); #end
+			}
 		}
 
 		super.update(elapsed);
@@ -300,5 +306,15 @@ class MainMenuState extends MusicBeatState
 				spr.centerOffsets();
 			}
 		});
+	}
+
+	override function closeSubState()
+	{
+		persistentUpdate = true;
+		#if TOUCH_CONTROLS
+		removeMobilePad();
+		addMobilePad("UP_DOWN", "SELECTOR_0.6.3");
+		#end
+		super.closeSubState();
 	}
 }

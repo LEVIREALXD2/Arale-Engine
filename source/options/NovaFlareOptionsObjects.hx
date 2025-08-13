@@ -51,6 +51,36 @@ class Option extends FlxSpriteGroup
 
 	/////////////////////////////////////////////
 
+	function getVariableProperty() {
+		//createMissingVariable();
+		//if(Reflect.hasField(ClientPrefs.data, variable))
+			return Reflect.getProperty(ClientPrefs.data, variable);
+		/* maybe later
+		else if (ClientPrefs.data.customIntOptions.exists(variable) && this.type == INT)
+			return ClientPrefs.data.customIntOptions.get(variable);
+		else if (ClientPrefs.data.customBoolOptions.exists(variable) && this.type == BOOL)
+			return ClientPrefs.data.customBoolOptions.get(variable);
+		*/
+	}
+	
+	function createMissingVariable() {
+		if (!Reflect.hasField(ClientPrefs.data, variable) && !ClientPrefs.data.customIntOptions.exists(variable) && this.type == INT)
+			ClientPrefs.data.customIntOptions.set(variable, 0);
+		else if (!Reflect.hasField(ClientPrefs.data, variable) && !ClientPrefs.data.customBoolOptions.exists(variable) && this.type == BOOL)
+			ClientPrefs.data.customBoolOptions.set(variable, false);
+	}
+
+	function setVariableProperty(value:Dynamic) {
+		//if(Reflect.hasField(ClientPrefs.data, variable))
+			return Reflect.setProperty(ClientPrefs.data, variable, value);
+		/* maybe later
+		else if (ClientPrefs.data.customIntOptions.exists(variable) && this.type == INT)
+			return ClientPrefs.data.customIntOptions.set(variable, value);
+		else if (ClientPrefs.data.customBoolOptions.exists(variable) && this.type == BOOL)
+			return ClientPrefs.data.customBoolOptions.set(variable, value);
+		*/
+	}
+
 	public function new(follow:OptionCata, description:String = '', tips:String = '', variable:String = '', type:OptionType = BOOL, ?data:Dynamic)
 	{
 		super();
@@ -66,7 +96,7 @@ class Option extends FlxSpriteGroup
 		///////////////////////////////////////////////////////////////////////////////////////////////////
 
 		if (this.type != STATE && variable != '')
-			this.defaultValue = Reflect.getProperty(ClientPrefs.data, variable);
+			this.defaultValue = getVariableProperty();
 
 		switch (type)
 		{
@@ -382,14 +412,14 @@ class Option extends FlxSpriteGroup
 
 	dynamic public function getValue():Dynamic
 	{
-		var value = Reflect.getProperty(ClientPrefs.data, variable);
+		var value = getVariableProperty();
 		return value;
 	}
 
 	dynamic public function setValue(value:Dynamic)
 	{
 		defaultValue = value;
-		return Reflect.setProperty(ClientPrefs.data, variable, value);
+		return setVariableProperty(value);
 	}
 
 	public function resetData()
@@ -397,8 +427,13 @@ class Option extends FlxSpriteGroup
 		if (variable == '' || type == STATE || type == TEXT || type == TITLE)
 			return;
 		try {
-			Reflect.setProperty(ClientPrefs.data, variable, Reflect.getProperty(ClientPrefs.defaultData, variable));
-			defaultValue = Reflect.getProperty(ClientPrefs.defaultData, variable);
+			//unfortunately you can't reset the custom variables
+			if(Reflect.hasField(ClientPrefs.data, variable)) {
+				Reflect.setProperty(ClientPrefs.data, variable, Reflect.getProperty(ClientPrefs.defaultData, variable));
+				defaultValue = Reflect.getProperty(ClientPrefs.defaultData, variable);
+			} else {
+				trace('Error: Custom Variables');
+			}
 		}
 		switch (type)
 		{

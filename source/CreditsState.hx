@@ -51,7 +51,7 @@ class CreditsState extends MusicBeatState
 
 		#if MODS_ALLOWED
 		var path:String = 'modsList.txt';
-		if (ClientPrefs.data.Modpack) path = 'modpackList.txt';
+		if (ClientPrefs.data.currentModPack != null) path = Paths.modpack(ClientPrefs.data.currentModPack + '/modsList.txt');
 		else path = 'modsList.txt';
 		if(FileSystem.exists(path))
 		{

@@ -828,7 +828,7 @@ class ModsMenuState extends MusicBeatState
 		}
 
 		var path:String = #if mobile Sys.getCwd() + #end 'modsList.txt';
-		if (ClientPrefs.data.Modpack) path = #if mobile Sys.getCwd() + #end 'modpackList.txt';
+		if (ClientPrefs.data.currentModPack != null) path = Paths.modpack(ClientPrefs.data.currentModPack + '/modsList.txt');
 		File.saveContent(path, fileStr);
 		Mods.parseList();
 		Mods.loadTopMod();

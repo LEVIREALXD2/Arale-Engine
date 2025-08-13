@@ -67,6 +67,23 @@ class Mods
 		#end
 		return list;
 	}
+
+	inline public static function getModPackDirectories():Array<String>
+	{
+		var list:Array<String> = [];
+		#if MODS_ALLOWED
+		var modsFolder:String = Paths.modpack();
+		if(FileSystem.exists(modsFolder)) {
+			for (folder in FileSystem.readDirectory(modsFolder))
+			{
+				var path = haxe.io.Path.join([modsFolder, folder]);
+				if (FileSystem.isDirectory(path) && !ignoreModFolders.contains(folder.toLowerCase()) && !list.contains(folder))
+					list.push(folder);
+			}
+		}
+		#end
+		return list;
+	}
 	
 	inline public static function mergeAllTextsNamed(path:String, ?defaultDirectory:String = null, allowDuplicates:Bool = false)
 	{
@@ -165,7 +182,7 @@ class Mods
 		#if MODS_ALLOWED
 		try {
 			var curThing:String = 'modsList.txt';
-			if (ClientPrefs.data.Modpack) curThing = 'modpackList.txt';
+			if (ClientPrefs.data.currentModPack != null) curThing = Paths.modpack(ClientPrefs.data.currentModPack + '/modsList.txt');
 			else curThing = 'modsList.txt';
 			for (mod in CoolUtil.coolTextFile(curThing))
 			{
@@ -194,7 +211,7 @@ class Mods
 		var added:Array<String> = [];
 		try {
 			var curThing:String = 'modsList.txt';
-			if (ClientPrefs.data.Modpack) curThing = 'modpackList.txt';
+			if (ClientPrefs.data.currentModPack != null) curThing = Paths.modpack(ClientPrefs.data.currentModPack + '/modsList.txt');
 			else curThing = 'modsList.txt';
 			for (mod in CoolUtil.coolTextFile(curThing))
 			{
@@ -230,7 +247,7 @@ class Mods
 			fileStr += values[0] + '|' + (values[1] ? '1' : '0');
 		}
 
-		if (ClientPrefs.data.Modpack) File.saveContent('modpackList.txt', fileStr);
+		if (ClientPrefs.data.currentModPack != null) File.saveContent(Paths.modpack(ClientPrefs.data.currentModPack + '/modsList.txt'), fileStr);
 		else File.saveContent('modsList.txt', fileStr);
 		updatedOnState = true;
 		//trace('Saved modsList.txt');

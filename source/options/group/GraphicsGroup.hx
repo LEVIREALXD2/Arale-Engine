@@ -52,7 +52,7 @@ class GraphicsGroup extends OptionCata
 		changeHeight(0);
 	}
 
-	static function onChangeFramerate()
+	function onChangeFramerate()
 	{
 		if(ClientPrefs.data.framerate > FlxG.drawFramerate)
 		{

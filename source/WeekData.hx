@@ -92,7 +92,7 @@ class WeekData {
 		#if MODS_ALLOWED
 		var disabledMods:Array<String> = [];
 		var modsListPath:String = 'modsList.txt';
-		if (ClientPrefs.data.Modpack) modsListPath = 'modpackList.txt';
+		if (ClientPrefs.data.currentModPack != null) modsListPath = Paths.modpack(ClientPrefs.data.currentModPack + '/modsList.txt');
 		else modsListPath = 'modsList.txt';
 		var directories:Array<String> = [Paths.mods(), Paths.getPreloadPath()];
 		var originalLength:Int = directories.length;

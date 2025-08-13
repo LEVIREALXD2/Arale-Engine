@@ -1,6 +1,7 @@
 package;
 
 import shaders.RGBPalette;
+import flixel.system.FlxAssets.FlxShader;
 
 typedef NoteSplashConfig = {
 	anim:String,
@@ -12,7 +13,7 @@ typedef NoteSplashConfig = {
 class NoteSplash extends FlxSprite
 {
 	public var colorSwap:ColorSwap = null;
-	public var rgbShader:RGBPalette = null;
+	public var rgbShader:PixelSplashShaderRef;
 	private var idleAnim:String;
 	private var _textureLoaded:String = null;
 
@@ -43,7 +44,11 @@ class NoteSplash extends FlxSprite
 		}
 		if(PlayState.SONG.splashSkin != null && PlayState.SONG.splashSkin.length > 0) skin = PlayState.SONG.splashSkin;
 
-		if (ClientPrefs.data.useRGB) precacheConfig(skin);
+		if (ClientPrefs.data.useRGB) {
+			rgbShader = new PixelSplashShaderRef();
+			shader = rgbShader.shader;
+			precacheConfig(skin);
+		}
 		else {
 			colorSwap = new ColorSwap();
 			shader = colorSwap.shader;
@@ -89,13 +94,13 @@ class NoteSplash extends FlxSprite
 			if(_textureLoaded != texture)
 				config = loadAnims(texture, config);
 
-			shader = null;
+			var tempShader:RGBPalette = null;
 			if(note != null && !note.noteSplashGlobalShader)
-				rgbShader = note.rgbShader.parent;
+				tempShader = note.rgbShader.parent;
 			else
-				rgbShader = Note.globalRgbShaders[direction];
+				tempShader = Note.globalRgbShaders[direction];
 
-			if(rgbShader != null) shader = rgbShader.shader;
+			if(tempShader != null) rgbShader.copyValues(tempShader);
 
 			_textureLoaded = texture;
 			offset.set(10, 10);
@@ -114,6 +119,11 @@ class NoteSplash extends FlxSprite
 				offset.y += offs[1];
 				minFps = config.minFps;
 				maxFps = config.maxFps;
+			}
+			else
+			{
+				offset.x += -58;
+				offset.y += -55;
 			}
 
 			if(animation.curAnim != null)
@@ -238,5 +248,83 @@ class NoteSplash extends FlxSprite
 			(animation.curAnim == null && aliveTime >= buggedKillTime)) kill();
 
 		super.update(elapsed);
+	}
+}
+
+class PixelSplashShaderRef {
+	public var shader:PixelSplashShader = new PixelSplashShader();
+
+	public function copyValues(tempShader:RGBPalette)
+	{
+		for (i in 0...3)
+		{
+			shader.r.value[i] = tempShader.shader.r.value[i];
+			shader.g.value[i] = tempShader.shader.g.value[i];
+			shader.b.value[i] = tempShader.shader.b.value[i];
+		}
+		shader.mult.value[0] = tempShader.shader.mult.value[0];
+		shader.enabled.value[0] = tempShader.shader.enabled.value[0];
+	}
+
+	public function new()
+	{
+		shader.r.value = [0, 0, 0];
+		shader.g.value = [0, 0, 0];
+		shader.b.value = [0, 0, 0];
+		shader.mult.value = [1];
+		shader.enabled.value = [true];
+
+		var pixel:Float = 1;
+		if(PlayState.isPixelStage) pixel = PlayState.daPixelZoom;
+		shader.uBlocksize.value = [pixel, pixel];
+		trace('Created shader ' + Conductor.songPosition);
+	}
+}
+
+class PixelSplashShader extends FlxShader
+{
+	@:glFragmentHeader('
+		#pragma header
+		
+		uniform vec3 r;
+		uniform vec3 g;
+		uniform vec3 b;
+		uniform float mult;
+		uniform bool enabled;
+		uniform vec2 uBlocksize;
+
+		vec4 flixel_texture2DCustom(sampler2D bitmap, vec2 coord) {
+			vec2 blocks = openfl_TextureSize / uBlocksize;
+			vec4 color = flixel_texture2D(bitmap, floor(coord * blocks) / blocks);
+			if (!hasTransform) {
+				return color;
+			}
+
+			if(!enabled || color.a == 0.0 || mult == 0.0) {
+				return color * openfl_Alphav;
+			}
+
+			vec4 newColor = color;
+			newColor.rgb = min(color.r * r + color.g * g + color.b * b, vec3(1.0));
+			newColor.a = color.a;
+			
+			color = mix(color, newColor, mult);
+			
+			if(color.a > 0.0) {
+				return vec4(color.rgb, color.a);
+			}
+			return vec4(0.0, 0.0, 0.0, 0.0);
+		}')
+
+	@:glFragmentSource('
+		#pragma header
+
+		void main() {
+			gl_FragColor = flixel_texture2DCustom(bitmap, openfl_TextureCoordv);
+		}')
+
+	public function new()
+	{
+		super();
 	}
 }

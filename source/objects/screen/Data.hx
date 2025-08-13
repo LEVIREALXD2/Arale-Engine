@@ -28,8 +28,10 @@ class DataGet
 			currentFPS = ClientPrefs.data.framerate;
 
 		/////////////////// →fps计算
+		/*
 		if (FlxG.stage.window.frameRate != ClientPrefs.data.framerate)
 			FlxG.stage.window.frameRate = ClientPrefs.data.framerate;
+		*/
 
 		var mem = FlxMath.roundDecimal(Gc.memInfo64(ClientPrefs.data.memoryType) / 1000000, 1); // 转化为MB
 		if (Math.abs(mem) < 1000)
