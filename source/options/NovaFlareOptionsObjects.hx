@@ -53,8 +53,9 @@ class Option extends FlxSpriteGroup
 
 	function getVariableProperty() {
 		//createMissingVariable();
-		//if(Reflect.hasField(ClientPrefs.data, variable))
-			return Reflect.getProperty(ClientPrefs.data, variable);
+		if(Reflect.getProperty(ClientPrefs.data, variable) != null) return Reflect.getProperty(ClientPrefs.data, variable);
+		else return Reflect.getProperty(FlxG.save.data, variable);
+
 		/* maybe later
 		else if (ClientPrefs.data.customIntOptions.exists(variable) && this.type == INT)
 			return ClientPrefs.data.customIntOptions.get(variable);
@@ -71,8 +72,9 @@ class Option extends FlxSpriteGroup
 	}
 
 	function setVariableProperty(value:Dynamic) {
-		//if(Reflect.hasField(ClientPrefs.data, variable))
-			return Reflect.setProperty(ClientPrefs.data, variable, value);
+		if(Reflect.getProperty(ClientPrefs.data, variable) != null) return Reflect.setProperty(ClientPrefs.data, variable, value);
+		else Reflect.setProperty(FlxG.save.data, variable, value);
+
 		/* maybe later
 		else if (ClientPrefs.data.customIntOptions.exists(variable) && this.type == INT)
 			return ClientPrefs.data.customIntOptions.set(variable, value);

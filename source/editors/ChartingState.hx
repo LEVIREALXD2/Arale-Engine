@@ -1958,7 +1958,7 @@ class ChartingState extends MusicBeatState
 
 				FlxG.sound.playMusic(Paths.music('freakyMenu'));
 				FlxG.mouse.visible = false;
-				return;
+				//return;
 			}
 
 			if(#if TOUCH_CONTROLS mobilePad.buttonZ.justPressed || #end (FlxG.keys.justPressed.Z && FlxG.keys.pressed.CONTROL)) {

@@ -123,7 +123,6 @@ class TitleState extends MusicBeatState
 		// DEBUG BULLSHIT
 
 		swagShader = new ColorSwap();
-		super.create();
 
 		FlxG.save.bind('funkin', 'ninjamuffin99');
 
@@ -134,6 +133,8 @@ class TitleState extends MusicBeatState
 		#end
 		// Just to load a mod on start up if ya got one. For mods that change the menu music and bg
 		Mods.loadTopMod();
+
+		super.create(); //create the script after the loading mod and prefs
 
 		#if CHECK_FOR_UPDATES
 		if(ClientPrefs.data.checkForUpdates && !closedState) {

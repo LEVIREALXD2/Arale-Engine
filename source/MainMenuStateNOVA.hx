@@ -288,7 +288,7 @@ class MainMenuStateNOVA extends MusicBeatState
 		#end
 
 		#if TOUCH_CONTROLS
-		addMobilePad("UP_DOWN", "A_B_E");
+		addMobilePad("UP_DOWN", "SELECTOR_0.6.3");
 		mobilePad.cameras = [camHUD];
 		#end
 	}
@@ -322,14 +322,12 @@ class MainMenuStateNOVA extends MusicBeatState
 
 		if (FlxG.mouse.justPressed) usingMouse = true;
 
-		/*
 		if (FlxG.keys.justPressed.TAB #if TOUCH_CONTROLS || mobilePad.buttonSELECTOR.justPressed #end) //use unused button
 		{
 			persistentUpdate = false;
-			openSubState(new funkin.menus.CustomMenuModSwitchMenu());
+			openSubState(new ModPackSwitchMenu());
 			#if TOUCH_CONTROLS removeMobilePad(); #end
 		}
-		*/
 
 		if(!endCheck){
 
@@ -591,7 +589,7 @@ class MainMenuStateNOVA extends MusicBeatState
 		persistentUpdate = true;
 		#if TOUCH_CONTROLS
 		removeMobilePad();
-		addMobilePad("UP_DOWN", "A_B_E");
+		addMobilePad("UP_DOWN", "SELECTOR_0.6.3");
 		mobilePad.cameras = [camHUD];
 		#end
 		closeSubStatePost();

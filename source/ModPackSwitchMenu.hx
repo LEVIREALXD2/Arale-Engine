@@ -36,14 +36,14 @@ class ModPackSwitchMenu extends MusicBeatSubstate {
 		*/
 		trace('Dirs: ' + Mods.getModPackDirectories());
 
-		mods = Mods.getModPackDirectories();
+		mods = Mods.getModPackDirectories(); //get modpacks
 
 		/* mods = Mods.enabledMods; //Get Enabled ones instead of every single mod */
 		mods.push(null);
 
 		alphabets = new FlxTypedGroup<Alphabet>();
 		for(mod in mods) {
-			var a = new Alphabet(100, 360, mod == null ? "DISABLE MODPACKS" : mod, true);
+			var a = new Alphabet(100, 360, mod == null ? "DISABLE MODPACK" : mod, true);
 			a.isMenuItem = true;
 			a.scrollFactor.set();
 			alphabets.add(a);

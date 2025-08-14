@@ -7,13 +7,12 @@ import flixel.FlxBasic;
 import flixel.FlxSprite;
 import flixel.input.actions.FlxActionInput;
 
+#if SCRIPTING_ALLOWED
+import scripting.HScript;
+#end
+
 class MusicBeatSubstate extends FlxSubState
 {
-	public function new()
-	{
-		super();
-	}
-
 	private var curSection:Int = 0;
 	private var stepsToDo:Int = 0;
 
@@ -141,6 +140,7 @@ class MusicBeatSubstate extends FlxSubState
 			}
 		}
 
+		call("update", [elapsed]);
 		super.update(elapsed);
 	}
 
@@ -217,5 +217,101 @@ class MusicBeatSubstate extends FlxSubState
 		var val:Null<Float> = 4;
 		if(PlayState.SONG != null && PlayState.SONG.notes[curSection] != null) val = PlayState.SONG.notes[curSection].sectionBeats;
 		return val == null ? 4 : val;
+	}
+
+	/**
+	 * SCRIPTING STUFF
+	 */
+	#if SCRIPTING_ALLOWED
+
+	/**
+	 * Current injected script attached to the state. To add one, create a file at path "data/states/stateName" (ex: "data/states/PauseMenuSubstate.hx")
+	 */
+	public var stateScripts:ScriptPack;
+
+	public var scriptsAllowed:Bool = true;
+
+	public var scriptName:String = null;
+
+	public function new(scriptsAllowed:Bool = true, ?scriptName:String) {
+		super();
+		this.scriptName = scriptName;
+	}
+
+	function loadScript(?customPath:String) {
+		var className = Type.getClassName(Type.getClass(this));
+		if (stateScripts == null)
+			(stateScripts = new ScriptPack(className)).setParent(this);
+		if (scriptsAllowed) {
+			if (stateScripts.scripts.length == 0) {
+				var scriptName = this.scriptName != null ? this.scriptName : className.substr(className.lastIndexOf(".")+1);
+				var filePath:String = "substates/" + scriptName;
+				if (customPath != null)
+					filePath = customPath;
+				var path = Paths.script(filePath);
+				var script = Script.create(path);
+				script.remappedNames.set(script.fileName, '${script.fileName}');
+				stateScripts.add(script);
+				script.load();
+				call('create');
+			}
+			else stateScripts.reload();
+		}
+	}
+
+	override function create()
+	{
+		loadScript();
+		super.create();
+	}
+	#end
+
+	public override function tryUpdate(elapsed:Float):Void
+	{
+		if (persistentUpdate || subState == null) {
+			call("preUpdate", [elapsed]);
+			update(elapsed);
+			call("postUpdate", [elapsed]);
+		}
+
+		if (_requestSubStateReset)
+		{
+			_requestSubStateReset = false;
+			resetSubState();
+		}
+		if (subState != null)
+		{
+			subState.tryUpdate(elapsed);
+		}
+	}
+
+	override function close() {
+		var event = event("onClose", new CancellableEvent());
+		if (!event.cancelled) {
+			super.close();
+			call("onClosePost");
+		}
+	}
+
+	public override function createPost() {
+		super.createPost();
+		call("postCreate");
+	}
+
+	public function call(name:String, ?args:Array<Dynamic>, ?defaultVal:Dynamic):Dynamic {
+		// calls the function on the assigned script
+		#if SCRIPTING_ALLOWED
+		if(stateScripts != null)
+			return stateScripts.call(name, args);
+		#end
+		return defaultVal;
+	}
+
+	public function event<T:CancellableEvent>(name:String, event:T):T {
+		#if SCRIPTING_ALLOWED
+		if(stateScripts != null)
+			stateScripts.call(name, [event]);
+		#end
+		return event;
 	}
 }

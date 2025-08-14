@@ -1661,8 +1661,12 @@ class PlayState extends MusicBeatState
 			}
 		}
 
+		var daBpm:Float = Conductor.bpm;
 		for (section in noteData)
 		{
+			if (section.changeBPM != null && section.changeBPM && section.bpm != null && daBpm != section.bpm)
+				daBpm = section.bpm;
+
 			for (songNotes in section.sectionNotes)
 			{
 				var daStrumTime:Float = songNotes[0];
@@ -1690,10 +1694,9 @@ class PlayState extends MusicBeatState
 				var swagNote:Note = new Note(daStrumTime, daNoteData, oldNote);
 				swagNote.mustPress = gottaHitNote;
 				swagNote.sustainLength = songNotes[2];
+				swagNote.gfNote = (section.gfSection && (songNotes[1]<4));
 				if (ClientPrefs.data.chartLoadSystem == '1.0x' || forcedChartLoadSystem == '1.0x')
 					if(section.altAnim && !swagNote.mustPress && !section.gfSection) swagNote.animSuffix = '-alt';
-				else
-					swagNote.gfNote = (section.gfSection && (songNotes[1]<4));
 
 				swagNote.noteType = songNotes[3];
 				if(!Std.isOfType(songNotes[3], String) && ClientPrefs.data.chartLoadSystem == '0.4-0.7x' || forcedChartLoadSystem == '0.4-0.7x')
@@ -1729,7 +1732,7 @@ class PlayState extends MusicBeatState
 						swagNote.tail.push(sustainNote);
 						sustainNote.parent = swagNote;
 						unspawnNotes.push(sustainNote);
-
+						
 						sustainNote.correctionOffset = swagNote.height / 2;
 						if(!PlayState.isPixelStage)
 						{
@@ -1743,10 +1746,7 @@ class PlayState extends MusicBeatState
 								sustainNote.correctionOffset = 0;
 						}
 
-						if (sustainNote.mustPress)
-						{
-							sustainNote.x += FlxG.width / 2; // general offset
-						}
+						if (sustainNote.mustPress) sustainNote.x += FlxG.width / 2; // general offset
 						else if(ClientPrefs.data.middleScroll)
 						{
 							sustainNote.x += 310;
@@ -2226,7 +2226,7 @@ class PlayState extends MusicBeatState
 					if(!daNote.mustPress) strumGroup = opponentStrums;
 
 					var strum:StrumNote = strumGroup.members[daNote.noteData];
-					daNote.followStrumNote(strum, fakeCrochet, songSpeed / playbackRate);
+					daNote.followStrumNote(strum, fakeCrochet, songSpeed);
 
 					if(daNote.mustPress)
 					{
