@@ -72,6 +72,16 @@ import Discord;
 
 using StringTools;
 
+typedef LuaTweenOptions = {
+	type:FlxTweenType,
+	startDelay:Float,
+	onUpdate:Null<String>,
+	onStart:Null<String>,
+	onComplete:Null<String>,
+	loopDelay:Float,
+	ease:EaseFunction
+}
+
 class FunkinLua {
 	public static var Function_Stop:Dynamic = "##PSYCHLUA_FUNCTIONSTOP";
 	public static var Function_Continue:Dynamic = "##PSYCHLUA_FUNCTIONCONTINUE";
@@ -96,6 +106,82 @@ class FunkinLua {
 
 	public var callbacks:Map<String, Dynamic> = new Map<String, Dynamic>();
 	public static var customFunctions:Map<String, Dynamic> = new Map<String, Dynamic>();
+
+	/* Lua Tween */
+	public static function getLuaTween(options:Dynamic)
+	{
+		return {
+			type: getTweenTypeByString(options.type),
+			startDelay: options.startDelay,
+			onUpdate: options.onUpdate,
+			onStart: options.onStart,
+			onComplete: options.onComplete,
+			loopDelay: options.loopDelay,
+			ease: getTweenEaseByString(options.ease)
+		};
+	}
+
+	public static function tweenPrepare(tag:String, vars:String) {
+		if(PlayState.instance.modchartTweens.exists(tag)) cancelTween(tag);
+		var variables:Array<String> = vars.split('.');
+		var sexyProp:Dynamic = getObjectDirectly(variables[0]);
+		if(variables.length > 1) sexyProp = getVarInArray(getPropertyLoopThingWhatever(variables), variables[variables.length-1]);
+		return sexyProp;
+	}
+
+	//buncho string stuffs
+	public static function getTweenTypeByString(?type:String = '') {
+		switch(type.toLowerCase().trim())
+		{
+			case 'backward': return FlxTweenType.BACKWARD;
+			case 'looping': return FlxTweenType.LOOPING;
+			case 'persist': return FlxTweenType.PERSIST;
+			case 'pingpong': return FlxTweenType.PINGPONG;
+		}
+		return FlxTweenType.ONESHOT;
+	}
+
+	public static function getTweenEaseByString(?ease:String = '') {
+		switch(ease.toLowerCase().trim()) {
+			case 'backin': return FlxEase.backIn;
+			case 'backinout': return FlxEase.backInOut;
+			case 'backout': return FlxEase.backOut;
+			case 'bouncein': return FlxEase.bounceIn;
+			case 'bounceinout': return FlxEase.bounceInOut;
+			case 'bounceout': return FlxEase.bounceOut;
+			case 'circin': return FlxEase.circIn;
+			case 'circinout': return FlxEase.circInOut;
+			case 'circout': return FlxEase.circOut;
+			case 'cubein': return FlxEase.cubeIn;
+			case 'cubeinout': return FlxEase.cubeInOut;
+			case 'cubeout': return FlxEase.cubeOut;
+			case 'elasticin': return FlxEase.elasticIn;
+			case 'elasticinout': return FlxEase.elasticInOut;
+			case 'elasticout': return FlxEase.elasticOut;
+			case 'expoin': return FlxEase.expoIn;
+			case 'expoinout': return FlxEase.expoInOut;
+			case 'expoout': return FlxEase.expoOut;
+			case 'quadin': return FlxEase.quadIn;
+			case 'quadinout': return FlxEase.quadInOut;
+			case 'quadout': return FlxEase.quadOut;
+			case 'quartin': return FlxEase.quartIn;
+			case 'quartinout': return FlxEase.quartInOut;
+			case 'quartout': return FlxEase.quartOut;
+			case 'quintin': return FlxEase.quintIn;
+			case 'quintinout': return FlxEase.quintInOut;
+			case 'quintout': return FlxEase.quintOut;
+			case 'sinein': return FlxEase.sineIn;
+			case 'sineinout': return FlxEase.sineInOut;
+			case 'sineout': return FlxEase.sineOut;
+			case 'smoothstepin': return FlxEase.smoothStepIn;
+			case 'smoothstepinout': return FlxEase.smoothStepInOut;
+			case 'smoothstepout': return FlxEase.smoothStepInOut;
+			case 'smootherstepin': return FlxEase.smootherStepIn;
+			case 'smootherstepinout': return FlxEase.smootherStepInOut;
+			case 'smootherstepout': return FlxEase.smootherStepOut;
+		}
+		return FlxEase.linear;
+	}
 
 	public function new(script:String) {
 		#if LUA_ALLOWED
@@ -1012,6 +1098,37 @@ class FunkinLua {
 		});
 
 		// gay ass tweens
+
+		/* 0.7x Function for fixing the some mods */
+		Lua_helper.add_callback(lua, "startTween", function(tag:String, vars:String, values:Any = null, duration:Float, options:Any = null) {
+			var penisExam:Dynamic = tweenPrepare(tag, vars);
+			if(penisExam != null) {
+				if(values != null) {
+					var myOptions:LuaTweenOptions = getLuaTween(options);
+					game.modchartTweens.set(tag, FlxTween.tween(penisExam, values, duration, {
+						type: myOptions.type,
+						ease: myOptions.ease,
+						startDelay: myOptions.startDelay,
+						loopDelay: myOptions.loopDelay,
+						onUpdate: function(twn:FlxTween) {
+							if(myOptions.onUpdate != null) game.callOnLuas(myOptions.onUpdate, [tag, vars]);
+						},
+						onStart: function(twn:FlxTween) {
+							if(myOptions.onStart != null) game.callOnLuas(myOptions.onStart, [tag, vars]);
+						},
+						onComplete: function(twn:FlxTween) {
+							if(myOptions.onComplete != null) game.callOnLuas(myOptions.onComplete, [tag, vars]);
+							if(twn.type == FlxTweenType.ONESHOT || twn.type == FlxTweenType.BACKWARD) game.modchartTweens.remove(tag);
+						}
+					}));
+				} else {
+					luaTrace('startTween: No values on 2nd argument!', false, false, FlxColor.RED);
+				}
+			} else {
+				luaTrace('startTween: Couldnt find object: ' + vars, false, false, FlxColor.RED);
+			}
+		});
+
 		Lua_helper.add_callback(lua, "doTweenX", function(tag:String, vars:String, value:Dynamic, duration:Float, ease:String) {
 			var penisExam:Dynamic = tweenShit(tag, vars);
 			if(penisExam != null) {
@@ -2994,7 +3111,7 @@ class FunkinLua {
 		PlayState.instance.modchartSprites.remove(tag);
 	}
 
-	function cancelTween(tag:String) {
+	public static function cancelTween(tag:String) {
 		if(PlayState.instance.modchartTweens.exists(tag)) {
 			PlayState.instance.modchartTweens.get(tag).cancel();
 			PlayState.instance.modchartTweens.get(tag).destroy();
@@ -3002,7 +3119,7 @@ class FunkinLua {
 		}
 	}
 
-	function tweenShit(tag:String, vars:String) {
+	public static function tweenShit(tag:String, vars:String) {
 		cancelTween(tag);
 		var variables:Array<String> = vars.split('.');
 		var sexyProp:Dynamic = getObjectDirectly(variables[0]);

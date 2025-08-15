@@ -60,7 +60,6 @@ class ChartingStateNew extends MusicBeatState implements PsychUIEventHandler.Psy
 {
 	public static var isFreePlay:Bool = false;
 	var useDesktopThings:Bool = #if TOUCH_CONTROLS (ClientPrefs.data.KeyboardFixes ? true : false) #else true #end;
-
 	public static final defaultEvents:Array<Array<String>> =
 	[
 		['', "Nothing. Yep, that's right."], //Always leave this one empty pls
@@ -217,6 +216,7 @@ class ChartingStateNew extends MusicBeatState implements PsychUIEventHandler.Psy
 		_keysPressedBuffer.resize(keysArray.length);
 
 		if(_shouldReset) Conductor.songPosition = 0;
+		persistentUpdate = false;
 		FlxG.mouse.visible = true;
 		FlxG.sound.list.add(vocals);
 		FlxG.sound.list.add(opponentVocals);
@@ -467,7 +467,7 @@ class ChartingStateNew extends MusicBeatState implements PsychUIEventHandler.Psy
 		stageDropDown.list = loadFileList('stages/', 'data/stageList.txt');
 		onChartLoaded();
 
-		var tipText:FlxText = new FlxText(FlxG.width - 210, FlxG.height - 30, 200, 'Press ${'F' + (useDesktopThings ? '1' : '')} for Help', 20);
+		var tipText:FlxText = new FlxText(FlxG.width - 210, FlxG.height - 30, 200, 'Press ${(!useDesktopThings) ? 'F' : 'F1'} for Help', 20);
 		tipText.cameras = [camUI];
 		tipText.setFormat(null, 16, FlxColor.WHITE, RIGHT);
 		tipText.borderColor = FlxColor.BLACK;
@@ -490,8 +490,7 @@ class ChartingStateNew extends MusicBeatState implements PsychUIEventHandler.Psy
 		fullTipText.cameras = [camUI];
 		fullTipText.scrollFactor.set();
 		fullTipText.visible = fullTipText.active = false;
-		if (!useDesktopThings) {
-		fullTipText.text = [
+		fullTipText.text = (!useDesktopThings) ? [
 			"Up/Down - Move Conductor's Time",
 			"Left/Right - Change Sections",
 			"Up/Down (On The Right) - Decrease/Increase Note Sustain Length",
@@ -502,15 +501,13 @@ class ChartingStateNew extends MusicBeatState implements PsychUIEventHandler.Psy
 			"X - Stop/Resume Song",
 			"",
 			"Hold H and touch to Select Note(s)",
-			//"Z - Hide Action MobilePad Buttons", //Nah, Fuck it It doesn't work
+			"Z - Hide Action MobilePad Buttons",
 			"V/D - Zoom in/out",
 			""
 			#if FLX_PITCH
 			,"G - Reset Song Playback Rate"
 			#end
-		].join('\n');
-		} else {
-		fullTipText.text = [
+		].join('\n') : [
 			"W/S/Mouse Wheel - Move Conductor's Time",
 			"A/D - Change Sections",
 			"Q/E - Decrease/Increase Note Sustain Length",
@@ -540,13 +537,10 @@ class ChartingStateNew extends MusicBeatState implements PsychUIEventHandler.Psy
 			"Ctrl + A - Select all in current Section",
 			"Ctrl + S - Quicksave",
 		].join('\n');
-		}
 		fullTipText.screenCenter();
 		add(fullTipText);
 		#if TOUCH_CONTROLS
 		addMobilePad('CHART_EDITOR', 'CHART_EDITOR_NEW');
-		addMobilePadCamera();
-		if (useDesktopThings) mobilePad.visible = false;
 		#end
 		super.create();
 	}
@@ -796,14 +790,29 @@ class ChartingStateNew extends MusicBeatState implements PsychUIEventHandler.Psy
 				}
 				else if(#if TOUCH_CONTROLS mobilePad.buttonF.justPressed || #end FlxG.keys.justPressed.F1)
 				{
-					#if TOUCH_CONTROLS
-					changeMobileControlVisible("F", !checkMobileControlVisible("F"));
-					#end
+					if (!useDesktopThings)
+					{
+						mobilePad.forEachAlive(function(button:MobileButton){
+							if(button.tag != 'F')
+								button.visible = !button.visible;
+						});
+					}
 					var vis:Bool = !fullTipText.visible;
 					tipBg.visible = tipBg.active = fullTipText.visible = fullTipText.active = vis;
 				}
 
 				#if TOUCH_CONTROLS
+				if (mobilePad.buttonZ.justPressed)
+				{
+					if (!useDesktopThings)
+					{
+						mobilePad.forEachAlive(function(button:MobileButton){
+							if(button.tag != 'Z' && button.tag != 'LEFT' && button.tag != 'RIGHT' && button.tag != 'UP' && button.tag != 'DOWN')
+								mobilePad.buttonUp2.visible = mobilePad.buttonDown2.visible = button.visible = !button.visible;
+						});
+					}
+				}
+
 				if (mobilePad.buttonG.justPressed)
 				{
 					if(playbackRate != 1)
@@ -911,7 +920,7 @@ class ChartingStateNew extends MusicBeatState implements PsychUIEventHandler.Psy
 
 					softReloadNotes(true);
 				}
-				else if(#if TOUCH_CONTROLS mobilePad.buttonLeft.justPressed || mobilePad.buttonRight.justPressed || #end FlxG.keys.justPressed.A || FlxG.keys.justPressed.D && !holdingAlt)
+				else if(#if TOUCH_CONTROLS mobilePad.buttonLeft.justPressed || FlxG.keys.justPressed.A != mobilePad.buttonRight.justPressed || #end FlxG.keys.justPressed.D && !holdingAlt)
 				{
 					if(FlxG.sound.music.playing)
 						setSongPlaying(false);
@@ -958,7 +967,7 @@ class ChartingStateNew extends MusicBeatState implements PsychUIEventHandler.Psy
 					else loadSection(0);
 					Conductor.songPosition = FlxG.sound.music.time = vocals.time = opponentVocals.time = timeToGoBack;
 				}
-				else if(#if TOUCH_CONTROLS mobilePad.buttonUp.pressed || mobilePad.buttonDown.pressed || #end FlxG.keys.pressed.W || FlxG.keys.pressed.S || FlxG.mouse.wheel != 0)
+				else if(#if TOUCH_CONTROLS mobilePad.buttonUp.pressed || FlxG.keys.pressed.W != mobilePad.buttonDown.pressed || #end FlxG.keys.pressed.S || FlxG.mouse.wheel != 0)
 				{
 					if(FlxG.sound.music.playing)
 						setSongPlaying(false);
@@ -1149,7 +1158,7 @@ class ChartingStateNew extends MusicBeatState implements PsychUIEventHandler.Psy
 						curQuant = quantizations[Std.int(Math.min(quantizations.indexOf(curQuant) + 1, quantizations.length - 1))];
 					forceDataUpdate = true;
 				}
-				else if(#if TOUCH_CONTROLS mobilePad.buttonV.justPressed || mobilePad.buttonD.justPressed || #end FlxG.keys.justPressed.Z || FlxG.keys.justPressed.X) //Decrease/Increase Zoom
+				else if(#if TOUCH_CONTROLS mobilePad.buttonV.justPressed || FlxG.keys.justPressed.Z != mobilePad.buttonD.justPressed || #end FlxG.keys.justPressed.X) //Decrease/Increase Zoom
 				{
 					if(#if TOUCH_CONTROLS mobilePad.buttonV.justPressed || #end FlxG.keys.justPressed.Z)
 						curZoom = zoomList[Std.int(Math.max(zoomList.indexOf(curZoom) - 1, 0))];
@@ -1271,8 +1280,9 @@ class ChartingStateNew extends MusicBeatState implements PsychUIEventHandler.Psy
 					dummyArrow.x = gridBg.x + noteData * GRID_SIZE;
 					if(SHOW_EVENT_COLUMN)
 						noteData--;
-		
-					if(#if TOUCH_CONTROLS mobilePad.buttonY.pressed || #end touch.y >= gridBg.y || !prevGridBg.visible)
+
+					#if TOUCH_CONTROLS
+					if(mobilePad.buttonY.pressed || touch.y >= gridBg.y || !prevGridBg.visible)
 						dummyArrow.y = gridBg.y + diffY;
 					else
 					{
@@ -1280,7 +1290,8 @@ class ChartingStateNew extends MusicBeatState implements PsychUIEventHandler.Psy
 						if(touch.y >= gridBg.y) t *= curZoom;
 						dummyArrow.y = gridBg.y + t;
 					}
-		
+					#end
+
 					if(isMovingNotes)
 					{
 						// Move note data
@@ -1460,8 +1471,10 @@ class ChartingStateNew extends MusicBeatState implements PsychUIEventHandler.Psy
 				}
 				else if(!ignoreClickForThisFrame)
 				{
-					if(touch.justPressed #if TOUCH_CONTROLS && !mobilePad.buttonH.pressed #end)
+					#if TOUCH_CONTROLS
+					if(touch.justPressed && !mobilePad.buttonH.pressed)
 						resetSelectedNotes();
+					#end
 		
 					dummyArrow.visible = false;
 				}
@@ -2097,13 +2110,13 @@ class ChartingStateNew extends MusicBeatState implements PsychUIEventHandler.Psy
 		{
 			try
 			{
-				var playerVocals:Sound = Paths.voices(PlayState.SONG.song /* , (characterData.vocalsP1 == null || characterData.vocalsP1.length < 1) ? 'Player' : characterData.vocalsP1 */);
-				vocals.loadEmbedded(/* playerVocals != null ? playerVocals : */ Paths.voices(PlayState.SONG.song));
+				var playerVocals:Sound = Paths.voices(PlayState.SONG.song, (characterData.vocalsP1 == null || characterData.vocalsP1.length < 1) ? 'Player' : characterData.vocalsP1);
+				vocals.loadEmbedded(playerVocals != null ? playerVocals : Paths.voices(PlayState.SONG.song));
 				vocals.volume = 0;
 				vocals.play();
 				vocals.pause();
 				vocals.time = time;
-
+				
 				var oppVocals:Sound = Paths.voices(PlayState.SONG.song, (characterData.vocalsP2 == null || characterData.vocalsP2.length < 1) ? 'Opponent' : characterData.vocalsP2);
 				if(oppVocals != null && oppVocals.length > 0)
 				{
@@ -4288,12 +4301,12 @@ class ChartingStateNew extends MusicBeatState implements PsychUIEventHandler.Psy
 
 		btnY++;
 		btnY += 20;
-		var btn:PsychUIButton = new PsychUIButton(btnX, btnY, '  Preview ${useDesktopThings ? '(F12)' : '(C)'}', openEditorPlayState, btnWid);
+		var btn:PsychUIButton = new PsychUIButton(btnX, btnY, '  Preview (${(!useDesktopThings) ? 'C' : 'F12'})', openEditorPlayState, btnWid);
 		btn.text.alignment = LEFT;
 		tab_group.add(btn);
 		
 		btnY += 20;
-		var btn:PsychUIButton = new PsychUIButton(btnX, btnY, '  Playtest (${useDesktopThings ? 'ENTER' : 'A'})', goToPlayState, btnWid);
+		var btn:PsychUIButton = new PsychUIButton(btnX, btnY, '  Playtest (${(!useDesktopThings) ? 'A' : 'ENTER'})', goToPlayState, btnWid);
 		btn.text.alignment = LEFT;
 		tab_group.add(btn);
 
@@ -4904,13 +4917,13 @@ class ChartingStateNew extends MusicBeatState implements PsychUIEventHandler.Psy
 
 	function updateNotesRGB()
 	{
-		/*
 		PlayState.SONG.disableNoteRGB = noRGBCheckBox.checked;
 
 		for (note in notes)
 		{
 			if(note == null) continue;
 
+			/*
 			note.rgbShader.enabled = !noRGBCheckBox.checked;
 			if(note.rgbShader.enabled)
 			{
@@ -4924,11 +4937,11 @@ class ChartingStateNew extends MusicBeatState implements PsychUIEventHandler.Psy
 						note.rgbShader.enabled = line.value;
 				}
 			}
+			*/
 		}
 
 		for (note in strumLineNotes)
 			note.rgbShader.enabled = !noRGBCheckBox.checked;
-		*/
 	}
 
 	function updateGridVisibility()
@@ -5076,7 +5089,6 @@ class ChartingStateNew extends MusicBeatState implements PsychUIEventHandler.Psy
 
 	function openEditorPlayState()
 	{
-		persistentUpdate = false;
 		if(FlxG.sound.music == null)
 		{
 			showOutput('Load a valid song to preview!', true);
@@ -5085,12 +5097,9 @@ class ChartingStateNew extends MusicBeatState implements PsychUIEventHandler.Psy
 		setSongPlaying(false);
 		chartEditorSave.flush(); //just in case a random crash happens before loading
 
-		openSubState(new editors.content.EditorPlayState(cast notes, [vocals, opponentVocals]));
+		openSubState(new EditorPlayState(cast notes, [vocals, opponentVocals]));
 		upperBox.isMinimized = true;
 		upperBox.visible = mainBox.visible = infoBox.visible = false;
-		#if TOUCH_CONTROLS
-		mobilePad.visible = false;
-		#end
 	}
 
 	function goToPlayState()
@@ -5102,7 +5111,6 @@ class ChartingStateNew extends MusicBeatState implements PsychUIEventHandler.Psy
 		setSongPlaying(false);
 		updateChartData();
 		StageData.loadDirectory(PlayState.SONG);
-		PlayState.chartingMode = true;
 		LoadingState.loadAndSwitchState(new PlayState());
 		ClientPrefs.toggleVolumeKeys(true);
 	}
@@ -5115,10 +5123,6 @@ class ChartingStateNew extends MusicBeatState implements PsychUIEventHandler.Psy
 
 	override function closeSubState()
 	{
-		#if TOUCH_CONTROLS
-		if (!mobilePad.visible) mobilePad.visible = true;
-		#end
-		persistentUpdate = true;
 		ClientPrefs.toggleVolumeKeys(true);
 		super.closeSubState();
 		upperBox.isMinimized = true;
@@ -5129,7 +5133,7 @@ class ChartingStateNew extends MusicBeatState implements PsychUIEventHandler.Psy
 
 	override function destroy()
 	{
-		//Note.globalRgbShaders = [];
+		Note.globalRgbShaders = [];
 		//backend.NoteTypesConfig.clearNoteTypesData();
 
 		for (num => text in MetaNote.noteTypeTexts)
@@ -5177,33 +5181,23 @@ class ChartingStateNew extends MusicBeatState implements PsychUIEventHandler.Psy
 		return fileList;
 	}
 	
-	var characterFailed:Bool = false;
-	function loadCharacterFile(char:String):Character.CharacterFile {
-		characterFailed = false;
-		var characterPath:String = 'characters/' + char + '.json';
-		#if MODS_ALLOWED
-		var path:String = Paths.modFolders(characterPath);
-		if (!FileSystem.exists(path)) {
-			path = Paths.getPreloadPath(characterPath);
-		}
-
-		if (!FileSystem.exists(path))
-		#else
-		var path:String = Paths.getPreloadPath(characterPath);
-		if (!OpenFlAssets.exists(path))
-		#end
+	function loadCharacterFile(char:String):CharacterFile
+	{
+		if(char != null)
 		{
-			path = Paths.getPreloadPath('characters/' + Character.DEFAULT_CHARACTER + '.json'); //If a character couldn't be found, change him to BF just to prevent a crash
-			characterFailed = true;
+			try
+			{
+				var path:String = Paths.getPath('characters/' + char + '.json', TEXT);
+				#if MODS_ALLOWED
+				var unparsedJson = File.getContent(path);
+				#else
+				var unparsedJson = Assets.getText(path);
+				#end
+				return cast Json.parse(unparsedJson);
+			}
+			catch (e:Dynamic) {}
 		}
-
-		#if MODS_ALLOWED
-		var rawJson = File.getContent(path);
-		#else
-		var rawJson = OpenFlAssets.getText(path);
-		#end
-
-		return cast Json.parse(rawJson);
+		return null;
 	}
 	
 	var overwriteSavedSomething:Bool = false;
