@@ -790,6 +790,7 @@ class ChartingStateNew extends MusicBeatState implements PsychUIEventHandler.Psy
 				}
 				else if(#if TOUCH_CONTROLS mobilePad.buttonF.justPressed || #end FlxG.keys.justPressed.F1)
 				{
+					#if TOUCH_CONTROLS
 					if (!useDesktopThings)
 					{
 						mobilePad.forEachAlive(function(button:MobileButton){
@@ -797,6 +798,7 @@ class ChartingStateNew extends MusicBeatState implements PsychUIEventHandler.Psy
 								button.visible = !button.visible;
 						});
 					}
+					#end
 					var vis:Bool = !fullTipText.visible;
 					tipBg.visible = tipBg.active = fullTipText.visible = fullTipText.active = vis;
 				}
