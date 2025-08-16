@@ -367,19 +367,19 @@ class Script extends FlxBasic implements IFlxDestroyable {
 			/* Custom Menus */
 			"ModGroup"		  => options.group.ModGroup,
 			"ModState"		  => funkin.backend.scripting.ModState,
-			//"ModSubState"		  => funkin.backend.scripting.ModSubState,
+			"ModSubState"		  => funkin.backend.scripting.ModSubState,
 
 			/* for returning hxCodec 3.x.x requests to hxCodec 2.5.1 */
 			"FlxVideo"		  => hxcodec.flixel.FlxVideo,
 			"FlxVideoSprite"		  => hxcodec.flixel.FlxVideoSprite,
 
 			/* hxCodec 2.6.0 things */
-			//"VideoHandler"		  => VideoHandler,
-			//"VideoSprite"		  => VideoSprite,
+			"VideoHandler"		  => VideoHandler,
+			"VideoSprite"		  => VideoSprite,
 
 			/* hxCodec 2.5.1 */
-			//"MP4Handler"		  => vlc.MP4Handler,
-			//"MP4Sprite"		  => vlc.MP4Sprite,
+			"MP4Handler"		  => vlc.MP4Handler,
+			"MP4Sprite"		  => vlc.MP4Sprite,
 		];
 	}
 

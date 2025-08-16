@@ -122,6 +122,7 @@ import flixel.FlxObject;
 import flixel.math.FlxMath;
 import flixel.tweens.FlxEase;
 import flixel.util.FlxDestroyUtil;
+import hxcodec.flixel.FlxVideo;
 import psychlua.LuaUtils;
 import haxe.ds.StringMap;
 #end
