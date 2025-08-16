@@ -89,6 +89,11 @@ class NoteSplash extends FlxSprite
 		}
 		if(PlayState.SONG.splashSkin != null && PlayState.SONG.splashSkin.length > 0) texture = PlayState.SONG.splashSkin;
 		
+		if (!ClientPrefs.data.useRGB) {
+			if(note != null)
+				if(Paths.fileExists('images/${note.noteSplashTexture}.png', IMAGE)) texture = note.noteSplashTexture;
+		}
+
 		if (ClientPrefs.data.useRGB) {
 			var config:NoteSplashConfig = precacheConfig(texture);
 			if(_textureLoaded != texture)

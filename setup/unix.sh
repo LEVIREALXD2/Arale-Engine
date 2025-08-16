@@ -17,10 +17,9 @@ haxelib install hscript 2.4.0 --quiet
 haxelib install tjson 1.4.0 --quiet #for fucking mods system (haxe.Json brokes the modlist)
 haxelib git hxCodec https://github.com/PsychExtendedThings/hxCodec-0.6.3 --quiet #That clearly my repo
 haxelib git hxcpp https://github.com/beihu235/hxcpp --quiet #Just a normal hxcpp
-haxelib git lime https://github.com/beihu235/lime --quiet #don't use lime-termux because it's only working on termux
+haxelib git lime https://github.com/th2l-devs/lime int-delta --quiet #repo owner helped to fix termux problem
 haxelib install openfl 9.3.3 --quiet #Most stable version of openfl
 haxelib git flxanimate https://github.com/Psych-Slice/FlxAnimate.git 42f1b5d193b4345ca7d6933380ab3105985b44a3 --quiet
 haxelib git funkin.vis https://github.com/beihu235/funkVis-FrequencyFixed main --quiet
 haxelib git grig.audio https://gitlab.com/haxe-grig/grig.audio.git 57f5d47f2533fd0c3dcd025a86cb86c0dfa0b6d2 --quiet
-haxelib install extension-androidtools --quiet #let's gooooo
 echo Finished!

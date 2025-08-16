@@ -6,20 +6,13 @@ class Config {
 		"flixel",
 
 		//Psych Extended Source Code
-		"objects",
-		//"options",
-		//"debug",
-		"backend",
 		"shaders",
 		"cutscenes",
-		"editors",
 		"scripting",
 		"mobile", //You can extend and change things
-		"state",
 		"funkin",
 		"vlc", //Extending vlc can be fun
 		"hxcodec",
-		"PauseSubState", //I'll try to extend class with this and open it (doesn't work lol)
 	];
 
 	// Runs support for abstract support in these

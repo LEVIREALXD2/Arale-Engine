@@ -4,9 +4,8 @@ import lime.system.System as LimeSystem;
 import haxe.io.Path;
 import haxe.Exception;
 #if android
-import extension.androidtools.Tools;
-import extension.androidtools.callback.CallBack;
-import extension.androidtools.jni.JNICache; //make it manual
+import android.Tools;
+import android.callback.CallBack;
 #end
 
 /**
@@ -101,8 +100,8 @@ class StorageUtil
 	/* getGrantedPermissions Function (Idk how can I new one) */
 	public static inline function getGrantedPermissions(?useNew:Bool):Array<String>
 	{
-		if(useNew) return AndroidPermissions.getGrantedPermissions();
-		else return JNICache.createStaticMethod('org/haxe/extension/Tools', 'getGrantedPermissions', '()[Ljava/lang/String;')();
+		/* if(useNew) */ return AndroidPermissions.getGrantedPermissions();
+		//else return JNICache.createStaticMethod('org/haxe/extension/Tools', 'getGrantedPermissions', '()[Ljava/lang/String;')();
 	}
 
 	public static function requestPermissions():Void

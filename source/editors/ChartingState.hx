@@ -2939,7 +2939,7 @@ class ChartingState extends MusicBeatState
 			note.noteType = i[3];
 		} else { //Event note
 			note.loadGraphic(Paths.image('eventArrow'));
-			note.rgbShader.enabled = false;
+			if (ClientPrefs.data.useRGB) note.rgbShader.enabled = false;
 			note.eventName = getEventName(i[1]);
 			note.eventLength = i[1].length;
 			if(i[1].length < 2)

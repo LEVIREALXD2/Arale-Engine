@@ -10,9 +10,21 @@ class PauseSubState extends MusicBeatSubstate
 	var grpMenuShit:FlxTypedGroup<Alphabet>;
 
 	var menuItems:Array<String> = [];
-	//it looks weird
-	//var menuItemsOG:Array<String> = ['Resume', 'Restart Song', 'Skip Time', 'Botplay', 'Practice Mode', 'End Song', 'Options', 'Change Gameplay Settings', 'Change Difficulty' #if mobile, 'Chart Editor' #end, 'Exit to menu', 'Exit to main menu'];
-	var menuItemsOG:Array<String> = ['Resume', 'Restart Song', 'Skip Time', 'Botplay', 'Practice Mode', 'End Song', 'Options', 'Change Difficulty' #if mobile, 'Chart Editor' #end, 'Exit to menu', 'Exit to main menu'];
+	//So Many Options : |
+	var menuItemsOG:Array<String> = [
+		'Resume',
+		'Restart Song',
+		'Skip Time',
+		'Botplay',
+		'Practice Mode',
+		'End Song',
+		'Options',
+		'Change Gameplay Settings',
+		'Change Difficulty'
+		#if mobile, 'Chart Editor' #end,
+		'Exit to menu',
+		'Exit to main menu'
+	];
 	var difficultyChoices = [];
 	var curSelected:Int = 0;
 
@@ -327,7 +339,7 @@ class PauseSubState extends MusicBeatSubstate
 				case "Change Gameplay Settings":
 					persistentUpdate = false;
 					#if TOUCH_CONTROLS removeMobilePad(); #end
-					//GameplayChangersSubstate.inThePauseMenu = true;
+					GameplayChangersSubstate.inThePauseMenu = true;
 					openSubState(new GameplayChangersSubstate());
 				case "Exit to menu":
 					PlayState.deathCounter = 0;

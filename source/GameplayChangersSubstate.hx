@@ -29,6 +29,7 @@ class GameplayChangersSubstate extends MusicBeatSubstate
 	private var curOption:GameplayOption = null;
 	private var curSelected:Int = 0;
 	private var optionsArray:Array<Dynamic> = [];
+	public static var inThePauseMenu:Bool = false;
 
 	private var grpOptions:FlxTypedGroup<Alphabet>;
 	private var checkboxGroup:FlxTypedGroup<CheckboxThingie>;
@@ -162,6 +163,14 @@ class GameplayChangersSubstate extends MusicBeatSubstate
 		addMobilePad("FULL", "A_B_C");
 		addMobilePadCamera();
 		#end
+	}
+
+	override function destroy() {
+		if (inThePauseMenu) {
+			PlayState.instance.changeTheSettingsBitch();
+			inThePauseMenu = false;
+		}
+		super.destroy();
 	}
 
 	var nextAccept:Int = 5;

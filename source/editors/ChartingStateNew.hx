@@ -541,6 +541,8 @@ class ChartingStateNew extends MusicBeatState implements PsychUIEventHandler.Psy
 		add(fullTipText);
 		#if TOUCH_CONTROLS
 		addMobilePad('CHART_EDITOR', 'CHART_EDITOR_NEW');
+		addMobilePadCamera();
+		if (useDesktopThings) mobilePad.y = 1920;
 		#end
 		super.create();
 	}
@@ -4943,7 +4945,7 @@ class ChartingStateNew extends MusicBeatState implements PsychUIEventHandler.Psy
 		}
 
 		for (note in strumLineNotes)
-			note.rgbShader.enabled = !noRGBCheckBox.checked;
+			if (ClientPrefs.data.useRGB) note.rgbShader.enabled = !noRGBCheckBox.checked;
 	}
 
 	function updateGridVisibility()
@@ -5099,7 +5101,9 @@ class ChartingStateNew extends MusicBeatState implements PsychUIEventHandler.Psy
 		setSongPlaying(false);
 		chartEditorSave.flush(); //just in case a random crash happens before loading
 
+		persistentUpdate = false;
 		openSubState(new EditorPlayState(cast notes, [vocals, opponentVocals]));
+		#if TOUCH_CONTROLS removeMobilePad(); #end
 		upperBox.isMinimized = true;
 		upperBox.visible = mainBox.visible = infoBox.visible = false;
 	}
@@ -5125,7 +5129,13 @@ class ChartingStateNew extends MusicBeatState implements PsychUIEventHandler.Psy
 
 	override function closeSubState()
 	{
-		ClientPrefs.toggleVolumeKeys(true);
+		//ClientPrefs.toggleVolumeKeys(true);
+		persistentUpdate = true;
+		#if TOUCH_CONTROLS
+		addMobilePad("CHART_EDITOR", "CHART_EDITOR_NEW");
+		addMobilePadCamera();
+		if (useDesktopThings) mobilePad.y = 1920; //visible doesn't work, so I'll use this instead
+		#end
 		super.closeSubState();
 		upperBox.isMinimized = true;
 		upperBox.visible = mainBox.visible = infoBox.visible = true;

@@ -53,11 +53,9 @@
 
 	<!-- For Termux -->
 	<section if="termux">
-		<set name="BUILD_DIR" value="/root/PsychOnline06/export/debug" if="debug" />
-		<set name="BUILD_DIR" value="/root/PsychOnline06/export/release" unless="debug" />
-		<set name="BUILD_DIR" value="/root/PsychOnline06/export/32bit" if="32bits" />
-		<android target-sdk-version="34" />
-		<android gradle-version="8.11.1" /> <!-- A simple Gradle fix I think -->
+		<set name="BUILD_DIR" value="/root/PsychExtended/export/debug" if="debug" />
+		<set name="BUILD_DIR" value="/root/PsychExtended/export/release" unless="debug" />
+		<set name="BUILD_DIR" value="/root/PsychExtended/export/32bit" if="32bits" />
 	</section>
 
 	<classpath name="source" />
@@ -188,7 +186,7 @@
 
 	<haxelib name="discord_rpc" if="desktop"/>
 
-	<haxelib name="extension-androidtools" if="android"/>
+	<!-- <haxelib name="extension-androidtools" if="android"/> -->
 
 	<haxelib name="SScript" if="HSCRIPT_ALLOWED"/>
 

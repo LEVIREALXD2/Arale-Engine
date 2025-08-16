@@ -44,7 +44,7 @@ class FileDialogHandler extends FlxBasic
 
 		removeEvents();
 		_currentEvent = onSaveComplete;
-		_fileRef.addEventListener(#if desktop Event.SELECT #else Event.COMPLETE #end, _currentEvent);
+		_fileRef.addEventListener(#if (desktop && android) Event.SELECT #else Event.COMPLETE #end, _currentEvent);
 		_fileRef.save(dataToSave, fileName);
 	}
 
@@ -64,7 +64,7 @@ class FileDialogHandler extends FlxBasic
 
 		removeEvents();
 		_currentEvent = onLoadComplete;
-		_fileRef.addEventListener(#if desktop Event.SELECT #else Event.COMPLETE #end, _currentEvent);
+		_fileRef.addEventListener(#if (desktop && android) Event.SELECT #else Event.COMPLETE #end, _currentEvent);
 		_fileRef.browseEx(OPEN, defaultName, title, filter);
 	}
 
@@ -80,7 +80,7 @@ class FileDialogHandler extends FlxBasic
 
 		removeEvents();
 		_currentEvent = onLoadDirectoryComplete;
-		_fileRef.addEventListener(#if desktop Event.SELECT #else Event.COMPLETE #end, _currentEvent);
+		_fileRef.addEventListener(#if (desktop && android) Event.SELECT #else Event.COMPLETE #end, _currentEvent);
 		_fileRef.browseEx(OPEN_DIRECTORY, null, title);
 	}
 
@@ -155,7 +155,7 @@ class FileDialogHandler extends FlxBasic
 	{
 		if(_currentEvent == null) return;
 		
-		_fileRef.removeEventListener(#if desktop Event.SELECT #else Event.COMPLETE #end, _currentEvent);
+		_fileRef.removeEventListener(#if (desktop && android) Event.SELECT #else Event.COMPLETE #end, _currentEvent);
 		_currentEvent = null;
 	}
 
@@ -190,7 +190,7 @@ class FileReferenceCustom extends FileReference
 		__data = null;
 		__path = null;
 
-		#if desktop
+		#if (desktop && android)
 		var filter = null;
 
 		if (typeFilter != null)

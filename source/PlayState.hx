@@ -3692,6 +3692,26 @@ class PlayState extends MusicBeatState
 		#end
 	}
 
+	public function changeTheSettingsBitch() {
+		healthGain = ClientPrefs.getGameplaySetting('healthgain');
+		healthLoss = ClientPrefs.getGameplaySetting('healthloss');
+		instakillOnMiss = ClientPrefs.getGameplaySetting('instakill');
+		practiceMode = ClientPrefs.getGameplaySetting('practice');
+		cpuControlled = ClientPrefs.getGameplaySetting('botplay');
+		playbackRate = ClientPrefs.getGameplaySetting('songspeed');
+		songSpeedType = ClientPrefs.getGameplaySetting('scrolltype');
+
+		switch(songSpeedType)
+		{
+			case "multiplicative":
+				songSpeed = SONG.speed * ClientPrefs.getGameplaySetting('scrollspeed', 1);
+			case "constant":
+				songSpeed = ClientPrefs.getGameplaySetting('scrollspeed', 1);
+		}
+
+		botplayTxt.visible = cpuControlled;
+	}
+
 	override function sectionHit()
 	{
 		super.sectionHit();
