@@ -180,7 +180,7 @@
 
 	<haxelib name="tjson"/> <!-- Haxe's json brokes the mods, so use tjson for them -->
 
-	<haxelib name="hxCodec" if="VIDEOS_ALLOWED"/>
+	<haxelib name="hxvlc" if="VIDEOS_ALLOWED"/>
 
 	<haxelib name="faxe" if='switch'/>
 

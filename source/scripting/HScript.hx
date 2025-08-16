@@ -374,12 +374,12 @@ class Script extends FlxBasic implements IFlxDestroyable {
 			"FlxVideoSprite"		  => hxcodec.flixel.FlxVideoSprite,
 
 			/* hxCodec 2.6.0 things */
-			"VideoHandler"		  => VideoHandler,
-			"VideoSprite"		  => VideoSprite,
+			//"VideoHandler"		  => VideoHandler,
+			//"VideoSprite"		  => VideoSprite,
 
 			/* hxCodec 2.5.1 */
-			"MP4Handler"		  => vlc.MP4Handler,
-			"MP4Sprite"		  => vlc.MP4Sprite,
+			//"MP4Handler"		  => vlc.MP4Handler,
+			//"MP4Sprite"		  => vlc.MP4Sprite,
 		];
 	}
 
