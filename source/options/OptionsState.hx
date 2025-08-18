@@ -373,29 +373,6 @@ class OptionsState extends MusicBeatState
 		specOpen = !specOpen;
 	}
 
-	public function moveState(type:Int)
-	{
-		switch (type)
-		{
-			case 1: // NoteOffsetState
-				LoadingState.loadAndSwitchState(new NoteOffsetState());
-			case 2: // NotesSubState
-				persistentUpdate = false;
-				openSubState(new NotesSubState());
-			case 3: // ControlsSubState
-				persistentUpdate = false;
-				openSubState(new ControlsSubState());
-			case 4: // MobileControlSelectSubState
-				persistentUpdate = false;
-				openSubState(new MobileControlSelectSubState());
-			case 5: // MobileExtraControl
-				persistentUpdate = false;
-				openSubState(new MobileExtraControl());
-			case 6: // CopyStates
-				LoadingState.loadAndSwitchState(new CopyState(true));
-		}
-	}
-
 	public function resetData()
 	{
 		for (spr in 0...naviGroup.length) {
