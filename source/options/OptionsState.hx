@@ -249,10 +249,10 @@ class OptionsState extends MusicBeatState
 		stateScripts.set('outputHeight', outputHeight);
 
 		/* User can cancel it and change it for his own purpose (I'm recommend to make custom one but original one can usable too) */
-		var cataCreation = event("addCata", new CataEvent(type, obj));
+		var createCataEvent = new CataEvent(type, obj); //create the CataEvent before the actual event because otherwise script can't get type
+		createCataEvent.type = type;
+		var cataCreation = event("addCata", createCataEvent);
 		if (cataCreation.cancelled) {
-			/* make sure they are same */
-			type = cataCreation.type;
 			obj = cataCreation.obj;
 		}
 		else
@@ -272,6 +272,7 @@ class OptionsState extends MusicBeatState
 				default:
 					obj = new ModGroup(outputX, outputY, outputWidth, outputHeight, '${type}Group'); //My System is Different
 			}
+			if (cataCreation.obj != null) obj = cataCreation.obj;
 		}
 
 		cataGroup.push(obj);

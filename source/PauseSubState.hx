@@ -18,7 +18,7 @@ class PauseSubState extends MusicBeatSubstate
 		'Botplay',
 		'Practice Mode',
 		'End Song',
-		//'Options',
+		'Options',
 		'Change Gameplay Settings',
 		'Change Difficulty'
 		#if mobile, 'Chart Editor' #end,

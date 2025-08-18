@@ -35,8 +35,7 @@ class Rect extends FlxSprite
 
 		this.mainRound = roundWidth;
 
-		if (Cache.currentTrackedFrames.get('rect-w'+width+'-h:'+height+'-rw:'+roundWidth+'-rh:'+roundHeight) == null) addCache(width, height, roundWidth, roundHeight);
-		frames = Cache.currentTrackedFrames.get('rect-w'+width+'-h:'+height+'-rw:'+roundWidth+'-rh:'+roundHeight);
+		loadGraphic(drawRect(width, height, roundWidth, roundHeight));
 		antialiasing = ClientPrefs.data.antialiasing;
 		color = Color;
 		alpha = Alpha;
@@ -53,14 +52,6 @@ class Rect extends FlxSprite
 		var bitmap:BitmapData = new BitmapData(Std.int(width), Std.int(height), true, 0);
 		bitmap.draw(shape);
 		return bitmap;
-	}
-
-	function addCache(width:Float = 0, height:Float = 0, roundWidth:Float = 0, roundHeight:Float = 0) {
-		var spr:FlxSprite = new FlxSprite();
-		var newGraphic:FlxGraphic = FlxGraphic.fromBitmapData(drawRect(width, height, roundWidth, roundHeight));
-		spr.loadGraphic(newGraphic);
-
-		Cache.currentTrackedFrames.set('rect-w'+width+'-h:'+height+'-rw:'+roundWidth+'-rh:'+roundHeight, spr.frames);
 	}
 }
 
@@ -398,13 +389,6 @@ class RoundRect extends FlxSpriteGroup
 
 	function drawRoundRect(x:Float, y:Float, width:Float = 0, height:Float = 0, round:Float = 0, type:Int):BaseSprite
 	{
-		var sprite:BaseSprite = new BaseSprite(x, y);
-		if (Cache.currentTrackedFrames.get('roundRect-round' +type+'-w'+width+'-h:'+height) == null) addRoundCache(width, height, round, type);
-		sprite.frames = Cache.currentTrackedFrames.get('roundRect-round' +type+'-w'+width+'-h:'+height);
-		return sprite;
-	}
-
-	function addRoundCache(width:Float = 0, height:Float = 0, round:Float = 0, type:Int) {
 		var dataArray:Array<Float> = [0, 0, 0, 0];
 		dataArray[type - 1] = round; // 选择哪个角，（左上，右上，左下，右下）
 
@@ -416,21 +400,16 @@ class RoundRect extends FlxSpriteGroup
 		var bitmap:BitmapData = new BitmapData(Std.int(width), Std.int(height), true, 0);
 		bitmap.draw(shape);
 
-		var spr:FlxSprite = new FlxSprite();
-		var newGraphic:FlxGraphic = FlxGraphic.fromBitmapData(bitmap);
-		spr.loadGraphic(newGraphic);
-		Cache.currentTrackedFrames.set('roundRect-round' +type+'-w'+width+'-h:'+height, spr.frames);
+		var sprite:BaseSprite = new BaseSprite(x, y);
+		sprite.loadGraphic(bitmap);
+		sprite.antialiasing = ClientPrefs.data.antialiasing;
+		sprite.origin.set(0, 0);
+		sprite.updateHitbox();
+		return sprite;
 	}
 
 	function drawRect(x:Float, y:Float, width:Float = 0, height:Float = 0):BaseSprite
 	{
-		var sprite:BaseSprite = new BaseSprite(x, y);
-		if (Cache.currentTrackedFrames.get('roundRect-rect-w'+width+'-h:'+height) == null) addRectCache(width, height);
-		sprite.frames = Cache.currentTrackedFrames.get('roundRect-rect-w'+width+'-h:'+height);
-		return sprite;
-	}
-
-	function addRectCache(width:Float = 0, height:Float = 0) {
 		var shape:Shape = new Shape();
 		shape.graphics.beginFill(mainColor);
 		shape.graphics.drawRect(0, 0, width, height);
@@ -439,10 +418,9 @@ class RoundRect extends FlxSpriteGroup
 		var bitmap:BitmapData = new BitmapData(Std.int(width), Std.int(height), true, 0);
 		bitmap.draw(shape);
 
-		var spr:FlxSprite = new FlxSprite();
-		var newGraphic:FlxGraphic = FlxGraphic.fromBitmapData(bitmap);
-		spr.loadGraphic(newGraphic);
-		Cache.currentTrackedFrames.set('roundRect-rect-w'+width+'-h:'+height, spr.frames);
+		var sprite:BaseSprite = new BaseSprite(x, y);
+		sprite.loadGraphic(bitmap);
+		return sprite;
 	}
 
 	public static function getTweenEaseByString(?ease:String = '')
@@ -599,32 +577,4 @@ class Triangle extends FlxSprite
 		bitmap.draw(shape);
 		return bitmap;
 	}
-}
-
-
-class Cache {
-    // define the locally tracked assets
-	public static var localTrackedAssets:Array<String> = [];  //用于列举当前状态的所有资源（包括图形，声音）
-
-    public static var currentTrackedAssets:Map<String, FlxGraphic> = []; //用于列举当前状态的所有图形资源
-
-	public static var currentTrackedBitmaps:Map<String, BitmapData> = []; //用于列举当前状态的所有动画资源
-
-    public static var currentTrackedSounds:Map<String, Sound> = []; //用于列举当前状态的所有声音资源
-
-	public static var currentTrackedFrames:Map<String, FlxFramesCollection> = []; //用于列举当前状态的所有动画帧资源
-
-	public static var currentTrackedAnims:Map<String, FlxAnimationController> = []; //用于列举当前状态的所有动画资源
-
-    public static function excludeAsset(key:String)
-	{
-		if (!dumpExclusions.contains(key))
-			dumpExclusions.push(key);
-	}
-
-	public static var dumpExclusions:Array<String> = [
-		'assets/shared/music/freakyMenu.$Paths.SOUND_EXT',
-		'assets/shared/music/breakfast.$Paths.SOUND_EXT',
-		'assets/shared/music/tea-time.$Paths.SOUND_EXT',
-	];
 }

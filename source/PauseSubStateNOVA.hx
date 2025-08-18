@@ -56,7 +56,7 @@ class PauseSubStateNOVA extends MusicBeatSubstate
 	var stayinMenu:String = 'isChanging'; // base, difficulty, debug, isChanging or options
 	// isChanging = in transition animation
 
-	var options:Array<String> = ['Continue', 'Restart', 'Difficulty', 'Debug', 'Changers', 'Editor', /*'Options',*/ 'Exit']; //Changers = Change Gameplay Settings
+	var options:Array<String> = ['Continue', 'Restart', 'Difficulty', 'Debug', 'Changers', 'Editor', 'Options', 'Exit']; //Changers = Change Gameplay Settings
 	var optionsAlphabet:Array<FlxText> = [];
 	var optionsBars:Array<FlxSprite> = [];
 	var curSelected:Int = 0;
