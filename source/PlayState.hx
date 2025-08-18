@@ -3606,6 +3606,8 @@ class PlayState extends MusicBeatState
 			hscriptArray.pop();
 		#end
 
+		scripts = FlxDestroyUtil.destroy(scripts);
+
 		if(!ClientPrefs.data.controllerMode)
 		{
 			FlxG.stage.removeEventListener(KeyboardEvent.KEY_DOWN, onKeyPress);

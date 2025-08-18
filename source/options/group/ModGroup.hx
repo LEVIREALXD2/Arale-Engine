@@ -18,8 +18,6 @@ class ModGroupBase extends OptionCata
 
 		#if SCRIPTING_ALLOWED loadScript(); #end
 
-		createPost();
-
 		changeHeight(0);
 	}
 	

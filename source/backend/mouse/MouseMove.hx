@@ -87,6 +87,8 @@ class MouseMove extends FlxBasic
             else if (isDragging && mouse.justReleased) {
                 endDrag();
             }
+        } else {
+            lastMouseY = mouse.y;
         }
         
         // 惯性滑动

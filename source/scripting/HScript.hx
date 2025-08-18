@@ -285,21 +285,21 @@ class Script extends FlxBasic implements IFlxDestroyable {
 
 	public static function getDefaultVariables(?script:Script):Map<String, Dynamic> {
 		return [
-			// Psych Extended related stuff
+			/* Psych Extended related stuff */
 			"Mods"		  => backend.Mods,
 			"AttachedSprite"		  => AttachedSprite,
 			"CustomSubstate"		  => CustomSubstate,
 			"ClientPrefs"		  => ClientPrefs,
 			"CustomSwitchState"		  => CustomSwitchState,
 
-			// Sys related stuff
+			/* Sys related stuff */
 			"File"		  => File,
 			"Process"		  => sys.io.Process,
 			"FileSystem"		  => FileSystem,
 			"Thread"		  => CoolUtil.getMacroAbstractClass("sys.thread.Thread"),
 			"Mutex"		  => CoolUtil.getMacroAbstractClass("sys.thread.Mutex"),
 
-			// Haxe related stuff
+			/* Haxe related stuff */
 			"Std"			   => Std,
 			"Math"			  => Math,
 			"Type"			  => Type,
@@ -309,14 +309,14 @@ class Script extends FlxBasic implements IFlxDestroyable {
 			"StringTools"	   => StringTools,
 			"Json"			  => haxe.Json,
 
-			// OpenFL & Lime related stuff
+			/* OpenFL & Lime related stuff */
 			"Assets"			=> openfl.utils.Assets,
 			"TextField"		  => openfl.text.TextField,
 			"Application"	   => lime.app.Application,
 			"Main"				=> Main,
 			"window"			=> lime.app.Application.current.window,
 
-			// Flixel related stuff
+			/* Flixel related stuff */
 			"FlxG"			  => flixel.FlxG,
 			"FlxSprite"		 => flixel.FlxSprite,
 			"FlxBasic"		  => flixel.FlxBasic,
@@ -342,32 +342,45 @@ class Script extends FlxBasic implements IFlxDestroyable {
 			"FlxAxes"		   => CoolUtil.getMacroAbstractClass("flixel.util.FlxAxes"),
 			"FlxColor"		  => CoolUtil.getMacroAbstractClass("flixel.util.FlxColor"),
 
-			"PlayState"		 => PlayState,
-			"GameOverSubstate"  => GameOverSubstate,
+			/* Objects */
+			"FlxAnimate"		=> flxanimate.PsychFlxAnimate,
 			"HealthIcon"		=> HealthIcon,
 			"Note"			  => Note,
 			"Character"		 => Character,
 			"Boyfriend"		 => Character, // for compatibility
-			"PauseSubstate"	 => PauseSubState,
+
+			/* Backend */
+			"Alphabet"		  => Alphabet,
+			"Paths"			 => Paths,
+			"Conductor"		 => Conductor,
+			"CoolUtil"		  => CoolUtil,
+
+			/* Codename Engine related stuff */
+			"FunkinShader"	  => funkin.backend.shaders.FunkinShader,
+			"CustomShader"	  => funkin.backend.shaders.CustomShader,
+			"FunkinText"		=> funkin.backend.FunkinText,
+			"FunkinSprite"		=> funkin.backend.FunkinSprite,
+
+			/* States */
+			"PlayState"		 => PlayState,
 			"FreeplayState"	 => FreeplayState,
 			"MainMenuState"	 => MainMenuState,
 			"PauseSubState"	 => PauseSubState,
 			"StoryMenuState"	=> StoryMenuState,
 			"TitleState"		=> TitleState,
 			"OptionsState"		   => options.OptionsState,
-			"Paths"			 => Paths,
-			"Conductor"		 => Conductor,
-			"FunkinShader"	  => funkin.backend.shaders.FunkinShader,
-			"CustomShader"	  => funkin.backend.shaders.CustomShader,
-			"FunkinText"		=> funkin.backend.FunkinText,
-			"FlxAnimate"		=> flxanimate.PsychFlxAnimate,
-			"Alphabet"		  => Alphabet,
-			"CoolUtil"		  => CoolUtil,
+
+			/* Substates */
+			"GameOverSubstate"  => GameOverSubstate,
+			"PauseSubstate"	 => PauseSubState,
 
 			/* Custom Menus */
-			"ModGroup"		  => options.group.ModGroup,
 			"ModState"		  => funkin.backend.scripting.ModState,
 			"ModSubState"		  => funkin.backend.scripting.ModSubState,
+
+			/* Options */
+			"NaviData"		  => options.NovaFlareOptionsNavi.NaviData,
+			"ModGroup"		  => options.group.ModGroup,
 
 			/* for returning hxCodec 3.x.x requests to hxCodec 2.5.1 */
 			"FlxVideo"		  => hxcodec.flixel.FlxVideo,

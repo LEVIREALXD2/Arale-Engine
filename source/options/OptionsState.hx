@@ -10,6 +10,7 @@ import mobile.states.CopyState;
 import ClientPrefs;
 import StageData;
 import options.NovaFlareOptionsObjects.Option;
+import funkin.backend.scripting.events.CataEvent;
 
 class OptionsState extends MusicBeatState
 {
@@ -18,12 +19,15 @@ class OptionsState extends MusicBeatState
 
 	var filePath:String = 'menuExtend/OptionsState/';
 
-	var naviArray = [
+	var naviArray:Array<NaviData> = [];
+
+	//make them changeable
+	var baseNaviArray = [
 		'Graphics',
 		'Visual & UI',
-		'Note Skins',
 		'Gameplay',
-		'Controls'
+		'Controls',
+		'Note Skins'
 	];
 
 	////////////////////////////////////////////////////////////////////////////////////////////
@@ -31,35 +35,42 @@ class OptionsState extends MusicBeatState
 	public var baseColor = 0x302E3A;
 	public var mainColor = 0x24232C;
 
-
 	////////////////////////////////////////////////////////////////////////////////////////////
 
 	public var mouseEvent:MouseEvent;
 
 	var naviBG:RoundRect;
-	var naviSpriteGroup:Array<NaviSprite> = [];
+	var naviGroup:Array<NaviGroup> = [];
+	var naviMove:MouseMove;
 
 	var cataGroup:Array<OptionCata> = [];
 	public var cataMove:MouseMove;
-	public var cataCount:Array<StringRect> = []; //string开启的检测
+	public var stringCount:Array<StringSelect> = []; //string开启的检测
 
-	var downBG:Rect;
+	public var downBG:Rect;
 	var tipButton:TipButton;
 	var specButton:FuncButton;
 
-	var specBG:Rect;
+	public var specBG:Rect;
 	var searchButton:SearchButton;
 	var resetButton:ResetButton;
-
 	var backButton:GeneralBack;
 
 	override function create()
 	{
 		persistentUpdate = persistentDraw = true;
 		instance = this;
+		/* Stuffs I preferred */
 		FlxG.mouse.visible = true;
 		Main.fpsVar.visible = false;
 		#if EXTRA_FPSCOUNTER Main.fpsVarNova.visible = false; #end
+
+		super.create();
+
+		naviArray = [
+			new NaviData('PsychExtended', baseNaviArray)
+		];
+		#if SCRIPTING_ALLOWED call('onNaviCreate'); #end
 
 		mouseEvent = new MouseEvent();
 		add(mouseEvent);
@@ -70,33 +81,46 @@ class OptionsState extends MusicBeatState
 		naviBG = new RoundRect(0, 0, UIScale.adjust(FlxG.width * 0.2), FlxG.height, 0, LEFT_CENTER,  mainColor);
 		add(naviBG);
 
-		super.create(); //put this there otherwise you cannot change anything
-
-		call('baseCreate');
-
-		var naviCreation = event("onNaviCreate", new CancellableEvent());
+		#if SCRIPTING_ALLOWED
+		var naviCreation = event("onNaviCreatePost", new CancellableEvent());
 		if (!naviCreation.cancelled) {
+		#end
 			for (i in 0...naviArray.length)
 			{
-				var naviSprite = new NaviSprite(UIScale.adjust(FlxG.width * 0.005), UIScale.adjust(FlxG.height * 0.005) + i * UIScale.adjust(FlxG.height * 0.1), UIScale.adjust(FlxG.width * 0.19), UIScale.adjust(FlxG.height * 0.09), naviArray[i], i, false);
+				var naviSprite = new NaviGroup(FlxG.width * 0.005, UIScale.adjust(FlxG.height * 0.005) + i * UIScale.adjust(FlxG.height * 0.1), UIScale.adjust(FlxG.width * 0.19), UIScale.adjust(FlxG.height * 0.09), naviArray[i], i, false);
 				naviSprite.antialiasing = ClientPrefs.data.antialiasing;
 				add(naviSprite);
-				naviSpriteGroup.push(naviSprite);
-
-				addCata(naviArray[i]);
+				naviGroup.push(naviSprite);
 			}
-		}
+			naviMoveEvent(true);
+		#if SCRIPTING_ALLOWED } #end
+
+		naviMove = new MouseMove(OptionsState, 'naviPosiData', 
+								[-1 * Math.max(0, (naviGroup.length - 9)) * UIScale.adjust(FlxG.height * 0.1), UIScale.adjust(FlxG.height * 0.005)],
+								[	
+									[UIScale.adjust(FlxG.width * 0.005), 
+									UIScale.adjust(FlxG.width * 0.19)], [0, FlxG.height]
+								],
+								naviMoveEvent);
+		add(naviMove);
+
+		naviGroup[0].moveParent(0.01);
 
 		/////////////////////////////////////////////////////////////////
+
+		for (data in 0...naviArray.length) {
+			var naviData:NaviData = naviArray[data];
+			for (mem in 0...naviData.group.length) {
+				if (naviData.extraPath != '') addCata(naviData.group[mem], naviGroup[data], naviGroup[data].parent[mem], naviData.extraPath);
+				else addCata(naviData.group[mem], naviGroup[data], naviGroup[data].parent[mem]);
+			}
+		}
 
 		var moveHeight:Float = 100;
 		for (num in cataGroup) {
 			if (num != cataGroup[cataGroup.length - 1]) {
 				moveHeight -= num.bg.realHeight;
 				moveHeight -= UIScale.adjust(FlxG.width * (0.8 / 40));
-			} else {
-				moveHeight -= cataGroup[cataGroup.length - 1].bg.realHeight - UIScale.adjust(FlxG.height * 0.8);
-				moveHeight -= UIScale.adjust(FlxG.width * (0.8 / 40)) * 2;
 			}
 		}
 		cataMove = new MouseMove(OptionsState, 'cataPosiData', 
@@ -145,8 +169,6 @@ class OptionsState extends MusicBeatState
 
 		backButton = new GeneralBack(0, 720 - 72, UIScale.adjust(FlxG.width * 0.2), UIScale.adjust(FlxG.height * 0.1), 'Back', EngineSet.mainColor, backMenu);
 		add(backButton);
-
-		call('basePostCreate');
 	}
 
 	public var ignoreCheck:Bool = false;
@@ -155,24 +177,26 @@ class OptionsState extends MusicBeatState
 	{
 		super.update(elapsed);
 
-		if (cataCount.length > 0) cataMove.inputAllow = false;
-		else cataMove.inputAllow = true;
-
-		var posi:Int = -1;
-		for (cata in 0...cataGroup.length - 1) {
-			if (cataGroup[cata].y < FlxG.height / 2 && cataGroup[cata].y + cataGroup[cata].bg.realHeight > FlxG.height / 2) {
-				posi = cata;
-				break;
+		cataMove.inputAllow = true;
+		for (cata in stringCount) {
+			if (!cata.isOpend) continue;
+			else {
+				if (OptionsState.instance.mouseEvent.overlaps(cata.bg)){
+					cataMove.inputAllow = false;
+					break;
+				}
 			}
 		}
 
-		for (spr in 0...naviSpriteGroup.length -1) {
-			if (spr == posi) naviSpriteGroup[spr].cataChoose = true;
-			else naviSpriteGroup[spr].cataChoose = false;
+		for (navi in naviGroup) navi.cataChoose = false;
+		for (cata in cataGroup){
+			if (cata.checkPoint()) {
+				cata.follow.cataChoose = true;
+				break;
+			}
 		}
 	}
 
-	//Apply Automatically
 	override function openSubState(SubState:flixel.FlxSubState) {
 		super.openSubState(SubState);
 		persistentUpdate = false;
@@ -190,13 +214,20 @@ class OptionsState extends MusicBeatState
 		}
 	}
 
-	public function changeCata(sort:Int) {
-		if (cataCount.length > 0) return;
+	public function changeCata(cataSort:Int, memSort:Int) {
 		var outputData:Float = 100;
-		for (cata in 0...sort) {
+
+		var realSort:Int = memSort;
+		for (navi in 0...naviGroup.length) {
+			if (navi < cataSort) realSort += naviGroup[navi].parent.length;
+			else break;
+		}
+
+		for (cata in 0...realSort) {
 			outputData -= cataGroup[cata].bg.realHeight;
 			outputData -= UIScale.adjust(FlxG.width * (0.8 / 40));
 		}
+		outputData = Math.max(outputData, cataMove.moveLimit[0]);
 		cataMove.lerpData = outputData;
 	}
 
@@ -204,7 +235,7 @@ class OptionsState extends MusicBeatState
 		tipButton.changeText(str);
 	}
 
-	public function addCata(type:String) {
+	public function addCata(type:String, follow:NaviGroup, mem:NaviMember, extraPath:String = '') {
 		var obj:OptionCata = null;
 
 		var outputX:Float = naviBG.width + UIScale.adjust(FlxG.width * (0.8 / 40)); //已被初始化
@@ -217,11 +248,16 @@ class OptionsState extends MusicBeatState
 		stateScripts.set('outputY', outputY);
 		stateScripts.set('outputHeight', outputHeight);
 
-		//idk how can I merge them, so I'm using it like that
-		call('addCata', [type, obj]);
-		var naviCreation = event("CataCreation", new CancellableEvent());
-		if (!naviCreation.cancelled) {
-			switch (type) 
+		/* User can cancel it and change it for his own purpose (I'm recommend to make custom one but original one can usable too) */
+		var cataCreation = event("addCata", new CataEvent(type, obj));
+		if (cataCreation.cancelled) {
+			/* make sure they are same */
+			type = cataCreation.type;
+			obj = cataCreation.obj;
+		}
+		else
+		{
+			switch (type)
 			{
 				case 'Graphics':
 					obj = new GraphicsGroup(outputX, outputY, outputWidth, outputHeight);
@@ -234,11 +270,14 @@ class OptionsState extends MusicBeatState
 				case 'Controls':
 					obj = new MobileGroup(outputX, outputY, outputWidth, outputHeight);
 				default:
-					//nothing lol
+					obj = new ModGroup(outputX, outputY, outputWidth, outputHeight, '${type}Group'); //My System is Different
 			}
-			cataGroup.push(obj);
-			add(obj);
 		}
+
+		cataGroup.push(obj);
+		obj.follow = follow;
+		obj.mem = mem;
+		add(obj);
 	}
 
 	public function addMove(tar:MouseMove) {
@@ -257,7 +296,54 @@ class OptionsState extends MusicBeatState
 		}
 	}
 
+	public function cataMoveChange()
+	{
+		var moveHeight:Float = 100;
+		for (num in cataGroup) {
+			if (num != cataGroup[cataGroup.length]) {
+				moveHeight -= num.bg.waitHeight;
+				moveHeight -= UIScale.adjust(FlxG.width * (0.8 / 40));
+			} else {
+				moveHeight -= cataGroup[cataGroup.length - 1].bg.waitHeight - UIScale.adjust(FlxG.height * 0.8) * 2;
+				moveHeight -= UIScale.adjust(FlxG.width * (0.8 / 40)) * 2;
+			}
+		}
+		cataMove.moveLimit[0] = moveHeight;
+	}
+
 	static public var naviPosiData:Float = 0;
+	public function naviMoveEvent(init:Bool = false){
+		for (i in 0...naviGroup.length) {
+			naviGroup[i].y = naviPosiData + i * UIScale.adjust(FlxG.height * 0.1) + naviGroup[i].offsetY;
+		}
+	}
+
+	var naviTween:Array<FlxTween> = [];
+	var alreadyDetele:Bool = false;
+	public function changeNavi(navi:NaviGroup, isOpened:Bool, naviTime:Float = 0.45) {
+		for (tween in naviTween) {
+			if (tween != null) tween.cancel();
+		}
+
+		for (i in 0...naviGroup.length) {
+			if (i <= navi.optionSort) continue;
+			else {
+				naviGroup[i].offsetWaitY += (navi.parent.length * 50 + 15) * (isOpened? -1 : 1);
+				var tween = FlxTween.num(naviGroup[i].offsetY, naviGroup[i].offsetWaitY, naviTime, {ease: FlxEase.expoInOut}, function(v){naviGroup[i].offsetY = v;});
+				naviTween.push(tween);
+			}
+		}
+		
+		var moveHeight:Float = 0;
+		for (i in 0...naviGroup.length) {
+			if (naviGroup[i] == navi) continue;
+			else {
+				if (naviGroup[i].isOpened) moveHeight += naviGroup[i].parent.length * 50 + 15;
+			}
+		}
+		if (!isOpened) moveHeight += (navi.parent.length * 50 + 15);
+		naviMove.moveLimit[0] = -1 * Math.max(0, ((naviGroup.length - 9)) * UIScale.adjust(FlxG.height * 0.1) + moveHeight);
+	}
 
 	var specOpen:Bool = false;
 	var specTween:Array<FlxTween> = [];
@@ -282,7 +368,8 @@ class OptionsState extends MusicBeatState
 		specTween.push(tween);
 		var tween = FlxTween.tween(resetButton, {x: newPoint + specBG.height * 0.2 + searchButton.width + specBG.height * 0.2}, specTime, {ease: FlxEase.expoInOut});
 		specTween.push(tween);
-
+		
+	
 		specOpen = !specOpen;
 	}
 
@@ -298,23 +385,21 @@ class OptionsState extends MusicBeatState
 			case 3: // ControlsSubState
 				persistentUpdate = false;
 				openSubState(new ControlsSubState());
-			#if TOUCH_CONTROLS
 			case 4: // MobileControlSelectSubState
 				persistentUpdate = false;
 				openSubState(new MobileControlSelectSubState());
 			case 5: // MobileExtraControl
 				persistentUpdate = false;
 				openSubState(new MobileExtraControl());
-			#end
 			case 6: // CopyStates
-				LoadingState.loadAndSwitchState(new CopyState());
+				LoadingState.loadAndSwitchState(new CopyState(true));
 		}
 	}
 
 	public function resetData()
 	{
-		for (spr in 0...naviSpriteGroup.length) {
-			if (naviSpriteGroup[spr].cataChoose == true) {
+		for (spr in 0...naviGroup.length) {
+			if (naviGroup[spr].cataChoose == true) {
 				cataGroup[spr].resetData();
 				break;
 			}
@@ -346,7 +431,7 @@ class OptionsState extends MusicBeatState
 					CustomSwitchState.switchMenus('MainMenu');
 					FlxG.mouse.visible = false;
 				case 1:
-						CustomSwitchState.switchMenus('Freeplay');
+					CustomSwitchState.switchMenus('Freeplay');
 				case 2:
 					StageData.loadDirectory(PlayState.SONG); //Load Stage Directory (fixes null object issues)
 					LoadingState.loadAndSwitchState(new PlayState());

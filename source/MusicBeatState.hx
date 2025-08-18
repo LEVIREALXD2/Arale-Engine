@@ -16,6 +16,7 @@ import flixel.FlxCamera;
 import flixel.FlxBasic;
 import flixel.input.actions.FlxActionInput;
 import flixel.util.FlxDestroyUtil;
+import backend.PsychCamera;
 
 #if SCRIPTING_ALLOWED
 import scripting.HScript;
@@ -150,8 +151,6 @@ class MusicBeatState extends FlxUIState
 		if (trackedinputsUI.length > 0)
 			controls.removeVirtualControlsInput(trackedinputsUI);
 
-		super.destroy();
-
 		if (mobilePad != null)
 			mobilePad = FlxDestroyUtil.destroy(mobilePad);
 
@@ -162,23 +161,28 @@ class MusicBeatState extends FlxUIState
 		call("destroy");
 		stateScripts = FlxDestroyUtil.destroy(stateScripts);
 		#end
+
+		super.destroy();
 	}
 	#elseif SCRIPTING_ALLOWED
 	override function destroy() {
 		call("destroy");
 		stateScripts = FlxDestroyUtil.destroy(stateScripts);
+		super.destroy();
 	}
 	#end
 
-	public function initPsychCamera():backend.PsychCamera
+	public function initPsychCamera():PsychCamera
 	{
-		var camera = new backend.PsychCamera();
+		var camera = new PsychCamera();
 		FlxG.cameras.reset(camera);
 		FlxG.cameras.setDefaultDrawTarget(camera, true);
-		// _psychCameraInitialized = true;
+		_psychCameraInitialized = true;
 		//trace('initialized psych camera ' + Sys.cpuTime());
 		return camera;
 	}
+
+	var _psychCameraInitialized:Bool = false;
 
 	override function create() {
 		#if SCRIPTING_ALLOWED loadScript(); #end
