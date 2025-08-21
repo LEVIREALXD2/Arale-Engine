@@ -158,7 +158,9 @@ class GameplayChangersSubstate extends MusicBeatSubstate
 
 		changeSelection();
 		reloadCheckboxes();
-		
+
+		cameras = [FlxG.cameras.list[FlxG.cameras.list.length-1]];
+
 		#if TOUCH_CONTROLS
 		addMobilePad("FULL", "A_B_C");
 		addMobilePadCamera();
