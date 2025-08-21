@@ -53,6 +53,7 @@ class NoteSplash extends FlxSprite
 			colorSwap = new ColorSwap();
 			shader = colorSwap.shader;
 		}
+		cacheNoteSplashTexture(); //this thing needs to be cache the NoteSplash
 		//setupNoteSplash(x, y, 0);
 	}
 
@@ -60,6 +61,45 @@ class NoteSplash extends FlxSprite
 	{
 		configs.clear();
 		super.destroy();
+	}
+
+	function cacheNoteSplashTexture(?note:Note = null) {
+		var texture:String = null;
+
+		if (ClientPrefs.data.useRGB) {
+			texture = getSplashSkin();
+		}
+		else {
+			texture = 'noteSplashes';
+			if (PlayState.isPixelStage && ClientPrefs.data.splashSkin == ClientPrefs.defaultData.splashSkin) texture = 'pixelUI/noteSplashes';
+			else if (ClientPrefs.data.splashSkin != ClientPrefs.defaultData.splashSkin) {
+				var customSkin:String = 'noteSplashSkins/${texture}' + getNoteSkinPostfix(texture);
+				var nonRGBCustomPixelNote:String = 'pixelUI/noteSplashSkins/${texture}' + getNoteSkinPostfix(texture);
+				if(Paths.fileExists('images/' + nonRGBCustomPixelNote + '.png', IMAGE) && PlayState.isPixelStage) {
+					customSkin = nonRGBCustomPixelNote;
+				}
+				if(Paths.fileExists('images/$customSkin.png', IMAGE)) texture = customSkin;
+			}
+		}
+		if(PlayState.SONG.splashSkin != null && PlayState.SONG.splashSkin.length > 0) texture = PlayState.SONG.splashSkin;
+		
+		if (!ClientPrefs.data.useRGB) {
+			if(note != null)
+				if(Paths.fileExists('images/${note.noteSplashTexture}.png', IMAGE)) texture = note.noteSplashTexture;
+		}
+
+		if (ClientPrefs.data.useRGB) {
+			var config:NoteSplashConfig = precacheConfig(texture);
+			if(_textureLoaded != texture)
+				config = loadAnims(texture, config);
+
+			_textureLoaded = texture;
+		}
+		else {
+			if(_textureLoaded != texture) {
+				loadLegacyAnims(texture);
+			}
+		}
 	}
 
 	var maxAnims:Int = 2;

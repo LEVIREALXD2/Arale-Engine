@@ -200,7 +200,7 @@ class Paths
 		var scriptToLoad:String = null;
 		for(ex in Script.scriptExtensions) {
 			#if MODS_ALLOWED
-			scriptToLoad = Paths.modFolders('scripts/${key}.$ex'); //menuFolders can usable instead but this repo doesn't support it for now
+			scriptToLoad = Paths.modFolders('data/${key}.$ex'); //menuFolders can usable instead but this repo doesn't support it for now
 			if(!FileSystem.exists(scriptToLoad))
 				scriptToLoad = Paths.getScriptPath('${key}.$ex');
 			#else
@@ -242,22 +242,31 @@ class Paths
 		return file;
 	}
 
-	inline static public function voices(song:String, postfix:String = null):Any
+	static public function voices(song:String, postfix:String = null):Any
 	{
 		var songKey:String = '${formatToSongPath(song)}/Voices';
 		if(postfix != null) songKey += '-' + postfix;
 		var voices = returnSound(null, songKey, 'songs');
+
+		//CNE Like ogg path
+		var songKeyCNE:String = '${formatToSongPath(song)}/song/Voices';
+		if(postfix != null) songKeyCNE += '-' + postfix;
+		var voicesCNE = returnSound(null, songKeyCNE, 'songs');
+
+		if (voicesCNE != null) return voicesCNE;
 		return voices;
 	}
 
-	inline static public function inst(song:String):Any
+	static public function inst(song:String):Any
 	{
 		var songKey:String = '${formatToSongPath(song)}/Inst';
-		#if !NEW_PSYCH063
-		var inst = returnSound('songs', songKey);
-		#else
 		var inst = returnSound(null, songKey, 'songs');
-		#end
+
+		//CNE Like ogg path
+		var songKeyCNE:String = '${formatToSongPath(song)}/song/Inst';
+		var instCNE = returnSound(null, songKeyCNE, 'songs');
+
+		if (instCNE != null) return instCNE;
 		return inst;
 	}
 

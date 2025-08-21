@@ -166,6 +166,8 @@ class PauseSubState extends MusicBeatSubstate
 			addMobilePad("FULL", "A");
 		addMobilePadCamera();
 		#end
+
+		#if SCRIPTING_ALLOWED call("postPauseCreate"); #end //automatic one doesn't work, idk why
 	}
 
 	function getPauseSong()

@@ -1,5 +1,5 @@
-name: Build PsychEngine + Release
-run-name: PsychEngine 0.6.3 MobilePad Update
+name: Build PsychExtended + Release
+run-name: PsychExtended v1.0.2 Update
 on: workflow_dispatch
 
 permissions:
@@ -8,7 +8,7 @@ permissions:
 
 env:
   PROJECT_NAME: PsychEngine
-  REPO_PATH: Prohack101010/PsychEngine-0.6.3-Android-Port
+  REPO_PATH: https://github.com/PsychExtendedThings/Psych-Extended-ReBase
 
 jobs:
   get-commit-hash:
@@ -69,7 +69,7 @@ jobs:
            path: /home/runner
 
       - name: Move Android File
-        run: mv /home/runner/${{ env.PROJECT_NAME }}-release.apk /home/runner/${{ env.PROJECT_NAME }}-MobilePad-Update.apk
+        run: mv /home/runner/${{ env.PROJECT_NAME }}-release.apk /home/runner/PsychExtended-v102-Update.apk
 
       - name: Publish The Release
         uses: softprops/action-gh-release@v2

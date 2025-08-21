@@ -21,6 +21,9 @@ class MusicBeatSubstate extends FlxSubState
 
 	private var curStep:Int = 0;
 	private var curBeat:Int = 0;
+	public var curStepFloat:Float;
+	public var curBeatFloat:Float;
+	public static var stepsPerBeat:Float = 4;
 
 	private var curDecStep:Float = 0;
 	private var curDecBeat:Float = 0;
@@ -123,6 +126,7 @@ class MusicBeatSubstate extends FlxSubState
 		//everyStep();
 		var oldStep:Int = curStep;
 
+		updateCurFloats();
 		updateCurStep();
 		updateBeat();
 
@@ -194,6 +198,13 @@ class MusicBeatSubstate extends FlxSubState
 		var shit = ((Conductor.songPosition - ClientPrefs.data.noteOffset) - lastChange.songTime) / lastChange.stepCrochet;
 		curDecStep = lastChange.stepTime + shit;
 		curStep = lastChange.stepTime + Math.floor(shit);
+	}
+
+	private function updateCurFloats():Void
+	{
+		var lastChange = Conductor.getBPMFromSeconds(Conductor.songPosition);
+		curStepFloat = lastChange.stepTime + ((Conductor.songPosition - lastChange.songTime) / lastChange.stepCrochet);
+		curBeatFloat = curStepFloat / stepsPerBeat;
 	}
 
 	public function stepHit():Void
@@ -295,6 +306,7 @@ class MusicBeatSubstate extends FlxSubState
 
 	public override function createPost() {
 		super.createPost();
+		trace("Function should call postCreate");
 		call("postCreate");
 	}
 
@@ -303,6 +315,8 @@ class MusicBeatSubstate extends FlxSubState
 		#if SCRIPTING_ALLOWED
 		if(stateScripts != null)
 			return stateScripts.call(name, args);
+		else
+			trace("stateScripts is a null");
 		#end
 		return defaultVal;
 	}

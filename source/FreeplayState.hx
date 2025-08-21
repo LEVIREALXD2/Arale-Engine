@@ -426,6 +426,7 @@ class FreeplayState extends MusicBeatState
 			if (FlxG.keys.pressed.SHIFT #if TOUCH_CONTROLS || mobilePad.buttonZ.pressed #end)
 				CustomSwitchState.switchMenus('Charting', true);
 			else {
+				LoadingState.prepareToSong();
 				LoadingState.loadAndSwitchState(new PlayState());
 			}
 			FlxG.sound.music.stop();

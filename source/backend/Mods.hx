@@ -31,10 +31,6 @@ class Mods
 		'codenameScripts',
 		'achievements',
 		'mobile',
-		//Custom Things (they're in scripts folder for now, so these folder won't do anything)
-		'states',
-		'substates',
-		'options'
 	];
 
 	private static var globalMods:Array<String> = [];

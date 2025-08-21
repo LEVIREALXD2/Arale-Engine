@@ -337,6 +337,7 @@ class Script extends FlxBasic implements IFlxDestroyable {
 			"FlxBackdrop"		  => flixel.addons.display.FlxBackdrop,
 			"FlxOgmo3Loader"		  => flixel.addons.editors.ogmo.FlxOgmo3Loader,
 			"FlxTilemap"		  => flixel.tile.FlxTilemap,
+			"FlxTextBorderStyle"		  => flixel.text.FlxTextBorderStyle,
 			"FlxTextAlign"	  => CoolUtil.getMacroAbstractClass("flixel.text.FlxText.FlxTextAlign"),
 			"FlxPoint"		  => CoolUtil.getMacroAbstractClass("flixel.math.FlxPoint"),
 			"FlxAxes"		   => CoolUtil.getMacroAbstractClass("flixel.util.FlxAxes"),
@@ -369,9 +370,12 @@ class Script extends FlxBasic implements IFlxDestroyable {
 			"StoryMenuState"	=> StoryMenuState,
 			"TitleState"		=> TitleState,
 			"OptionsState"		   => options.OptionsState,
+			"LoadingState"		   => LoadingState,
+			"MusicBeatState"		   => MusicBeatState,
 
 			/* Substates */
 			"GameOverSubstate"  => GameOverSubstate,
+			"MusicBeatSubstate"  => MusicBeatSubstate,
 			"PauseSubstate"	 => PauseSubState,
 
 			/* Custom Menus */
