@@ -28,7 +28,7 @@ class ModGroupBase extends OptionCata
 	public var scriptsAllowed:Bool = true;
 
 	/**
-	 * Current injected script attached to the state. To add one, create a file at path "scripts/states/stateName" (ex: scripts/states/FreeplayState)
+	 * Current injected script attached to the state. To add one, create a file at path "data/states/stateName" (ex: data/states/FreeplayState)
 	 */
 	public var stateScripts:ScriptPack;
 

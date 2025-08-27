@@ -53,6 +53,7 @@ import TitleState;
 
 	/* Codename Engine */
 	public var codenameFunctions:Bool = false; //experimental
+	public var codenameCamAngle:Bool = false; //for codename mods
 
 	/* V-Slice */
 	public var VSliceControl:Bool = false;

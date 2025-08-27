@@ -126,7 +126,6 @@ class PlayState extends MusicBeatState
 	public var boyfriendMap:Map<String, Character> = new Map();
 	public var dadMap:Map<String, Character> = new Map();
 	public var gfMap:Map<String, Character> = new Map();
-	public var variables:Map<String, Dynamic> = new Map();
 	public var modchartTweens:Map<String, FlxTween> = new Map<String, FlxTween>();
 	public var modchartSprites:Map<String, ModchartSprite> = new Map<String, ModchartSprite>();
 	public var modchartTimers:Map<String, FlxTimer> = new Map<String, FlxTimer>();
@@ -137,7 +136,6 @@ class PlayState extends MusicBeatState
 	public var boyfriendMap:Map<String, Character> = new Map<String, Character>();
 	public var dadMap:Map<String, Character> = new Map<String, Character>();
 	public var gfMap:Map<String, Character> = new Map<String, Character>();
-	public var variables:Map<String, Dynamic> = new Map<String, Dynamic>();
 	public var modchartTweens:Map<String, FlxTween> = new Map();
 	public var modchartSprites:Map<String, ModchartSprite> = new Map();
 	public var modchartTimers:Map<String, FlxTimer> = new Map();
@@ -394,7 +392,8 @@ class PlayState extends MusicBeatState
 		cpuControlled = ClientPrefs.getGameplaySetting('botplay');
 
 		// var gameCam:FlxCamera = FlxG.camera;
-		camGame = new FlxCamera();
+		//camGame = new FlxCamera();
+		camGame = camera;
 		camHUD = new FlxCamera();
 		camOther = new FlxCamera();
 		luaMpadCam = new FlxCamera();
@@ -402,13 +401,13 @@ class PlayState extends MusicBeatState
 		camOther.bgColor.alpha = 0;
 		luaMpadCam.bgColor.alpha = 0;
 
-		FlxG.cameras.reset(camGame);
+		//FlxG.cameras.reset(camGame);
 		FlxG.cameras.add(camHUD, false);
 		FlxG.cameras.add(camOther, false);
 		FlxG.cameras.add(luaMpadCam, false);
 		grpNoteSplashes = new FlxTypedGroup<NoteSplash>();
 
-		FlxG.cameras.setDefaultDrawTarget(camGame, true);
+		//FlxG.cameras.setDefaultDrawTarget(camGame, true);
 		CustomFadeTransition.nextCamera = camOther;
 		#if EXTRA_TRANSITIONS CustomFadeTransitionNOVA.nextCamera = camOther; #end
 
@@ -1259,6 +1258,8 @@ class PlayState extends MusicBeatState
 					countdown(swagCounter++);
 				}, 5);
 			} else {
+			moveCameraSection();
+
 			startTimer = new FlxTimer().start(Conductor.crochet / 1000 / playbackRate, function(tmr:FlxTimer)
 			{
 				characterBopper(tmr.loopsLeft);
@@ -2619,10 +2620,13 @@ class PlayState extends MusicBeatState
 		callOnScripts('onEvent', [eventName, value1, value2, strumTime]);
 	}
 
-	function moveCameraSection():Void {
-		if(SONG.notes[curSection] == null) return;
+	function moveCameraSection(?sec:Null<Int>):Void {
+		if(sec == null) sec = curSection;
+		if(sec < 0) sec = 0;
 
-		if (gf != null && SONG.notes[curSection].gfSection)
+		if(SONG.notes[sec] == null) return;
+
+		if (gf != null && SONG.notes[sec].gfSection)
 		{
 			if (ClientPrefs.data.UseNewCamSystem || PlayState.SONG.cameraMode == '0.7x')
 			{
@@ -2641,7 +2645,7 @@ class PlayState extends MusicBeatState
 			return;
 		}
 
-		if (!SONG.notes[curSection].mustHitSection)
+		if (!SONG.notes[sec].mustHitSection)
 		{
 			moveCamera(true);
 			callOnScripts('onMoveCamera', ['dad']);

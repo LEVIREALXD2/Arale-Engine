@@ -21,6 +21,7 @@ class Config {
 		"flixel.text",
 		"flixel.math",
 		"flixel.util",
+		"openfl.display.BlendMode",
 	];
 
 	// Incase any of your files fail

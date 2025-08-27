@@ -505,15 +505,16 @@ class Paths
 
 	#if MODS_ALLOWED
 	inline static public function mods(key:String = '') {
-		var modpack = #if mobile Sys.getCwd() + #end 'modpack/' + ClientPrefs.data.currentModPack + '/' + key;
+		var modpack = #if mobile StorageUtil.getExternalStorageDirectory() + #end 'modpack/' + ClientPrefs.data.currentModPack + '/' + key;
 		if (ClientPrefs.data.currentModPack != null && FileSystem.exists(modpack))
 			return modpack;
 		//global
-		return if (ClientPrefs.data.currentModPack != null) #if mobile Sys.getCwd() + #end 'modpack/' + key; else #if mobile Sys.getCwd() + #end 'mods/' + key;
+		return if (ClientPrefs.data.currentModPack != null) #if mobile StorageUtil.getExternalStorageDirectory() + #end 'modpack/' + key;
+		else #if mobile StorageUtil.getExternalStorageDirectory() + #end 'mods/' + key;
 	}
 
 	inline static public function modpack(key:String = '') {
-		return #if mobile Sys.getCwd() + #end 'modpack/' + key;
+		return #if mobile StorageUtil.getExternalStorageDirectory() + #end 'modpack/' + key;
 	}
 
 	inline static public function modsFont(key:String) {
@@ -572,11 +573,12 @@ class Paths
 				return fileToCheck;
 
 		}
-		var modpack = #if mobile Sys.getCwd() + #end 'modpack/' + ClientPrefs.data.currentModPack + '/' + key;
+		var modpack = #if mobile StorageUtil.getExternalStorageDirectory() + #end 'modpack/' + ClientPrefs.data.currentModPack + '/' + key;
 		if (ClientPrefs.data.currentModPack != null && FileSystem.exists(modpack))
 			return modpack;
 		//global
-		return if (ClientPrefs.data.currentModPack != null) #if mobile Sys.getCwd() + #end 'modpack/' + key; else #if mobile Sys.getCwd() + #end 'mods/' + key;
+		return if (ClientPrefs.data.currentModPack != null) #if mobile StorageUtil.getExternalStorageDirectory() + #end 'modpack/' + key;
+		else #if mobile StorageUtil.getExternalStorageDirectory() + #end 'mods/' + key;
 	}
 	#end
 

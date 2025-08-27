@@ -5,13 +5,17 @@ class MobileGroup extends OptionCata
 	#if android
 	var storageTypes:Array<String> = ["EXTERNAL_DATA", "EXTERNAL", "EXTERNAL_EX", "EXTERNAL_NF", "EXTERNAL_OBB", "EXTERNAL_MEDIA", "EXTERNAL_ONLINE"];
 	var externalPaths:Array<String> = StorageUtil.checkExternalPaths(true);
+	var customPaths:Array<String> = StorageUtil.getCustomStorageDirectories(false);
 	#end
 
 	var HitboxTypes:Array<String>;
 	public function new(X:Float, Y:Float, width:Float, height:Float)
 	{
 		super(X, Y, width, height);
-		#if android storageTypes = storageTypes.concat(externalPaths); #end //SD Card
+		#if android
+		storageTypes = storageTypes.concat(externalPaths); //SD Card
+		storageTypes = storageTypes.concat(customPaths); //Get custom paths added by player
+		#end
 		HitboxTypes = Mods.mergeAllTextsNamed('mobile/Hitbox/HitboxModes/hitboxModeList.txt');
 
 		var option:Option = new Option(this,

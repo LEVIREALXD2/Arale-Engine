@@ -93,15 +93,7 @@ class CustomSwitchState
 				if (customPath != null)
 					filePath = customPath;
 
-				#if MODS_ALLOWED
-				var scriptToLoad:String = Paths.modFolders('scripts/${filePath}.hx');
-				if(!FileSystem.exists(scriptToLoad))
-					scriptToLoad = Paths.getScriptPath('${filePath}.hx');
-				#else
-				var scriptToLoad:String = Paths.getScriptPath('${filePath}.hx');
-				#end
-
-				var path = scriptToLoad;
+				var path = Paths.script(filePath);
 				var script = Script.create(path);
 				script.remappedNames.set(script.fileName, '${script.fileName}');
 				stateScripts.add(script);

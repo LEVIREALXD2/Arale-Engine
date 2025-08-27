@@ -112,9 +112,12 @@ class PreloadListSubState extends MusicBeatSubstate implements PsychUIEvent
 		function addToList(path:Path, isFolder:Bool)
 		{
 			var exePath:String = Sys.getCwd().replace('\\', '/');
-			if(path.dir.startsWith(exePath))
+			#if android
+			var externalPath = StorageUtil.getExternalStorageDirectory();
+			#end
+			if(path.dir.startsWith(exePath) #if android || path.dir.startsWith(externalPath) #end)
 			{
-				var pathStr:String = path.dir.substr(exePath.length);
+				var pathStr:String = #if android path.dir.startsWith(externalPath) ? path.dir.substr(externalPath.length) : path.dir.substr(exePath.length) #else path.dir.substr(exePath.length) #end;
 				var split:Array<String> = pathStr.split('/');
 				switch(split[0])
 				{

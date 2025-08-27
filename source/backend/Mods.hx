@@ -179,9 +179,9 @@ class Mods
 
 		#if MODS_ALLOWED
 		try {
-			var curThing:String = 'modsList.txt';
+			var curThing:String = StorageUtil.getExternalStorageDirectory() + 'modsList.txt';
 			if (ClientPrefs.data.currentModPack != null) curThing = Paths.modpack(ClientPrefs.data.currentModPack + '/modsList.txt');
-			else curThing = 'modsList.txt';
+			else curThing = StorageUtil.getExternalStorageDirectory() + 'modsList.txt';
 			for (mod in CoolUtil.coolTextFile(curThing))
 			{
 				//trace('Mod: $mod');
@@ -208,9 +208,9 @@ class Mods
 		var list:Array<Array<Dynamic>> = [];
 		var added:Array<String> = [];
 		try {
-			var curThing:String = 'modsList.txt';
+			var curThing:String = StorageUtil.getExternalStorageDirectory() + 'modsList.txt';
 			if (ClientPrefs.data.currentModPack != null) curThing = Paths.modpack(ClientPrefs.data.currentModPack + '/modsList.txt');
-			else curThing = 'modsList.txt';
+			else curThing = StorageUtil.getExternalStorageDirectory() + 'modsList.txt';
 			for (mod in CoolUtil.coolTextFile(curThing))
 			{
 				var dat:Array<String> = mod.split("|");
@@ -246,7 +246,7 @@ class Mods
 		}
 
 		if (ClientPrefs.data.currentModPack != null) File.saveContent(Paths.modpack(ClientPrefs.data.currentModPack + '/modsList.txt'), fileStr);
-		else File.saveContent('modsList.txt', fileStr);
+		else File.saveContent(StorageUtil.getExternalStorageDirectory() + 'modsList.txt', fileStr);
 		updatedOnState = true;
 		//trace('Saved modsList.txt');
 		#end

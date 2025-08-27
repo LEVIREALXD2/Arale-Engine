@@ -2573,39 +2573,57 @@ class FunkinLua {
 		});
 
 		Lua_helper.add_callback(lua, "initSaveData", function(name:String, ?folder:String = 'psychenginemods') {
-			if(!PlayState.instance.modchartSaves.exists(name))
+			var variables = MusicBeatState.getVariables();
+			if(!variables.exists('save_$name'))
 			{
 				var save:FlxSave = new FlxSave();
-				save.bind(name, folder);
-				PlayState.instance.modchartSaves.set(name, save);
+				// folder goes unused for flixel 5 users. @BeastlyGhost
+				save.bind(name, CoolUtil.getSavePath() + '/' + folder);
+				variables.set('save_$name', save);
 				return;
 			}
-			luaTrace('initSaveData: Save file already initialized: ' + name);
+			FunkinLua.luaTrace('initSaveData: Save file already initialized: ' + name);
 		});
 		Lua_helper.add_callback(lua, "flushSaveData", function(name:String) {
-			if(PlayState.instance.modchartSaves.exists(name))
+			var variables = MusicBeatState.getVariables();
+			if(variables.exists('save_$name'))
 			{
-				PlayState.instance.modchartSaves.get(name).flush();
+				variables.get('save_$name').flush();
 				return;
 			}
-			luaTrace('flushSaveData: Save file not initialized: ' + name, false, false, FlxColor.RED);
+			FunkinLua.luaTrace('flushSaveData: Save file not initialized: ' + name, false, false, FlxColor.RED);
 		});
 		Lua_helper.add_callback(lua, "getDataFromSave", function(name:String, field:String, ?defaultValue:Dynamic = null) {
-			if(PlayState.instance.modchartSaves.exists(name))
+			var variables = MusicBeatState.getVariables();
+			if(variables.exists('save_$name'))
 			{
-				var retVal:Dynamic = Reflect.field(PlayState.instance.modchartSaves.get(name).data, field);
-				return retVal;
+				var saveData = variables.get('save_$name').data;
+				if(Reflect.hasField(saveData, field))
+					return Reflect.field(saveData, field);
+				else
+					return defaultValue;
 			}
-			luaTrace('getDataFromSave: Save file not initialized: ' + name, false, false, FlxColor.RED);
+			FunkinLua.luaTrace('getDataFromSave: Save file not initialized: ' + name, false, false, FlxColor.RED);
 			return defaultValue;
 		});
 		Lua_helper.add_callback(lua, "setDataFromSave", function(name:String, field:String, value:Dynamic) {
-			if(PlayState.instance.modchartSaves.exists(name))
+			var variables = MusicBeatState.getVariables();
+			if(variables.exists('save_$name'))
 			{
-				Reflect.setField(PlayState.instance.modchartSaves.get(name).data, field, value);
+				Reflect.setField(variables.get('save_$name').data, field, value);
 				return;
 			}
-			luaTrace('setDataFromSave: Save file not initialized: ' + name, false, false, FlxColor.RED);
+			FunkinLua.luaTrace('setDataFromSave: Save file not initialized: ' + name, false, false, FlxColor.RED);
+		});
+		Lua_helper.add_callback(lua, "eraseSaveData", function(name:String)
+		{
+			var variables = MusicBeatState.getVariables();
+			if (variables.exists('save_$name'))
+			{
+				variables.get('save_$name').erase();
+				return;
+			}
+			FunkinLua.luaTrace('eraseSaveData: Save file not initialized: ' + name, false, false, FlxColor.RED);
 		});
 
 		Lua_helper.add_callback(lua, "checkFileExists", function(filename:String, ?absolute:Bool = false) {
@@ -2856,6 +2874,7 @@ class FunkinLua {
 				lime.app.Application.current.window.alert(resultStr, 'Error on lua script!');
 				#elseif android
 				CoolUtil.showPopUp(resultStr, "Error on .LUA script!");
+				trace("ErrorBitch: " + resultStr);
 				#else
 				luaTrace('Error loading lua script: "$script"\n' + resultStr, true, false, FlxColor.RED);
 				#end
@@ -3279,6 +3298,7 @@ class FunkinLua {
 			if (type != Lua.LUA_TFUNCTION) {
 				if (type > Lua.LUA_TNIL)
 					luaTrace("ERROR (" + func + "): attempt to call a " + typeToString(type) + " value", false, false, FlxColor.RED);
+					//trace("ERROR (" + func + "): attempt to call a " + typeToString(type) + " value");
 
 				Lua.pop(lua, 1);
 				return Function_Continue;
@@ -3291,6 +3311,7 @@ class FunkinLua {
 			if (status != Lua.LUA_OK) {
 				var error:String = getErrorMessage(status);
 				luaTrace("ERROR (" + func + "): " + error, false, false, FlxColor.RED);
+				trace("ERROR (" + func + "): " + error);
 				return Function_Continue;
 			}
 
@@ -3810,12 +3831,9 @@ class CallbackHandler
 			args[i] = Convert.fromLua(l, i + 1);
 		}
 
-        /* this code doesn't work because I'm using Sirox's linc_luajit
 		var ret:Dynamic = null;
 
 		ret = Reflect.callMethod(null,cbf,args);
-		*/
-		var ret:Dynamic = Reflect.callMethod(null, cbf, args);
 
 		if(ret != null){
 			Convert.toLua(l, ret);

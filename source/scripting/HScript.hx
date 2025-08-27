@@ -20,6 +20,7 @@ import flixel.util.FlxDestroyUtil.IFlxDestroyable;
 import codenamecrew.hscript.IHScriptCustomConstructor;
 import flixel.util.FlxStringUtil;
 import funkin.backend.scripting.events.CancellableEvent;
+import flixel.util.FlxSave;
 
 /**
 	Handles Codename Engine's HScript Improved for you.
@@ -342,6 +343,7 @@ class Script extends FlxBasic implements IFlxDestroyable {
 			"FlxPoint"		  => CoolUtil.getMacroAbstractClass("flixel.math.FlxPoint"),
 			"FlxAxes"		   => CoolUtil.getMacroAbstractClass("flixel.util.FlxAxes"),
 			"FlxColor"		  => CoolUtil.getMacroAbstractClass("flixel.util.FlxColor"),
+			"BlendMode"		  => CoolUtil.getMacroAbstractClass("openfl.display.BlendMode"),
 
 			/* Objects */
 			"FlxAnimate"		=> flxanimate.PsychFlxAnimate,
@@ -498,6 +500,40 @@ class Script extends FlxBasic implements IFlxDestroyable {
 		}
 		set("disableScript", () -> {
 			active = false;
+		});
+		set("initSaveData", function(name:String, ?folder:String = 'psychenginemods') {
+			var variables = MusicBeatState.getVariables();
+			if(!variables.exists('save_$name'))
+			{
+				var save:FlxSave = new FlxSave();
+				// folder goes unused for flixel 5 users. @BeastlyGhost
+				save.bind(name, CoolUtil.getSavePath() + '/' + folder);
+				variables.set('save_$name', save);
+				return;
+			}
+			trace('initSaveData: Save file already initialized: ' + name);
+		});
+		set("getDataFromSave", function(name:String, field:String, ?defaultValue:Dynamic = null) {
+			var variables = MusicBeatState.getVariables();
+			if(variables.exists('save_$name'))
+			{
+				var saveData = variables.get('save_$name').data;
+				if(Reflect.hasField(saveData, field))
+					return Reflect.field(saveData, field);
+				else
+					return defaultValue;
+			}
+			trace('getDataFromSave: Save file not initialized: ' + name, false, false, FlxColor.RED);
+			return defaultValue;
+		});
+		set("setDataFromSave", function(name:String, field:String, value:Dynamic) {
+			var variables = MusicBeatState.getVariables();
+			if(variables.exists('save_$name'))
+			{
+				Reflect.setField(variables.get('save_$name').data, field, value);
+				return;
+			}
+			trace('setDataFromSave: Save file not initialized: ' + name, false, false, FlxColor.RED);
 		});
 		set("__script__", this);
 
