@@ -624,10 +624,13 @@ class TitleState extends MusicBeatState
 
 	function deleteCoolText()
 	{
-		while (textGroup.members.length > 0)
+		if (textGroup != null)
 		{
-			credGroup.remove(textGroup.members[0], true);
-			textGroup.remove(textGroup.members[0], true);
+			while (textGroup.members.length > 0)
+			{
+				if (credGroup != null) credGroup.remove(textGroup.members[0], true);
+				if (textGroup != null) textGroup.remove(textGroup.members[0], true);
+			}
 		}
 	}
 
