@@ -91,9 +91,9 @@ class WeekData {
 		weeksLoaded.clear();
 		#if MODS_ALLOWED
 		var disabledMods:Array<String> = [];
-		var modsListPath:String = StorageUtil.getExternalStorageDirectory() + 'modsList.txt';
+		var modsListPath:String = #if mobile StorageUtil.getExternalStorageDirectory() + #end 'modsList.txt';
 		if (ClientPrefs.data.currentModPack != null) modsListPath = Paths.modpack(ClientPrefs.data.currentModPack + '/modsList.txt');
-		else modsListPath = StorageUtil.getExternalStorageDirectory() + 'modsList.txt';
+		else modsListPath = #if mobile StorageUtil.getExternalStorageDirectory() + #end 'modsList.txt';
 		var directories:Array<String> = [Paths.mods(), Paths.getPreloadPath()];
 		var originalLength:Int = directories.length;
 		if(FileSystem.exists(modsListPath))
