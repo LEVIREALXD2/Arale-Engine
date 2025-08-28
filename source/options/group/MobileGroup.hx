@@ -3,7 +3,7 @@ package options.group;
 class MobileGroup extends OptionCata
 {
 	#if android
-	var storageTypes:Array<String> = ["EXTERNAL_DATA", "EXTERNAL", "EXTERNAL_EX", "EXTERNAL_NF", "EXTERNAL_OBB", "EXTERNAL_MEDIA", "EXTERNAL_ONLINE"];
+	var storageTypes:Array<String> = ["EXTERNAL_DATA", "EXTERNAL_OBB", "EXTERNAL_MEDIA", "EXTERNAL", "EXTERNAL_PE"];
 	var externalPaths:Array<String> = StorageUtil.checkExternalPaths(true);
 	var customPaths:Array<String> = StorageUtil.getCustomStorageDirectories(false);
 	#end
@@ -13,8 +13,8 @@ class MobileGroup extends OptionCata
 	{
 		super(X, Y, width, height);
 		#if android
-		storageTypes = storageTypes.concat(externalPaths); //SD Card
-		storageTypes = storageTypes.concat(customPaths); //Get custom paths added by player
+		storageTypes = storageTypes.concat(customPaths); //Get Custom Paths From File
+		storageTypes = storageTypes.concat(externalPaths); //Get SD Card Path
 		#end
 		HitboxTypes = Mods.mergeAllTextsNamed('mobile/Hitbox/HitboxModes/hitboxModeList.txt');
 
@@ -151,7 +151,7 @@ class MobileGroup extends OptionCata
 		#if android
 		var option:Option = new Option(this,
 			'Storage Type',
-			'Which folder Psych Engine should use?',
+			'Which folder Psych Extended should use?',
 			'storageType',
 			STRING,
 			storageTypes
@@ -172,9 +172,5 @@ class MobileGroup extends OptionCata
 		#end
 
 		changeHeight(0);
-	}
-
-	static function onChangeCwd() {
-		Sys.setCwd(StorageUtil.getStorageDirectory());
 	}
 }

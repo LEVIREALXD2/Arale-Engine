@@ -11,6 +11,7 @@ import android.callback.CallBack;
 /**
  * A storage class for mobile.
  * @author Mihai Alexandru (M.A. Jigsaw)
+ * @modifier KralOyuncu2010x (ArkoseLabs)
  */
 class StorageUtil
 {
@@ -18,19 +19,18 @@ class StorageUtil
 	// root directory, used for handling the saved storage type and path
 	public static final rootDir:String = LimeSystem.applicationStorageDirectory;
 
+	// package name, I know I can app's package name but I really don't want to do it for now
+	public static var packageName:String = 'com.kraloyuncu.psychextendedrebase' #if termux + 'debug' #end;
+
 	public static function getStorageDirectory():String
 		return #if android haxe.io.Path.addTrailingSlash(AndroidContext.getExternalFilesDir()) #elseif ios lime.system.System.documentsDirectory #else Sys.getCwd() #end;
 
-	public static function getCustomStorageDirectories(?getPaths:Bool, ?doNotSeperate:Bool):Array<String>
+	public static function getCustomStorageDirectories(?doNotSeperate:Bool):Array<String>
 	{
-		var packageName:String = 'com.kraloyuncu.psychextendedrebase';
-		#if termux packageName += 'debug'; #end
-
 		var curTextFile:String = '/storage/emulated/0/Android/data/${packageName}/files/assets/mobile/storageModes.txt';
 		var ArrayReturn:Array<String> = [];
 		for (mode in CoolUtil.coolTextFile(curTextFile))
 		{
-			//trace('Mode: $mode');
 			if(mode.trim().length < 1) continue;
 
 			//turning the readle to original one (also, much easier to rewrite the code) -KralOyuncu2010x
@@ -41,8 +41,6 @@ class StorageUtil
 			var dat = mode.split("|");
 			if (doNotSeperate)
 				ArrayReturn.push(mode); //get both as array
-			else if (getPaths)
-				ArrayReturn.push(dat[1]); //get paths as array
 			else
 				ArrayReturn.push(dat[0]); //get storage name as array
 		}
@@ -60,48 +58,31 @@ class StorageUtil
 
 		var curStorageType:String = File.getContent(rootDir + 'storagetype.txt');
 
-		/* More Txt Friendly Code (I can add custom paths later) */
-		switch(curStorageType) {
-			case 'EXTERNAL':
-				daPath = '/storage/emulated/0/.PsychEngine';
-			case 'EXTERNAL_EX':
-				daPath = '/storage/emulated/0/.Psych Extended';
-			case 'EXTERNAL_OBB':
-				#if termux daPath = '/storage/emulated/0/Android/obb/com.kraloyuncu.psychextendedrebasedebug';
-				#else daPath = '/storage/emulated/0/Android/obb/com.kraloyuncu.psychextendedrebase'; #end
-			case 'EXTERNAL_MEDIA':
-				daPath = '/storage/emulated/0/Android/media/' + lime.app.Application.current.meta.get('packageName');
-			case 'EXTERNAL_DATA': //do not use `default:` for that, otherwise game tries to get data instead of selected option
-				#if termux daPath = '/storage/emulated/0/Android/data/com.kraloyuncu.psychextendedrebasedebug/files';
-				#else daPath = '/storage/emulated/0/Android/data/com.kraloyuncu.psychextendedrebase/files'; #end
-		}
-
-		for (line in getCustomStorageDirectories(false, true))
+		/* Put this there because I don't want to override original paths, also brokes the normal storage system */
+		for (line in getCustomStorageDirectories(true))
 		{
 			if (line.startsWith(curStorageType) && (line != '' || line != null)) {
-				//trace('our line: ${line}');
 				var dat = line.split("|");
-				//trace('our dat: ${dat}');
 				daPath = dat[1];
+				//trace('our line: ${line}');
+				//trace('our dat: ${dat}');
 				//trace('our daPath: ${daPath}');
-				//continue;
 			}
 		}
 
-		/*
-		for (mode in getCustomStorageDirectories(false)) {
-			if (curStorageType == mode) {
-				for (path in getCustomStorageDirectories(true)) {
-					var textFile:Array<String> = getCustomStorageDirectories(false, true);
-					if (curStorageType == mode) {
-						daPath = path;
-						continue;
-					}
-				}
-				continue;
-			}
+		/* More Beginner Friendly Code */
+		switch(curStorageType) {
+			case 'EXTERNAL':
+				daPath = '/storage/emulated/0/.Psych Extended';
+			case 'EXTERNAL_PE':
+				daPath = '/storage/emulated/0/.PsychEngine';
+			case 'EXTERNAL_OBB':
+				daPath = '/storage/emulated/0/Android/obb/${packageName}';
+			case 'EXTERNAL_MEDIA':
+				daPath = '/storage/emulated/0/Android/media/' + lime.app.Application.current.meta.get('packageName');
+			case 'EXTERNAL_DATA':
+				daPath = '/storage/emulated/0/Android/data/${packageName}/files';
 		}
-		*/
 
 		daPath = Path.addTrailingSlash(daPath);
 		#elseif ios
