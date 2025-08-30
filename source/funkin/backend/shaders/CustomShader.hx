@@ -2,7 +2,7 @@ package funkin.backend.shaders;
 
 import haxe.Exception;
 import openfl.Assets;
-#if NEW_HSCRIPT
+#if HSC_ALLOWED
 import codenamecrew.hscript.IHScriptCustomBehaviour;
 #else
 import hscriptBase.IHScriptCustomBehaviour;

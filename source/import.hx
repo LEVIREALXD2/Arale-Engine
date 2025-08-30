@@ -102,11 +102,7 @@ import flixel.util.FlxTimer;
 import flixel.math.FlxMath;
 import flixel.math.FlxPoint;
 import flixel.tweens.FlxEase;
-#if !NEW_PSYCH063
-import flixel.system.FlxSound;
-#else
 import flixel.sound.FlxSound;
-#end
 import flixel.util.FlxDestroyUtil;
 import flixel.tweens.FlxTween;
 import flixel.group.FlxSpriteGroup;

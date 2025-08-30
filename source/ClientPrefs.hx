@@ -49,10 +49,14 @@ import TitleState;
 	public var UseNewCamSystem:Bool = false;
 	public var chartLoadSystem:String = '0.4-0.7x';
 	public var hscriptversion:String = 'HScript Old';
+	#if MODPACK_ALLOWED
 	public var currentModPack:String = null; //it's more easier than using .txt shit
+	#end
 
 	/* Codename Engine */
+	#if HSC_ALLOWED
 	public var codenameFunctions:Bool = false; //experimental
+	#end
 	public var codenameCamAngle:Bool = false; //for codename mods
 
 	/* V-Slice */

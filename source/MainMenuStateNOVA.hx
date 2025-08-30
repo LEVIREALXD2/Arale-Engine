@@ -288,7 +288,11 @@ class MainMenuStateNOVA extends MusicBeatState
 		#end
 
 		#if TOUCH_CONTROLS
+		#if MODPACK_ALLOWED
 		addMobilePad("UP_DOWN", "SELECTOR_0.6.3");
+		#else
+		addMobilePad("UP_DOWN", "A_B_E");
+		#end
 		mobilePad.cameras = [camHUD];
 		#end
 	}
@@ -322,12 +326,14 @@ class MainMenuStateNOVA extends MusicBeatState
 
 		if (FlxG.mouse.justPressed) usingMouse = true;
 
+		#if MODPACK_ALLOWED
 		if (FlxG.keys.justPressed.TAB #if TOUCH_CONTROLS || mobilePad.buttonSELECTOR.justPressed #end) //use unused button
 		{
 			persistentUpdate = false;
 			openSubState(new ModPackSwitchMenu());
 			#if TOUCH_CONTROLS removeMobilePad(); #end
 		}
+		#end
 
 		if(!endCheck){
 
@@ -589,7 +595,11 @@ class MainMenuStateNOVA extends MusicBeatState
 		persistentUpdate = true;
 		#if TOUCH_CONTROLS
 		removeMobilePad();
+		#if MODPACK_ALLOWED
 		addMobilePad("UP_DOWN", "SELECTOR_0.6.3");
+		#else
+		addMobilePad("UP_DOWN", "A_B_E");
+		#end
 		mobilePad.cameras = [camHUD];
 		#end
 		closeSubStatePost();

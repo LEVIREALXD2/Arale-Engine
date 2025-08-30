@@ -2,7 +2,6 @@ package options.group;
 
 #if SCRIPTING_ALLOWED
 import scripting.HScript;
-#end
 
 class ModGroupBase extends OptionCata
 {
@@ -109,3 +108,4 @@ class ModGroup extends ModGroupBase {
 		super(X, Y, width, height, true, lastName);
 	}
 }
+#end

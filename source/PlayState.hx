@@ -75,7 +75,7 @@ import states.stages.*;
 import states.stages.objects.*;
 import backend.BaseStage;
 
-#if NEW_HSCRIPT
+#if HSC_ALLOWED
 import scripting.HScript.Script;
 import scripting.HScript.ScriptPack;
 import haxe.io.Path;
@@ -90,7 +90,7 @@ class PlayState extends MusicBeatState
 	#end
 	public static var forcedChartLoadSystem:String;
 	
-	#if NEW_HSCRIPT
+	#if HSC_ALLOWED
 	/**
 	 * Script Pack of all the scripts being ran.
 	 */
@@ -521,7 +521,7 @@ class PlayState extends MusicBeatState
 		#end
 
 		// "GLOBAL" SCRIPTS
-		#if NEW_HSCRIPT
+		#if HSC_ALLOWED
 		(scripts = new ScriptPack("PlayState")).setParent(this);
 		findAndStartScripts('codenameScripts', true);
 		#end
@@ -533,7 +533,7 @@ class PlayState extends MusicBeatState
 		#if MODS_ALLOWED
 		#if LUA_ALLOWED startLuasNamed('stages/' + curStage + '.lua'); #end
 		#if HSCRIPT_ALLOWED startHScriptsNamed('stages/' + curStage + '.hx'); #end
-		#if NEW_HSCRIPT startHScriptsNamed('stages/' + curStage + '.hsc', true); #end //use hxc instead
+		#if HSC_ALLOWED startHScriptsNamed('stages/' + curStage + '.hsc', true); #end //use hxc instead
 		#end
 
 		if (!stageData.hide_girlfriend)
@@ -780,7 +780,7 @@ class PlayState extends MusicBeatState
 			startHScriptsNamed('custom_events/' + event + '.hx');
 		#end
 		
-		#if NEW_HSCRIPT
+		#if HSC_ALLOWED
 		//HScript Improved events and noteTypes (Added for HScript Call)
 		for (notetype in noteTypes)
 			startHScriptsNamed('custom_notetypes/' + notetype + '.hsc', true);
@@ -794,11 +794,12 @@ class PlayState extends MusicBeatState
 		findAndStartScripts('data/${songName}');
 		//findAndStartScripts('songs/${songName}/scripts');
 
-		//HScript Improved Path (separated for now)
+		#if HSC_ALLOWED
 		findAndStartScripts('songs/${songName}/scripts', true); //Modders can add other paths with SScript (I recommend SScript for it because SScript Handling before HScript Improved)
 		scripts.setupPlayState();
 		scripts.load();
 		scripts.call("create");
+		#end
 
 		//set introAssets before the starts Countdown (Not same as the CNE But Better Than Psych's Countdown Sprite System)
 		introAssets.set('default', ['ready', 'set', 'go']);
@@ -1205,7 +1206,7 @@ class PlayState extends MusicBeatState
 			return;
 		}
 
-		#if NEW_HSCRIPT if (scripts.event("onStartHxCountdown", new CancellableEvent()).cancelled) return; #end
+		#if HSC_ALLOWED if (scripts.event("onStartHxCountdown", new CancellableEvent()).cancelled) return; #end
 
 		inCutscene = false;
 		var ret:Dynamic = callOnScripts('onStartCountdown', null, true);
@@ -1252,66 +1253,70 @@ class PlayState extends MusicBeatState
 				return;
 			}
 
+			#if HSC_ALLOWED
 			if (ClientPrefs.data.codenameFunctions) {
 				//almost same as the CNE
 				startTimer = new FlxTimer().start(Conductor.crochet / 1000 / playbackRate, (tmr:FlxTimer) -> {
 					countdown(swagCounter++);
 				}, 5);
 			} else {
-			moveCameraSection();
+			#end
+				moveCameraSection();
 
-			startTimer = new FlxTimer().start(Conductor.crochet / 1000 / playbackRate, function(tmr:FlxTimer)
-			{
-				characterBopper(tmr.loopsLeft);
-
-				var introAlts:Array<String> = introAssets.get('default');
-				var antialias:Bool = ClientPrefs.data.antialiasing;
-				if(isPixelStage) {
-					introAlts = introAssets.get('pixel');
-					antialias = false;
-				}
-
-				var tick:Countdown = THREE;
-				switch (swagCounter)
+				startTimer = new FlxTimer().start(Conductor.crochet / 1000 / playbackRate, function(tmr:FlxTimer)
 				{
-					case 0:
-						if (AllowCountdownThree) countdownThree = createCountdownSprite(introAlts[3], antialias);
-						try { FlxG.sound.play(Paths.sound('intro3' + introSoundsSuffix), countdownVolume); } catch(e:Dynamic) {}
-						tick = THREE;
-					case 1:
-						countdownReady = createCountdownSprite(introAlts[0], antialias);
-						try { FlxG.sound.play(Paths.sound('intro2' + introSoundsSuffix), countdownVolume); } catch(e:Dynamic) {}
-						tick = TWO;
-					case 2:
-						countdownSet = createCountdownSprite(introAlts[1], antialias);
-						try { FlxG.sound.play(Paths.sound('intro1' + introSoundsSuffix), countdownVolume); } catch(e:Dynamic) {}
-						tick = ONE;
-					case 3:
-						countdownGo = createCountdownSprite(introAlts[2], antialias);
-						try { FlxG.sound.play(Paths.sound('introGo' + introSoundsSuffix), countdownVolume); } catch(e:Dynamic) {}
-						tick = GO;
-					case 4:
-						tick = START;
-				}
+					characterBopper(tmr.loopsLeft);
 
-				notes.forEachAlive(function(note:Note) {
-					if(ClientPrefs.data.opponentStrums || note.mustPress)
-					{
-						note.copyAlpha = false;
-						note.alpha = note.multAlpha;
-						if(ClientPrefs.data.middleScroll && !note.mustPress)
-							note.alpha *= 0.35;
+					var introAlts:Array<String> = introAssets.get('default');
+					var antialias:Bool = ClientPrefs.data.antialiasing;
+					if(isPixelStage) {
+						introAlts = introAssets.get('pixel');
+						antialias = false;
 					}
-				});
 
-				stagesFunc(function(stage:BaseStage) stage.countdownTick(tick, swagCounter));
-				callOnLuas('onCountdownTick', [swagCounter]);
-				callOnHScript('onCountdownTick', [tick, swagCounter]);
+					var tick:Countdown = THREE;
+					switch (swagCounter)
+					{
+						case 0:
+							if (AllowCountdownThree) countdownThree = createCountdownSprite(introAlts[3], antialias);
+							try { FlxG.sound.play(Paths.sound('intro3' + introSoundsSuffix), countdownVolume); } catch(e:Dynamic) {}
+							tick = THREE;
+						case 1:
+							countdownReady = createCountdownSprite(introAlts[0], antialias);
+							try { FlxG.sound.play(Paths.sound('intro2' + introSoundsSuffix), countdownVolume); } catch(e:Dynamic) {}
+							tick = TWO;
+						case 2:
+							countdownSet = createCountdownSprite(introAlts[1], antialias);
+							try { FlxG.sound.play(Paths.sound('intro1' + introSoundsSuffix), countdownVolume); } catch(e:Dynamic) {}
+							tick = ONE;
+						case 3:
+							countdownGo = createCountdownSprite(introAlts[2], antialias);
+							try { FlxG.sound.play(Paths.sound('introGo' + introSoundsSuffix), countdownVolume); } catch(e:Dynamic) {}
+							tick = GO;
+						case 4:
+							tick = START;
+					}
 
-				swagCounter += 1;
-			}, 5);
+					notes.forEachAlive(function(note:Note) {
+						if(ClientPrefs.data.opponentStrums || note.mustPress)
+						{
+							note.copyAlpha = false;
+							note.alpha = note.multAlpha;
+							if(ClientPrefs.data.middleScroll && !note.mustPress)
+								note.alpha *= 0.35;
+						}
+					});
+
+					stagesFunc(function(stage:BaseStage) stage.countdownTick(tick, swagCounter));
+					callOnLuas('onCountdownTick', [swagCounter]);
+					callOnHScript('onCountdownTick', [tick, swagCounter]);
+
+					swagCounter += 1;
+				}, 5);
+			#if HSC_ALLOWED
 			}
-			#if NEW_HSCRIPT scripts.call("onPostStartCountdown"); #end
+			scripts.call("onPostStartCountdown");
+			#end
 		}
 	}
 
@@ -1319,6 +1324,7 @@ class PlayState extends MusicBeatState
 	 * Creates a fake countdown.
 	 * This function taken from CNE.
 	 */
+	#if HSC_ALLOWED
 	public function countdown(swagCounter:Int) {
 		introSounds.set('default', ['intro3', 'intro2', 'intro1', 'introGo']);
 		var introSounds:Array<String> = introSounds.get('default');
@@ -1376,6 +1382,7 @@ class PlayState extends MusicBeatState
 
 		scripts.event("onPostCountdown", event);
 	}
+	#end
 
 	inline private function createCountdownSprite(image:String, antialias:Bool):FlxSprite
 	{
@@ -1541,7 +1548,7 @@ class PlayState extends MusicBeatState
 
 	function startSong():Void
 	{
-		#if NEW_HSCRIPT scripts.call("onSongStart"); #end
+		#if HSC_ALLOWED scripts.call("onSongStart"); #end
 		startingSong = false;
 
 		previousFrameTime = FlxG.game.ticks;
@@ -1579,7 +1586,7 @@ class PlayState extends MusicBeatState
 		#end
 		setOnScripts('songLength', songLength);
 		callOnScripts('onSongStart');
-		#if NEW_HSCRIPT scripts.call("onStartSong"); #end
+		#if HSC_ALLOWED scripts.call("onStartSong"); #end
 	}
 
 	var debugNum:Int = 0;
@@ -2013,7 +2020,7 @@ class PlayState extends MusicBeatState
 		vocals.play();
 		opponentVocals.play();
 
-		#if NEW_HSCRIPT scripts.call("onVocalsResync"); #end
+		#if HSC_ALLOWED scripts.call("onVocalsResync"); #end
 	}
 
 	public var paused:Bool = false;
@@ -2744,7 +2751,7 @@ class PlayState extends MusicBeatState
 	public var transitioning = false;
 	public function endSong()
 	{
-		#if NEW_HSCRIPT scripts.call("onSongEnd"); #end
+		#if HSC_ALLOWED scripts.call("onSongEnd"); #end
 		//Should kill you if you tried to cheat
 		if(!startingSong) {
 			notes.forEach(function(daNote:Note) {
@@ -3582,7 +3589,7 @@ class PlayState extends MusicBeatState
 	}
 
 	override function destroy() {
-		#if NEW_HSCRIPT scripts.call("destroy"); #end
+		#if HSC_ALLOWED scripts.call("destroy"); #end
 		stagesFunc(function(stage:BaseStage)
 		{
 			stage.destroy();
@@ -3610,7 +3617,9 @@ class PlayState extends MusicBeatState
 			hscriptArray.pop();
 		#end
 
+		#if HSC_ALLOWED
 		scripts = FlxDestroyUtil.destroy(scripts);
+		#end
 
 		if(!ClientPrefs.data.controllerMode)
 		{
@@ -3662,7 +3671,7 @@ class PlayState extends MusicBeatState
 		lastStepHit = curStep;
 		setOnScripts('curStep', curStep);
 		callOnScripts('onStepHit');
-		#if NEW_HSCRIPT scripts.call("stepHit", [curStep]); #end
+		#if HSC_ALLOWED scripts.call("stepHit", [curStep]); #end
 	}
 
 	var lastBeatHit:Int = -1;
@@ -3693,7 +3702,7 @@ class PlayState extends MusicBeatState
 
 		setOnScripts('curBeat', curBeat);
 		callOnScripts('onBeatHit');
-		#if NEW_HSCRIPT
+		#if HSC_ALLOWED
 		if (scripts != null) scripts.call('beatHit'); //why not
 		#end
 	}
@@ -3850,7 +3859,7 @@ class PlayState extends MusicBeatState
 		{
 			if (SScript.global.exists(scriptToLoad)) return false;
 
-			#if NEW_HSCRIPT if (useImproved) addScript(scriptToLoad);
+			#if HSC_ALLOWED if (useImproved) addScript(scriptToLoad);
 			else #end initHScript(scriptToLoad);
 			return true;
 		}
@@ -3870,7 +3879,7 @@ class PlayState extends MusicBeatState
 				if(file.toLowerCase().endsWith('.hx') && !onlyUseImproved)
 					initHScript(folder + file);
 				#end
-				#if NEW_HSCRIPT
+				#if HSC_ALLOWED
 				if(file.toLowerCase().endsWith('.hsc'))
 					addScript(folder + file);
 				#end
@@ -3980,7 +3989,7 @@ class PlayState extends MusicBeatState
 	}
 
 	public function callOnHScript(funcToCall:String, args:Array<Dynamic> = null, ?ignoreStops:Bool = false, exclusions:Array<String> = null, excludeValues:Array<Dynamic> = null):Dynamic {
-		#if NEW_HSCRIPT
+		#if HSC_ALLOWED
 		var cneLikeFunctions = funcToCall;
 		var doNotCall:Bool = false;
 		if (funcToCall == 'onCreatePost') cneLikeFunctions = 'postCreate';
@@ -4046,7 +4055,7 @@ class PlayState extends MusicBeatState
 	}
 
 	public function setOnHScript(variable:String, arg:Dynamic, exclusions:Array<String> = null) {
-		#if NEW_HSCRIPT if (scripts != null) scripts.set(variable, arg); #end
+		#if HSC_ALLOWED if (scripts != null) scripts.set(variable, arg); #end
 		#if HSCRIPT_ALLOWED
 		if(exclusions == null) exclusions = [];
 		for (script in hscriptArray) {
@@ -4263,7 +4272,7 @@ class PlayState extends MusicBeatState
 			dad.dance();
 	}
 	
-	#if NEW_HSCRIPT
+	#if HSC_ALLOWED
 	public function addScript(file:String) {
 		trace('addScript: ${file}');
 		var ext = Path.extension(file).toLowerCase();

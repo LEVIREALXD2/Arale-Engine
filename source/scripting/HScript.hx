@@ -381,12 +381,16 @@ class Script extends FlxBasic implements IFlxDestroyable {
 			"PauseSubstate"	 => PauseSubState,
 
 			/* Custom Menus */
+			#if SCRIPTING_ALLOWED
 			"ModState"		  => funkin.backend.scripting.ModState,
 			"ModSubState"		  => funkin.backend.scripting.ModSubState,
+			#end
 
 			/* Options */
 			"NaviData"		  => options.NovaFlareOptionsNavi.NaviData,
+			#if SCRIPTING_ALLOWED
 			"ModGroup"		  => options.group.ModGroup,
+			#end
 
 			/* for returning hxCodec 3.x.x requests to hxCodec 2.5.1 */
 			"FlxVideo"		  => hxcodec.flixel.FlxVideo,

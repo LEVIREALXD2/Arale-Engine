@@ -28,7 +28,7 @@ import haxe.PosInfos;
 import hscriptBase.Expr;
 import haxe.Constraints;
 import tea.SScript;
-#if NEW_HSCRIPT
+#if HSC_ALLOWED
 import codenamecrew.hscript.IHScriptCustomBehaviour; //this one should fix the SScript issues
 #else
 import hscriptBase.IHScriptCustomBehaviour;

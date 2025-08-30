@@ -66,6 +66,7 @@ class Mods
 		return list;
 	}
 
+	#if MODPACK_ALLOWED
 	inline public static function getModPackDirectories():Array<String>
 	{
 		var list:Array<String> = [];
@@ -82,6 +83,7 @@ class Mods
 		#end
 		return list;
 	}
+	#end
 	
 	inline public static function mergeAllTextsNamed(path:String, ?defaultDirectory:String = null, allowDuplicates:Bool = false)
 	{
@@ -180,8 +182,9 @@ class Mods
 		#if MODS_ALLOWED
 		try {
 			var curThing:String = #if mobile StorageUtil.getExternalStorageDirectory() + #end 'modsList.txt';
+			#if MODPACK_ALLOWED
 			if (ClientPrefs.data.currentModPack != null) curThing = Paths.modpack(ClientPrefs.data.currentModPack + '/modsList.txt');
-			else curThing = #if mobile StorageUtil.getExternalStorageDirectory() + #end 'modsList.txt';
+			else #end curThing = #if mobile StorageUtil.getExternalStorageDirectory() + #end 'modsList.txt';
 			for (mod in CoolUtil.coolTextFile(curThing))
 			{
 				//trace('Mod: $mod');
@@ -209,8 +212,9 @@ class Mods
 		var added:Array<String> = [];
 		try {
 			var curThing:String = #if mobile StorageUtil.getExternalStorageDirectory() + #end 'modsList.txt';
+			#if MODPACK_ALLOWED
 			if (ClientPrefs.data.currentModPack != null) curThing = Paths.modpack(ClientPrefs.data.currentModPack + '/modsList.txt');
-			else curThing = #if mobile StorageUtil.getExternalStorageDirectory() + #end 'modsList.txt';
+			else #end curThing = #if mobile StorageUtil.getExternalStorageDirectory() + #end 'modsList.txt';
 			for (mod in CoolUtil.coolTextFile(curThing))
 			{
 				var dat:Array<String> = mod.split("|");
@@ -245,8 +249,9 @@ class Mods
 			fileStr += values[0] + '|' + (values[1] ? '1' : '0');
 		}
 
+		#if MODPACK_ALLOWED
 		if (ClientPrefs.data.currentModPack != null) File.saveContent(Paths.modpack(ClientPrefs.data.currentModPack + '/modsList.txt'), fileStr);
-		else File.saveContent(#if mobile StorageUtil.getExternalStorageDirectory() + #end 'modsList.txt', fileStr);
+		else #end File.saveContent(#if mobile StorageUtil.getExternalStorageDirectory() + #end 'modsList.txt', fileStr);
 		updatedOnState = true;
 		//trace('Saved modsList.txt');
 		#end

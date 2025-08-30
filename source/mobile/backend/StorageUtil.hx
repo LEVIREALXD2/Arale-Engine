@@ -125,8 +125,10 @@ class StorageUtil
 		{
 			if (!FileSystem.exists(StorageUtil.getExternalStorageDirectory() + 'mods'))
 				FileSystem.createDirectory(StorageUtil.getExternalStorageDirectory() + 'mods');
+			#if MODPACK_ALLOWED
 			if (!FileSystem.exists(StorageUtil.getExternalStorageDirectory() + 'modpack'))
 				FileSystem.createDirectory(StorageUtil.getExternalStorageDirectory() + 'modpack');
+			#end
 		}
 		catch (e:Dynamic)
 		{

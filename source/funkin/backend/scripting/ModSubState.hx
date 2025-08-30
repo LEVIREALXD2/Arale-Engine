@@ -1,5 +1,6 @@
 package funkin.backend.scripting;
 
+#if SCRIPTING_ALLOWED
 class ModSubState extends MusicBeatSubstate {
 
 	/**
@@ -36,3 +37,4 @@ class ModSubState extends MusicBeatSubstate {
 		super(true, lastName);
 	}
 }
+#end

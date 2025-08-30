@@ -442,7 +442,6 @@ class Paths
 
 	public static var currentTrackedSounds:Map<String, Sound> = [];
 	public static function returnSound(path:Null<String>, key:String, ?library:String) {
-		#if NEW_PSYCH063
 		#if MODS_ALLOWED
 		var modLibPath:String = '';
 		if (library != null) modLibPath = '$library/';
@@ -472,49 +471,25 @@ class Paths
 		}
 		localTrackedAssets.push(gottenPath);
 		return currentTrackedSounds.get(gottenPath);
-		#else
-		#if MODS_ALLOWED
-		var file:String = modsSounds(path, key);
-		if(FileSystem.exists(file)) {
-			if(!currentTrackedSounds.exists(file)) {
-				currentTrackedSounds.set(file, Sound.fromFile(file));
-			}
-			localTrackedAssets.push(key);
-			return currentTrackedSounds.get(file);
-		}
-		#end
-		// I hate this so god damn much
-		var gottenPath:String = getPath('$path/$key.$SOUND_EXT', SOUND, library);
-		gottenPath = gottenPath.substring(gottenPath.indexOf(':') + 1, gottenPath.length);
-		// trace(gottenPath);
-		if(!currentTrackedSounds.exists(gottenPath))
-		#if MODS_ALLOWED
-			currentTrackedSounds.set(gottenPath, Sound.fromFile(#if desktop './' + #end gottenPath));
-		#else
-		{
-			var folder:String = '';
-			if(path == 'songs') folder = 'songs:';
-
-			currentTrackedSounds.set(gottenPath, OpenFlAssets.getSound(folder + getPath('$path/$key.$SOUND_EXT', SOUND, library)));
-		}
-		#end
-		localTrackedAssets.push(gottenPath);
-		return currentTrackedSounds.get(gottenPath);
-		#end
 	}
 
 	#if MODS_ALLOWED
 	inline static public function mods(key:String = '') {
+		#if MODPACK_ALLOWED
 		var modpack = #if mobile StorageUtil.getExternalStorageDirectory() + #end 'modpack/' + ClientPrefs.data.currentModPack + '/' + key;
 		if (ClientPrefs.data.currentModPack != null && FileSystem.exists(modpack))
 			return modpack;
 		//global
-		return if (ClientPrefs.data.currentModPack != null) #if mobile StorageUtil.getExternalStorageDirectory() + #end 'modpack/' + key;
-		else #if mobile StorageUtil.getExternalStorageDirectory() + #end 'mods/' + key;
+		if (ClientPrefs.data.currentModPack != null) return #if mobile StorageUtil.getExternalStorageDirectory() + #end 'modpack/' + key;
+		else #end return #if mobile StorageUtil.getExternalStorageDirectory() + #end 'mods/' + key;
 	}
 
 	inline static public function modpack(key:String = '') {
+		#if MODPACK_ALLOWED
 		return #if mobile StorageUtil.getExternalStorageDirectory() + #end 'modpack/' + key;
+		#else
+		return #if mobile StorageUtil.getExternalStorageDirectory() + #end 'mods/' + key;
+		#end
 	}
 
 	inline static public function modsFont(key:String) {
@@ -573,12 +548,13 @@ class Paths
 				return fileToCheck;
 
 		}
+		#if MODPACK_ALLOWED
 		var modpack = #if mobile StorageUtil.getExternalStorageDirectory() + #end 'modpack/' + ClientPrefs.data.currentModPack + '/' + key;
 		if (ClientPrefs.data.currentModPack != null && FileSystem.exists(modpack))
 			return modpack;
 		//global
-		return if (ClientPrefs.data.currentModPack != null) #if mobile StorageUtil.getExternalStorageDirectory() + #end 'modpack/' + key;
-		else #if mobile StorageUtil.getExternalStorageDirectory() + #end 'mods/' + key;
+		if (ClientPrefs.data.currentModPack != null) return #if mobile StorageUtil.getExternalStorageDirectory() + #end 'modpack/' + key;
+		else #end return #if mobile StorageUtil.getExternalStorageDirectory() + #end 'mods/' + key;
 	}
 	#end
 

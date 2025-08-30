@@ -47,6 +47,7 @@ class GameplayGroup extends OptionCata
 		);
 		addOption(option);
 
+		#if HSC_ALLOWED
 		var option:Option = new Option(this,
 			'Codename Functions',
 			'If checked, you can use some function from Codename Engine, simple enough.',
@@ -54,6 +55,7 @@ class GameplayGroup extends OptionCata
 			BOOL
 		);
 		addOption(option);
+		#end
 
 		var option:Option = new Option(this,
 			'Downscroll',

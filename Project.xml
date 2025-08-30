@@ -74,14 +74,12 @@
 
 	<define name="EXTRA_PAUSE" unless="extras_disabled"/>
 
-	<define name="MODS_ALLOWED" if="desktop || mobile" />
-
-	<define name="HSCRIPT_ALLOWED" if="desktop || mobile" />
+	<define name="MODPACK_ALLOWED" if="desktop || mobile" />
 
 	<!-- Comment this out if you want to disable HScript Improved Scripts (Not Recommend) -->
-	<define name="NEW_HSCRIPT" />
+	<define name="HSC_ALLOWED" />
 
-	<!-- Allow to change states with hscript -->
+	<!-- Allow to change states/substates with hscript -->
 	<define name="SCRIPTING_ALLOWED" />
 
 	<!-- Comment this out to prevent extending classes in hscript.
@@ -89,7 +87,9 @@
 	<define name="CUSTOM_CLASSES" unless="STRIPPED_COMPILE" />
 
 	<!-- PSYCH ENGINE CUSTOMIZATION -->
-	<define name="NEW_PSYCH063" />
+	<define name="MODS_ALLOWED" if="desktop || mobile" />
+
+	<define name="HSCRIPT_ALLOWED" if="desktop || mobile" />
 
 	<define name="DISCORD_ALLOWED" if="desktop" />
 
@@ -190,8 +190,8 @@
 
 	<haxelib name="SScript" if="HSCRIPT_ALLOWED"/>
 
-	<!-- Better Than SScript (Folders: `songs/scriptname.hx` and `songs/songname/scripts/scriptname.hx`) -->
-	<haxelib name="hscript-improved" if="HSCRIPT_ALLOWED"/>
+	<!-- Better Than SScript (Folders: `songs/scriptname.hsc` and `songs/songname/scripts/scriptname.hsc`) -->
+	<haxelib name="hscript-improved" if="SCRIPTING_ALLOWED || HSC_ALLOWED"/>
 
 	<!-- Extra packages-->
 	<haxelib name="flxanimate" />

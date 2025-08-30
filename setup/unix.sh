@@ -8,7 +8,7 @@ haxelib setup ~/haxelib
 echo Installing dependencies...
 echo This might take a few moments depending on your internet speed.
 haxelib git linc_luajit https://github.com/PsychExtendedThings/linc_luajit --quiet #Sirox's linc_luajit (backup)
-haxelib git flixel https://github.com/kittycathy233/flixel --quiet
+haxelib git flixel https://github.com/PsychExtendedThings/flixel 5.6.1 --quiet
 haxelib install flixel-addons 3.2.2 --quiet
 haxelib install flixel-ui 2.4.0 --quiet #I don't know why is it exist
 haxelib git SScript https://github.com/PsychExtendedThings/SScript --quiet #stable SScript version (KarimAkra recommended this version)

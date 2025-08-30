@@ -243,10 +243,12 @@ class OptionsState extends MusicBeatState
 		var outputY:Float = 100; //等待被初始化
 		var outputHeight:Float = 200; //等待被初始化
 
+		#if SCRIPTING_ALLOWED
 		stateScripts.set('outputX', outputX);
 		stateScripts.set('outputWidth', outputWidth);
 		stateScripts.set('outputY', outputY);
 		stateScripts.set('outputHeight', outputHeight);
+		#end
 
 		/* User can cancel it and change it for his own purpose (I'm recommend to make custom one but original one can usable too) */
 		var createCataEvent = new CataEvent(type, obj); //create the CataEvent before the actual event because otherwise script can't get type
@@ -270,7 +272,11 @@ class OptionsState extends MusicBeatState
 				case 'Controls':
 					obj = new MobileGroup(outputX, outputY, outputWidth, outputHeight);
 				default:
+					#if SCRIPTING_ALLOWED
 					obj = new ModGroup(outputX, outputY, outputWidth, outputHeight, '${type}Group'); //My System is Different
+					#else
+					obj = new GraphicsGroup(outputX, outputY, outputWidth, outputHeight); //I'll add dummy group later
+					#end
 			}
 			if (cataCreation.obj != null) obj = cataCreation.obj;
 		}

@@ -5,7 +5,7 @@ echo Installing dependencies...
 echo This might take a few moments depending on your internet speed.
 haxelib git discord_rpc https://github.com/Aidan63/linc_discord-rpc --quiet
 haxelib git linc_luajit https://github.com/PsychExtendedThings/linc_luajit --quiet
-haxelib git flixel https://github.com/kittycathy233/flixel --quiet
+haxelib git flixel https://github.com/PsychExtendedThings/flixel 5.6.1 --quiet
 haxelib install flixel-addons 3.2.2 --quiet
 haxelib install flixel-ui 2.4.0 --quiet
 haxelib git SScript https://github.com/PsychExtendedThings/SScript --quiet
