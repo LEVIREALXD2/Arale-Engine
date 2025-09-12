@@ -14,6 +14,10 @@ import Discord.DiscordClient;
 #end
 
 //import them for now
+import funkin.backend.chart.Chart;
+import funkin.backend.chart.ChartData;
+import funkin.backend.chart.Flags;
+import funkin.backend.chart.*;
 import options.group.ModGroup;
 import funkin.backend.scripting.ModState;
 import funkin.backend.scripting.*;

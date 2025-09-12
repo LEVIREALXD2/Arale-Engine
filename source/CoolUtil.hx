@@ -20,6 +20,60 @@ using StringTools;
 #end
 class CoolUtil
 {
+	/**
+	 * Sets a field's default value, and returns it. In case it already exists, returns the existing one.
+	 * @param v Dynamic to set the default value to
+	 * @param name Name of the value
+	 * @param defaultValue Default value
+	 * @return T New/old value.
+	 */
+	public static function setFieldDefault<T>(v:Dynamic, name:String, defaultValue:T):T {
+		if (Reflect.hasField(v, name)) {
+			var f:Null<Dynamic> = Reflect.field(v, name);
+			if (f != null)
+				return cast f;
+		}
+		Reflect.setField(v, name, defaultValue);
+		return defaultValue;
+	}
+
+	/**
+	 * Tries to get a color from a `Dynamic` variable.
+	 * @param c `Dynamic` color.
+	 * @return The result color, or `null` if invalid.
+	 */
+	public static function getColorFromDynamic(c:Dynamic):Null<FlxColor> {
+		// -1
+		if (c is Int) return c;
+
+		// -1.0
+		if (c is Float) return Std.int(c);
+
+		// "#FFFFFF"
+		if (c is String) return FlxColor.fromString(c);
+
+		// [255, 255, 255]
+		if (c is Array) {
+			var r:Int = 0;
+			var g:Int = 0;
+			var b:Int = 0;
+			var a:Int = 255;
+			var array:Array<Dynamic> = cast c;
+			for(k=>e in array) {
+				if (e is Int || e is Float) {
+					switch(k) {
+						case 0:	r = Std.int(e);
+						case 1:	g = Std.int(e);
+						case 2:	b = Std.int(e);
+						case 3:	a = Std.int(e);
+					}
+				}
+			}
+			return FlxColor.fromRGB(r, g, b, a);
+		}
+		return null;
+	}
+
 	inline public static function quantize(f:Float, snap:Float){
 		// changed so this actually works lol
 		var m:Float = Math.fround(f * snap);

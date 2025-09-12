@@ -288,6 +288,101 @@ class Song
 		}
 		return songJson;
 	}
+
+	var portedChart:Dynamic = [];
+	function parseCodenameChart(song:String, diff:String) {
+		var json = Chart.parse(song, diff);
+		var psychJson = {
+			song: json.meta.name,
+			notes: [],
+			events: [],
+			bpm: json.meta.bpm,
+			needsVoices: json.meta.needsVoices,
+			speed: json.scrollSpeed,
+			player1: "bf",
+			player2: "pico",
+			gfVersion: "gf",
+			stage: "stage"
+		};
+		var curSpeed:Dynamic = json.scrollSpeed;
+		var mustHit:Dynamic = false;
+		var queueBPMChange:Dynamic = false;
+		var curBPM:Dynamic = json.meta.bpm;
+		var songTime:Dynamic = 0;
+		var measureTimes:Dynamic = [0];
+		var altEvents:Dynamic = [for (i in 0...json.strumLines.length) [{time: 0, anim: false, idle: false}]];
+
+		json.events.sort(function(ev1, ev2)
+			return Math.floor(ev1.time - ev2.time)
+		);
+
+		psychJson.notes.push({
+			sectionNotes: [],
+			sectionBeats: json.meta.beatsPerMeasure,
+			mustHitSection: mustHit,
+			gfSection: false,
+			bpm: curBPM,
+			changeBPM: queueBPMChange,
+			altAnim: false
+		});
+
+		var charDone = [false, false, false];
+		for (s in 0...json.strumLines.length) {
+			var strum = json.strumLines[s];
+			if (charDone[strum.type]) return;
+
+			var altIndex = 0;
+			var measureIndex = 0;
+			curBPM = json.meta.bpm;
+			charDone[strum.type] = true;
+
+			strum.notes.sort(function(note1, note2)
+				return Math.floor(note1.time - note2.time)
+			);
+
+			switch (strum.type) {
+				case 0:
+					psychJson.player2 = strum.characters[0];
+
+					for (note in strum.notes) {
+						while (songTime <= note.time) {
+							songTime += 60.0 / curBPM * 1000.0 * json.meta.beatsPerMeasure;
+							measureTimes.push(songTime);
+							psychJson.notes.push({
+								sectionNotes: [],
+								sectionBeats: json.meta.beatsPerMeasure,
+								mustHitSection: mustHit,
+								gfSection: false,
+								bpm: curBPM,
+								changeBPM: false,
+								altAnim: false
+							});
+						}
+						while (measureTimes.length > measureIndex && measureTimes[measureIndex] <= note.time + 1)
+							measureIndex++;
+						while (altEvents[s].length > altIndex && altEvents[s][altIndex].time <= note.time + 1)
+							altIndex++;
+
+						var psychNote:Dynamic = [note.time, note.id + 4 * psychJson.notes[measureIndex - 1].mustHitSection, note.sLen];
+						if (note.type > 0)
+							psychNote.push(json.noteTypes[note.type]);
+						if (altEvents[s][altIndex - 1].anim)
+							psychNote[3] = "Alt Animation";
+						psychJson.notes[measureIndex - 1].sectionNotes.push(psychNote);
+					}
+				case 1: //bruh
+				case 2: //bruh
+			}
+		}
+		portedChart = Json.stringify({song: psychJson}, null, "\t");
+		/*
+		var dialog = new FileDialog();
+		dialog.onSelect.add(function(file) {
+			File.saveContent(file, Json.stringify({song: psychJson}, null, "\t"));
+		});
+		dialog.browse(FileDialogType.SAVE, 'json', null, 'Save Psych Chart JSON.');
+		*/
+	}
 }
 
 /**

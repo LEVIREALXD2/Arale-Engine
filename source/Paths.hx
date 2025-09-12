@@ -698,6 +698,12 @@ class Paths
 	inline static public function vertShader(key:String)
 		return getTextFromFile('shaders/$key.vert');
 
+	static public function chart(song:String, ?difficulty:String, ?variant:String):String
+	{
+		difficulty = (difficulty != null ? difficulty : Flags.DEFAULT_DIFFICULTY);
+		return getPath('songs/$song/charts/${variant != null ? variant + "/" : ""}$difficulty.json');
+	}
+
 	static public function getFolderContent(key:String, addPath:Bool = false, source:String = "BOTH"):Array<String> {
 		var content:Array<String> = [];
 		var folder = key.endsWith('/') ? key : key + '/';

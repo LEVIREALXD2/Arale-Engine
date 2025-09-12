@@ -1,14 +1,14 @@
 package mobile.states;
 
-import TitleState;
 import lime.utils.Assets as LimeAssets;
 import openfl.utils.Assets as OpenFLAssets;
+import flixel.addons.util.FlxAsyncLoop;
 import openfl.utils.ByteArray;
 import haxe.io.Path;
 import flixel.ui.FlxBar;
 import flixel.ui.FlxBar.FlxBarFillDirection;
-import lime.system.ThreadPool;
 
+// I won't delete this
 /**
  * ...
  * @author: Karim Akra
@@ -16,7 +16,7 @@ import lime.system.ThreadPool;
 class CopyState extends MusicBeatState
 {
 	private static final textFilesExtensions:Array<String> = ['ini', 'txt', 'xml', 'hxs', 'hx', 'lua', 'json', 'frag', 'vert'];
-	public static final IGNORE_FOLDER_FILE_NAME:String = "CopyState-Ignore.txt";
+	public static final IGNORE_FOLDER_FILE_NAME:String = "ignore.txt";
 	private static var directoriesToIgnore:Array<String> = [];
 	public static var locatedFiles:Array<String> = [];
 	public static var maxLoopTimes:Int = 0;
@@ -24,7 +24,7 @@ class CopyState extends MusicBeatState
 	public var loadingImage:FlxSprite;
 	public var loadingBar:FlxBar;
 	public var loadedText:FlxText;
-	public var thread:ThreadPool;
+	public var copyLoop:FlxAsyncLoop;
 
 	var failedFilesStack:Array<String> = [];
 	var failedFiles:Array<String> = [];
@@ -33,7 +33,7 @@ class CopyState extends MusicBeatState
 	var loopTimes:Int = 0;
 
 	override function create()
-	{
+	{    
 		locatedFiles = [];
 		maxLoopTimes = 0;
 		checkExistingFiles();
@@ -43,7 +43,7 @@ class CopyState extends MusicBeatState
 			return;
 		}
 
-		CoolUtil.showPopUp("Seems like you have some missing files that are necessary to run the game\nPress OK to begin the copy process", 'Notice!');
+		CoolUtil.showPopUp("Seems like you have some missing files that are necessary to run the game\nPress OK to begin the copy process", "Notice!");
 
 		shouldCopy = true;
 
@@ -63,63 +63,55 @@ class CopyState extends MusicBeatState
 		loadedText.setFormat(Paths.font("vcr.ttf"), 16, FlxColor.WHITE, CENTER);
 		add(loadedText);
 
-		thread = new ThreadPool(0, CoolUtil.getCPUThreadsCount());
-		thread.doWork.add(function(poop)
-		{
-			for (file in locatedFiles)
-			{
-				loopTimes++;
-				copyAsset(file);
-			}
-		});
-		new FlxTimer().start(0.5, (tmr) ->
-		{
-			thread.queue({});
-		});
+		var ticks:Int = 15;
+		if (maxLoopTimes <= 15)
+			ticks = 1;
+
+		copyLoop = new FlxAsyncLoop(maxLoopTimes, copyAsset, ticks);
+		add(copyLoop);
+		copyLoop.start();
 
 		super.create();
 	}
 
 	override function update(elapsed:Float)
 	{
-		if (shouldCopy)
+		if (shouldCopy && copyLoop != null)
 		{
-			if (loopTimes >= maxLoopTimes && canUpdate)
+			loadingBar.percent = loopTimes / maxLoopTimes * 100;
+			if (copyLoop.finished && canUpdate)
 			{
 				if (failedFiles.length > 0)
 				{
 					CoolUtil.showPopUp(failedFiles.join('\n'), 'Failed To Copy ${failedFiles.length} File.');
-					final folder:String = #if android StorageUtil.getExternalStorageDirectory() + #else Sys.getCwd() + #end 'logs/';
-					if (!FileSystem.exists(folder))
-						FileSystem.createDirectory(folder);
-					File.saveContent(folder + Date.now().toString().replace(' ', '-').replace(':', "'") + '-CopyState' + '.txt', failedFilesStack.join('\n'));
+					if (!FileSystem.exists('logs'))
+						FileSystem.createDirectory('logs');
+					File.saveContent('logs/' + Date.now().toString().replace(' ', '-').replace(':', "'") + '-CopyState' + '.txt', failedFilesStack.join('\n'));
 				}
-				
+				canUpdate = false;
 				FlxG.sound.play(Paths.sound('confirmMenu')).onComplete = () ->
 				{
 					MusicBeatState.switchState(new TitleState());
 				};
-		
-				canUpdate = false;
 			}
 
-			if (loopTimes >= maxLoopTimes)
+			if (loopTimes == maxLoopTimes)
 				loadedText.text = "Completed!";
 			else
 				loadedText.text = '$loopTimes/$maxLoopTimes';
-
-			loadingBar.percent = Math.min((loopTimes / maxLoopTimes) * 100, 100);
 		}
 		super.update(elapsed);
 	}
 
-	public function copyAsset(file:String)
+	public function copyAsset()
 	{
+		var file = locatedFiles[loopTimes];
+		loopTimes++;
 		if (!FileSystem.exists(file))
 		{
 			var directory = Path.directory(file);
 			if (!FileSystem.exists(directory))
-				FileSystem.createDirectory(directory);
+				StorageUtil.createDirectories(directory);
 			try
 			{
 				if (OpenFLAssets.exists(getFile(file)))
@@ -127,16 +119,7 @@ class CopyState extends MusicBeatState
 					if (textFilesExtensions.contains(Path.extension(file)))
 						createContentFromInternal(file);
 					else
-					{
-						var path:String = '';
-						#if android
-						if (file.startsWith('mods/'))
-							path = StorageUtil.getExternalStorageDirectory() + file;
-						else
-						#end
-							path = file;
-						File.saveBytes(path, getFileBytes(getFile(file)));
-					}		
+						File.saveBytes(file, getFileBytes(getFile(file)));
 				}
 				else
 				{
@@ -156,17 +139,13 @@ class CopyState extends MusicBeatState
 	{
 		var fileName = Path.withoutDirectory(file);
 		var directory = Path.directory(file);
-		#if android
-		if (fileName.startsWith('mods/'))
-			directory = StorageUtil.getExternalStorageDirectory() + directory;
-		#end
 		try
 		{
 			var fileData:String = OpenFLAssets.getText(getFile(file));
 			if (fileData == null)
 				fileData = '';
 			if (!FileSystem.exists(directory))
-				FileSystem.createDirectory(directory);
+				StorageUtil.createDirectories(directory);
 			File.saveContent(Path.join([directory, fileName]), fileData);
 		}
 		catch (e:haxe.Exception)
@@ -209,13 +188,10 @@ class CopyState extends MusicBeatState
 		// removes unwanted assets
 		var assets = locatedFiles.filter(folder -> folder.startsWith('assets/'));
 		var mods = locatedFiles.filter(folder -> folder.startsWith('mods/'));
+		var modpack = locatedFiles.filter(folder -> folder.startsWith('modpack/'));
+		locatedFiles = assets.concat(modpack);
 		locatedFiles = assets.concat(mods);
 		locatedFiles = locatedFiles.filter(file -> !FileSystem.exists(file));
-		#if android
-		for (file in locatedFiles)
-			if (file.startsWith('mods/'))
-				locatedFiles = locatedFiles.filter(file -> !FileSystem.exists(StorageUtil.getExternalStorageDirectory() + file));
-		#end
 
 		var filesToRemove:Array<String> = [];
 
