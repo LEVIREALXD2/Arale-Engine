@@ -487,7 +487,7 @@ class FlxCamera extends FlxBasic
 	 * Internal, alpha component of fade color.
 	 * Changes from 0 to 1 or from 1 to 0 as the effect continues.
 	 */
-	var _fxFadeAlpha:Float = 0;
+	public var _fxFadeAlpha:Float = 0;
 
 	/**
 	 * Internal, percentage of screen size representing the maximum distance that the screen can move while shaking.

@@ -89,16 +89,23 @@ class Chart {
 
 	public static function loadChartMeta(songName:String, difficulty:String = "normal", fromMods:Bool = true):ChartMetaData {
 		var songNameLower = songName.toLowerCase();
-		var metaPath = Paths.file('songs/${songNameLower}/meta.json');
-		var metaDiffPath = Paths.file('songs/${songNameLower}/meta-${difficulty.toLowerCase()}.json');
+		//var metaPath = Paths.file('songs/${songNameLower}/meta.json');
+		var metaPath = Paths.modFolders('songs/${songNameLower}/meta.json');
+		//var metaDiffPath = Paths.file('songs/${songNameLower}/meta-${difficulty.toLowerCase()}.json');
+		var metaDiffPath = Paths.modFolders('songs/${songNameLower}/meta-${difficulty.toLowerCase()}.json');
 
 		var data:ChartMetaData = null;
 		var fromMods:Bool = fromMods;
-		for (path in [metaDiffPath, metaPath]) if (FileSystem.exists(path)) {
-			fromMods = true;
-			try data = Json.parse(File.getContent(path))
-			catch(e) trace('Failed to load song metadata for ${songName} ($path): ${Std.string(e)}');
-			if (data != null) break;
+		for (path in [metaDiffPath, metaPath])
+		{
+			trace('path is ${path}');
+			if (FileSystem.exists(path)) {
+				trace('founded path is ${path}');
+				fromMods = true;
+				try data = Json.parse(File.getContent(path))
+				catch(e) trace('Failed to load song metadata for ${songName} ($path): ${Std.string(e)}');
+				if (data != null) break;
+			}
 		}
 
 		if (data == null) data = {
@@ -128,7 +135,7 @@ class Chart {
 		CoolUtil.setFieldDefault(data, "coopAllowed", false);
 		CoolUtil.setFieldDefault(data, "opponentModeAllowed", false);
 		CoolUtil.setFieldDefault(data, "displayName", data.name);
-		CoolUtil.setFieldDefault(data, "parsedColor", data.color.getColorFromDynamic().getDefault(defaultColor));
+		CoolUtil.setFieldDefault(data, "parsedColor", FlxColor.fromRGB(255, 255, 255, 255)); //this shit isn't important for now
 
 		if (data.difficulties.length <= 0) {
 			data.difficulties = [for(f in Paths.getFolderContent('songs/${songNameLower}/charts/', false)) if (Path.extension(f = f.toUpperCase()) == "JSON") Path.withoutExtension(f)];
@@ -178,6 +185,7 @@ class Chart {
 			catch(e) trace('Could not parse chart for song ${songName} ($difficulty): ${Std.string(e)}');
 		}
 
+		trace('before than chart conversion');
 		/**
 		 * CHART CONVERSION
 		 */
@@ -204,8 +212,10 @@ class Chart {
 			case VSLICE: // TODO
 			case LEGACY: // TODO
 		}
+		trace('before than meta');
 
 		var loadedMeta = loadChartMeta(songName, difficulty, base.fromMods);
+		trace('loadedMeta: ' + loadedMeta);
 		if (base.meta == null) base.meta = loadedMeta;
 		else {
 			for (field in Reflect.fields(base.meta)) {

@@ -95,7 +95,7 @@ class StageData {
 		if(Assets.exists(path))
 			rawJson = Assets.getText(path);
 		#end
-		else return null;
+		else return dummy(); //null changed with dummy() because `null` causes the crashes (probably because of LoadingState)
 		return cast Json.parse(rawJson);
 	}
 

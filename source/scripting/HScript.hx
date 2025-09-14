@@ -403,6 +403,11 @@ class Script extends FlxBasic implements IFlxDestroyable {
 			/* hxCodec 2.5.1 */
 			"MP4Handler"		  => vlc.MP4Handler,
 			"MP4Sprite"		  => vlc.MP4Sprite,
+
+			/* Converters (There's only CNE for now, but I can add other ones too) */
+			#if CNE_CHART_ALLOWED
+			"Converters"		  => funkin.backend.chart.Converters,
+			#end
 		];
 	}
 

@@ -74,6 +74,9 @@
 
 	<define name="EXTRA_PAUSE" unless="extras_disabled"/>
 
+	<!-- Comment this out if you want to disable CNE Chart Converter (When Comment this out, you can't use CNE Charts in PsychExtended) -->
+	<define name="CNE_CHART_ALLOWED" />
+
 	<!-- Comment this out if you want to disable Modpacks (When Comment this out, you can't use most of the custom menus from mods) -->
 	<define name="MODPACK_ALLOWED" />
 

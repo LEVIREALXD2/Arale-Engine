@@ -13,26 +13,28 @@ import js.html.*;
 import Discord.DiscordClient;
 #end
 
-//import them for now
-import funkin.backend.chart.Chart;
-import funkin.backend.chart.ChartData;
-import funkin.backend.chart.Flags;
-import funkin.backend.chart.*;
-import options.group.ModGroup;
-import funkin.backend.scripting.ModState;
-import funkin.backend.scripting.*;
-import funkin.backend.scripting.events.*;
+//options
+import objects.state.general.*;
 import backend.mouse.*;
+import objects.screen.*;
 import backend.data.*;
 import backend.ui.*;
-import objects.screen.*;
-import objects.state.general.*;
 import shapeEx.*;
-import codenamecrew.hscript.macros.*;
-import funkin.backend.FunkinText;
-import funkin.backend.FunkinSprite;
-import funkin.backend.shaders.FunkinShader;
+
+// Scripting
 import funkin.backend.shaders.CustomShader;
+import funkin.backend.shaders.FunkinShader;
+import funkin.backend.scripting.ModState;
+import funkin.backend.scripting.events.*;
+import codenamecrew.hscript.macros.*;
+import funkin.backend.FunkinSprite;
+import funkin.backend.FunkinText;
+import funkin.backend.scripting.*;
+import options.group.ModGroup;
+
+#if CNE_CHART_ALLOWED
+import funkin.backend.chart.*;
+#end
 
 import backend.BaseStage;
 import Song.SwagSong;

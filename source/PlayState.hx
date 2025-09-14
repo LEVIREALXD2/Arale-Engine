@@ -440,23 +440,10 @@ class PlayState extends MusicBeatState
 		curStage = SONG.stage;
 
 		var stageData:StageFile = StageData.getStageFile(curStage);
-		if(stageData == null) { //Stage couldn't be found, create a dummy stage for preventing a crash
-			stageData = {
-				directory: "",
-				defaultZoom: 0.9,
-				isPixelStage: false,
-
-				boyfriend: [770, 100],
-				girlfriend: [400, 130],
-				opponent: [100, 100],
-				hide_girlfriend: false,
-
-				camera_boyfriend: [0, 0],
-				camera_opponent: [0, 0],
-				camera_girlfriend: [0, 0],
-				camera_speed: 1
-			};
-		}
+		/* this shit doesn't work anymore, idk why
+		if(stageData == null) //Stage couldn't be found, create a dummy stage for preventing a crash
+			stageData = StageData.dummy();
+		*/
 
 		defaultCamZoom = stageData.defaultZoom;
 		defaultStageZoom = defaultCamZoom;
@@ -2472,7 +2459,6 @@ class PlayState extends MusicBeatState
 					char.playAnim(value1, true);
 					char.specialAnim = true;
 				}
-
 			case 'Camera Follow Pos':
 				isCameraOnForcedPos = false;
 				if(flValue1 != null || flValue2 != null)
@@ -2621,10 +2607,60 @@ class PlayState extends MusicBeatState
 			case 'Play Sound':
 				if(flValue2 == null) flValue2 = 1;
 				FlxG.sound.play(Paths.sound(value1), flValue2);
+
+			//Codename Engine Support (you can't use these in the editor, just there for compatibility)
+			case 'Camera Flash':
+				//make the event work on PsychEngine
+				var splittedValue1 = value1.split(', ');
+				var splittedValue2 = value2.split(', ');
+				var flValue:Null<Float> = Std.parseFloat(splittedValue2[0]);
+				var stringToBool:Bool = splittedValue1[0] == 'true' ? true : false;
+				var getColor:Dynamic = CoolUtil.getColorFromDynamic(splittedValue1[1]); //I'm not sure, If color is wrong tell me
+
+				var camera:FlxCamera = splittedValue2[1] == "camHUD" ? camHUD : camGame;
+				if (stringToBool) // reversed
+					camera.fade(getColor, (Conductor.stepCrochet / 1000) * flValue, false, () -> {camera._fxFadeAlpha = 0;}, true);
+				else // Not Reversed
+					camera.flash(getColor, (Conductor.stepCrochet / 1000) * flValue, null, true);
+
+				/*
+				"Camera Flash" => [
+					{name: "Reversed?", type: TBool, defValue: false},
+					{name: "Color", type: TColorWheel, defValue: "#FFFFFF"},
+					{name: "Time (Steps)", type: TFloat(0.25, 9999, 0.25, 2), defValue: 4},
+					{name: "Camera", type: TDropDown(['camGame', 'camHUD']), defValue: "camHUD"}
+				]
+				*/
+			//Most important Event in the Codename Engine (Tested & It works fine)
+			case "HScript Call":
+				HScriptImprovedCall(value1, value2);
 		}
 
 		stagesFunc(function(stage:BaseStage) stage.eventCalled(eventName, value1, value2, flValue1, flValue2, strumTime));
 		callOnScripts('onEvent', [eventName, value1, value2, strumTime]);
+	}
+
+	//Make HScript Improved Functions Call-able from Normal HScript & Lua
+	public function HScriptImprovedCall(value1:String, value2:String) {
+		var scriptPacks:Array<ScriptPack> = [scripts, stateScripts];
+		var args:Array<String> = value2.split(',');
+
+		for (pack in scriptPacks) {
+			pack.call(value1, args);
+			//public functions
+			if (pack.publicVariables.exists(value1)) {
+				var func = pack.publicVariables.get(value1);
+				if (func != null && Reflect.isFunction(func))
+					Reflect.callMethod(null, func, args);
+			}
+		}
+
+		//static functions
+		if (Script.staticVariables.exists(value1)) {
+			var func = Script.staticVariables.get(value1);
+			if (func != null && Reflect.isFunction(func))
+				Reflect.callMethod(null, func, args);
+		}
 	}
 
 	function moveCameraSection(?sec:Null<Int>):Void {

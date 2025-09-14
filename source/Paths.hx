@@ -244,6 +244,9 @@ class Paths
 
 	static public function voices(song:String, postfix:String = null):Any
 	{
+		var diff = Difficulty.getString().toLowerCase();
+
+		//Psych Voices Path
 		var songKey:String = '${formatToSongPath(song)}/Voices';
 		if(postfix != null) songKey += '-' + postfix;
 		var voices = returnSound(null, songKey, 'songs');
@@ -253,12 +256,28 @@ class Paths
 		if(postfix != null) songKeyCNE += '-' + postfix;
 		var voicesCNE = returnSound(null, songKeyCNE, 'songs');
 
-		if (voicesCNE != null) return voicesCNE;
-		return voices;
+		//Psych Voices Difficulty Spesific Path
+		var songKeyDiff:String = '${formatToSongPath(song)}/Voices-$diff';
+		if(postfix != null) songKeyDiff += '-' + postfix;
+		var voicesDiff = returnSound(null, songKeyDiff, 'songs');
+
+		//CNE Voices Difficulty Spesific Path
+		var songKeyDiffCNE:String = '${formatToSongPath(song)}/song/Voices-$diff';
+		if(postfix != null) songKeyDiffCNE += '-' + postfix;
+		var voicesDiffCNE = returnSound(null, songKeyDiffCNE, 'songs');
+
+		//return the voices
+		if (voicesDiffCNE != null) return voicesDiffCNE;
+		else if (voicesCNE != null) return voicesCNE;
+		else if (voicesDiff != null) return voicesDiff;
+		else return voices;
 	}
 
 	static public function inst(song:String):Any
 	{
+		var diff = Difficulty.getString().toLowerCase();
+
+		//Psych Inst Path
 		var songKey:String = '${formatToSongPath(song)}/Inst';
 		var inst = returnSound(null, songKey, 'songs');
 
@@ -266,8 +285,19 @@ class Paths
 		var songKeyCNE:String = '${formatToSongPath(song)}/song/Inst';
 		var instCNE = returnSound(null, songKeyCNE, 'songs');
 
-		if (instCNE != null) return instCNE;
-		return inst;
+		//Psych Inst Difficulty Spesific Path
+		var songKeyDiff:String = '${formatToSongPath(song)}/Inst-$diff';
+		var instDiff = returnSound(null, songKeyDiff, 'songs');
+
+		//CNE Inst Difficulty Spesific Path
+		var songKeyDiffCNE:String = '${formatToSongPath(song)}/song/Inst-$diff';
+		var instDiffCNE = returnSound(null, songKeyDiffCNE, 'songs');
+
+		//return the Inst
+		if (instDiffCNE != null) return instDiffCNE;
+		else if (instCNE != null) return instCNE;
+		else if (instDiff != null) return instDiff;
+		else return inst;
 	}
 
 	inline static public function image(key:String, ?library:String, ?extraLoad:Bool = false):FlxGraphic
@@ -698,11 +728,14 @@ class Paths
 	inline static public function vertShader(key:String)
 		return getTextFromFile('shaders/$key.vert');
 
-	static public function chart(song:String, ?difficulty:String, ?variant:String):String
+	#if CNE_CHART_ALLOWED
+	static public function chart(song:String, ?difficulty:String):String
 	{
+		var folder = modFolders('songs/${song}/charts/${difficulty}.json');
 		difficulty = (difficulty != null ? difficulty : Flags.DEFAULT_DIFFICULTY);
-		return getPath('songs/$song/charts/${variant != null ? variant + "/" : ""}$difficulty.json');
+		return folder;
 	}
+	#end
 
 	static public function getFolderContent(key:String, addPath:Bool = false, source:String = "BOTH"):Array<String> {
 		var content:Array<String> = [];
