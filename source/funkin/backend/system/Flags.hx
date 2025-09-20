@@ -1,4 +1,4 @@
-package funkin.backend.chart;
+package funkin.backend.system;
 
 import flixel.util.FlxColor;
 import lime.app.Application;
@@ -19,6 +19,22 @@ class Flags {
 	public static var DEFAULT_BEATS_PER_MEASURE:Int = 4;
 	public static var DEFAULT_STEPS_PER_BEAT:Int = 4;
 	public static var DEFAULT_LOOP_TIME:Float = 0.0;
+	
+	// FunkinSprite Stuff
+	public static var SOUND_EXT:String = #if web "mp3" #else "ogg" #end; // we also support wav
+	public static var VIDEO_EXT:String = "mp4";
+	public static var IMAGE_EXT:String = "png"; // we also support jpg
+
+	// CNE Character Stuff
+	@:also(funkin.game.Character_CNE.FALLBACK_CHARACTER)
+	public static var DEFAULT_CHARACTER:String = "bf";
+	public static var DEFAULT_GIRLFRIEND:String = "gf";
+	public static var DEFAULT_OPPONENT:String = "dad";
+	public static var DEFAULT_HEALTH_ICON:String = "face";
+
+	@:also(funkin.game.Character_CNE.FALLBACK_DEAD_CHARACTER)
+	public static var DEFAULT_GAMEOVER_CHARACTER:String = "bf-dead";
+	public static var STUNNED_TIME:Float = 5 / 60;
 
 	/**
 	 * Default background colors for songs or more without bg color

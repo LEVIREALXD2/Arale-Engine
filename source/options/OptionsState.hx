@@ -3,7 +3,6 @@ package options;
 import MainMenuState;
 import FreeplayState;
 #if TOUCH_CONTROLS
-import mobile.substates.MobileControlSelectSubState;
 import mobile.substates.MobileExtraControl;
 #end
 import mobile.states.CopyState;
@@ -92,7 +91,7 @@ class OptionsState extends MusicBeatState
 				add(naviSprite);
 				naviGroup.push(naviSprite);
 			}
-			naviMoveEvent(true);
+			naviMoveEvent();
 		#if SCRIPTING_ALLOWED } #end
 
 		naviMove = new MouseMove(OptionsState, 'naviPosiData', 
@@ -131,7 +130,7 @@ class OptionsState extends MusicBeatState
 								],
 								cataMoveEvent);
 		add(cataMove);
-		cataMoveEvent(true);
+		cataMoveEvent();
 			
 		/////////////////////////////////////////////////////////////
 
@@ -270,7 +269,7 @@ class OptionsState extends MusicBeatState
 				case 'Gameplay':
 					obj = new GameplayGroup(outputX, outputY, outputWidth, outputHeight);
 				case 'Controls':
-					obj = new MobileGroup(outputX, outputY, outputWidth, outputHeight);
+					obj = new ControlsGroup(outputX, outputY, outputWidth, outputHeight);
 				default:
 					#if SCRIPTING_ALLOWED
 					obj = new ModGroup(outputX, outputY, outputWidth, outputHeight, '${type}Group'); //My System is Different
@@ -296,7 +295,7 @@ class OptionsState extends MusicBeatState
 	}
 
 	static public var cataPosiData:Float = 100;
-	public function cataMoveEvent(init:Bool = false){
+	public function cataMoveEvent(){
 		for (i in 0...cataGroup.length) {
 			if (i == 0) cataGroup[i].y = cataPosiData;
 			else cataGroup[i].y = cataGroup[i - 1].y + cataGroup[i - 1].bg.realHeight + UIScale.adjust(FlxG.width * (0.8 / 40));
@@ -319,7 +318,7 @@ class OptionsState extends MusicBeatState
 	}
 
 	static public var naviPosiData:Float = 0;
-	public function naviMoveEvent(init:Bool = false){
+	public function naviMoveEvent(){
 		for (i in 0...naviGroup.length) {
 			naviGroup[i].y = naviPosiData + i * UIScale.adjust(FlxG.height * 0.1) + naviGroup[i].offsetY;
 		}
@@ -382,9 +381,9 @@ class OptionsState extends MusicBeatState
 
 	public function resetData()
 	{
-		for (spr in 0...naviGroup.length) {
-			if (naviGroup[spr].cataChoose == true) {
-				cataGroup[spr].resetData();
+		for (cata in cataGroup) {
+			if (cata.checkPoint()) {
+				cata.resetData();
 				break;
 			}
 		}

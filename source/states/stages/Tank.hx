@@ -295,11 +295,11 @@ class Tank extends BaseStage
 				case "picoEnd", "Pico Dual Wield on Speaker idle":
 					gfGroup.alpha = 1;
 					pico.visible = false;
-					if (pico.anim.onComplete.has(picoStressCycle)) // for safety
-						pico.anim.onComplete.remove(picoStressCycle);
+					if (pico.anim.onCompleteFix.has(picoStressCycle)) // for safety
+						pico.anim.onCompleteFix.remove(picoStressCycle);
 			}
 		}
-		pico.anim.onComplete.add(picoStressCycle);
+		pico.anim.onCompleteFix.add(picoStressCycle);
 
 		boyfriendCutscene = new FlxSprite(boyfriend.x + 5, boyfriend.y + 20);
 		boyfriendCutscene.antialiasing = ClientPrefs.data.antialiasing;

@@ -16,7 +16,9 @@ class Converters {
 	#if CNE_CHART_ALLOWED
 	/* very messy code but works
 		most of the code tooked from https://github.com/SrtHero278/Stuffs
-			I just love how the repo handles the camera movements */
+			I just love how the repo handles the camera movements
+				I think we can directly read CNE Charts too but It would be useless
+					because we don't have a editor for it */
 	public static function chart_CneToPsych(song:String, diff:String):Dynamic {
 		var json = Chart.parse(song, diff);
 		if (json.stage == null || json.stage.trim() == "") json.stage = Flags.DEFAULT_STAGE;

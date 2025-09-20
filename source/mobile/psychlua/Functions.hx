@@ -94,18 +94,18 @@ class MobileFunctions
 			PlayState.instance.reloadControls(cValue);
 		});
 
+		//Backwards Compability
 		Lua_helper.add_callback(lua, 'getCurMobilecMode', function():String
 		{
-			var curMode:String = '${MobileControls.mode}';
+			var curMode:String = 'HITBOX';
 			return curMode;
 		});
 
 		//better support
-		Lua_helper.add_callback(lua, "changeMobileControls", function(?cValue:Int, ?mode:String, ?action:String):Void
+		Lua_helper.add_callback(lua, "changeMobileControls", function(?cValue:Int, ?mode:String):Void
 		{
 			if (mode == null) mode = "NONE";
-			if (action == null) action = "NONE";
-			PlayState.instance.reloadControls(cValue, mode, action);
+			PlayState.instance.reloadControls(cValue, mode);
 		});
 
 		Lua_helper.add_callback(lua, "setMobileControlPosition", function(?x:Float, ?y:Float):Void
@@ -121,9 +121,9 @@ class MobileFunctions
 			PlayState.instance.reloadControls();
 		});
 
-		Lua_helper.add_callback(lua, "addMobileControls", function(?cValue:Int, ?mode:String, ?action:String):Void
+		Lua_helper.add_callback(lua, "addMobileControls", function(?cValue:Int, ?mode:String):Void
 		{
-			PlayState.instance.addControls(cValue, mode, action);
+			PlayState.instance.addControls(cValue, mode);
 		});
 
 		Lua_helper.add_callback(lua, "removeMobileControls", function():Void

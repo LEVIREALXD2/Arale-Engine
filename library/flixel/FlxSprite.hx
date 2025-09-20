@@ -17,6 +17,7 @@ import flixel.util.FlxBitmapDataUtil;
 import flixel.util.FlxColor;
 import flixel.util.FlxDestroyUtil;
 import flixel.util.FlxDirectionFlags;
+import flixel.FlxLayer;
 import openfl.display.BitmapData;
 import openfl.display.BlendMode;
 import openfl.geom.ColorTransform;
@@ -395,6 +396,7 @@ class FlxSprite extends FlxObject
 		_flashRect2 = new Rectangle();
 		_flashPointZero = new Point();
 		offset = FlxPoint.get();
+		frameOffset = FlxPoint.get();
 		origin = FlxPoint.get();
 		scale = FlxPoint.get(1, 1);
 		_halfSize = FlxPoint.get();
@@ -420,6 +422,7 @@ class FlxSprite extends FlxObject
 		animation = FlxDestroyUtil.destroy(animation);
 
 		offset = FlxDestroyUtil.put(offset);
+		frameOffset = FlxDestroyUtil.put(frameOffset);
 		origin = FlxDestroyUtil.put(origin);
 		scale = FlxDestroyUtil.put(scale);
 		_halfSize = FlxDestroyUtil.put(_halfSize);
@@ -840,6 +843,16 @@ class FlxSprite extends FlxObject
 		#end
 	}
 
+	/**
+	 * Made in case developer wanna finalize stuff with the matrix.
+	 */
+	public function doAdditionalMatrixStuff(matrix:FlxMatrix, camera:FlxCamera) {}
+
+	/**
+	 * Whether the shader should be enabled.
+	 */
+	public var shaderEnabled:Bool = true;
+
 	@:noCompletion
 	function drawSimple(camera:FlxCamera):Void
 	{
@@ -850,12 +863,42 @@ class FlxSprite extends FlxObject
 		_point.copyToFlash(_flashPoint);
 		camera.copyPixels(_frame, framePixels, _flashRect, _flashPoint, colorTransform, blend, antialiasing);
 	}
+	
+	/**
+	 * The position of the sprite's graphic relative to the frame, scaling and angles. For example, `offset.x = 10;` with
+	 * a scale of 2 will move the sprite 20 pixels to the left.
+	 */
+	public var frameOffset(default, null):FlxPoint;
+
+	/**
+	 * (Nullable) Custom angle to be applied to `frameOffset`
+	 */
+	public var frameOffsetAngle:Null<Float> = null;
+
+	/**
+	 * Layer to draw on
+	 */
+	public var layer:FlxLayer;
 
 	@:noCompletion
 	function drawComplex(camera:FlxCamera):Void
 	{
 		_frame.prepareMatrix(_matrix, FlxFrameAngle.ANGLE_0, checkFlipX(), checkFlipY());
 		_matrix.translate(-origin.x, -origin.y);
+
+		if (frameOffsetAngle != null && frameOffsetAngle != angle)
+		{
+			var angleOff = (frameOffsetAngle - angle) * FlxAngle.TO_RAD;
+			var cos = Math.cos(angleOff);
+			var sin = Math.sin(angleOff);
+			// cos doesnt need to be negated
+			_matrix.rotateWithTrig(cos, -sin);
+			_matrix.translate(-frameOffset.x, -frameOffset.y);
+			_matrix.rotateWithTrig(cos, sin);
+		}
+		else
+			_matrix.translate(-frameOffset.x, -frameOffset.y);
+
 		_matrix.scale(scale.x, scale.y);
 
 		if (bakedRotationAngle <= 0)
@@ -876,7 +919,12 @@ class FlxSprite extends FlxObject
 			_matrix.ty = Math.floor(_matrix.ty);
 		}
 
-		camera.drawPixels(_frame, framePixels, _matrix, colorTransform, blend, antialiasing, shader);
+		doAdditionalMatrixStuff(_matrix, camera);
+
+		if (layer != null)
+			layer.drawPixels(this, camera, _frame, framePixels, _matrix, colorTransform, blend, antialiasing, shaderEnabled ? shader : null);
+		else
+			camera.drawPixels(_frame, framePixels, _matrix, colorTransform, blend, antialiasing, shaderEnabled ? shader : null);
 	}
 
 	/**

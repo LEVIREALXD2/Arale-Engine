@@ -29,19 +29,19 @@ class Rect extends FlxSprite
 {
 	public var mainRound:Float;
 	public function new(X:Float = 0, Y:Float = 0, width:Float = 0, height:Float = 0, roundWidth:Float = 0, roundHeight:Float = 0,
-			Color:FlxColor = FlxColor.WHITE, ?Alpha:Float = 1)
+			Color:FlxColor = FlxColor.WHITE, ?Alpha:Float = 1, ?lineStyle:Int = 0, ?lineColor:FlxColor = FlxColor.WHITE)
 	{
 		super(X, Y);
 
 		this.mainRound = roundWidth;
 
-		loadGraphic(drawRect(width, height, roundWidth, roundHeight));
+		loadGraphic(drawRect(width, height, roundWidth, roundHeight, lineStyle, lineColor));
 		antialiasing = ClientPrefs.data.antialiasing;
 		color = Color;
 		alpha = Alpha;
 	}
 
-	function drawRect(width:Float = 0, height:Float = 0, roundWidth:Float = 0, roundHeight:Float = 0):BitmapData
+	function drawRect(width:Float, height:Float, roundWidth:Float, roundHeight:Float, lineStyle:Int, lineColor:FlxColor):BitmapData
 	{
 		var shape:Shape = new Shape();
 
@@ -51,7 +51,25 @@ class Rect extends FlxSprite
 
 		var bitmap:BitmapData = new BitmapData(Std.int(width), Std.int(height), true, 0);
 		bitmap.draw(shape);
+		if (lineStyle > 0) drawLine(bitmap, lineStyle, roundWidth, roundHeight, lineColor);
 		return bitmap;
+	}
+
+	static var lineShape:Shape = null;
+	function drawLine(bitmap:BitmapData, lineStyle:Int, roundWidth:Float, roundHeight:Float, lineColor:FlxColor)
+	{
+		if (lineShape == null) {
+			lineShape = new Shape();
+			var lineSize:Int = lineStyle;
+			lineShape.graphics.beginFill(lineColor);
+			lineShape.graphics.lineStyle(1, lineColor, 1);
+			lineShape.graphics.drawRoundRect(0, 0, bitmap.width, bitmap.height, roundWidth, roundHeight);
+			lineShape.graphics.lineStyle(0, 0, 0);
+			lineShape.graphics.drawRoundRect(lineSize, lineSize, bitmap.width - lineSize * 2, bitmap.height - lineSize * 2, roundWidth - lineSize * 2, roundHeight - lineSize * 2);
+			lineShape.graphics.endFill();
+		}
+
+		bitmap.draw(lineShape);
 	}
 }
 
@@ -213,7 +231,7 @@ class RoundRect extends FlxSpriteGroup
 			if (widthTweenArray[i] != null) widthTweenArray[i].cancel();
 		}
 		widthTweenArray = [];
-		
+
 		switch(originType)
 		{
 			case LEFT_UP, LEFT_CENTER, LEFT_DOWN:
@@ -293,7 +311,7 @@ class RoundRect extends FlxSpriteGroup
 				midRect.scale.y = output;
 
 				midRect.setY(mainY, - (mainHeight - data - mainRound * 2) / 2);
-				
+
 				leftDownRound.setY(mainY, data - mainRound);
 				midDownRect.setY(mainY, data - mainRound);
 				rightDownRound.setY(mainY, data - mainRound);
@@ -301,7 +319,7 @@ class RoundRect extends FlxSpriteGroup
 			case LEFT_CENTER, CENTER_CENTER, RIGHT_CENTER:
 				var output:Float = calcData(mainHeight, data, mainRound);
 				midRect.scale.y = output;
-				
+
 				leftUpRound.setY(mainY, (mainHeight - data) / 2);  
 				midUpRect.setY(mainY, (mainHeight - data) / 2);
 				rightUpRound.setY(mainY, (mainHeight - data) / 2); 
@@ -314,7 +332,7 @@ class RoundRect extends FlxSpriteGroup
 				var output:Float = calcData(mainHeight, data, mainRound);
 				midRect.scale.y = output;
 				midRect.setY(mainY, (mainHeight - data) / 2 + mainRound); 
-				
+
 				leftUpRound.setY(mainY, height - data); 
 				midUpRect.setY(mainY, height - data);
 				rightUpRound.setY(mainY, height - data); 
@@ -338,7 +356,7 @@ class RoundRect extends FlxSpriteGroup
 				var output:Float = calcData(mainHeight, data, mainRound);
 				heightScaleTween(midRect.scale, output, time, heightEase);
 				heightBaseTween(midRect, - (mainHeight - data - mainRound * 2) / 2, time, heightEase);
-				
+
 				heightBaseTween(leftDownRound, data - mainRound, time, heightEase);
 				heightBaseTween(midDownRect, data - mainRound, time, heightEase);  
 				heightBaseTween(rightDownRound, data - mainRound, time, heightEase);
@@ -347,7 +365,7 @@ class RoundRect extends FlxSpriteGroup
 			case LEFT_CENTER, CENTER_CENTER, RIGHT_CENTER:
 				var output:Float = calcData(mainHeight, data, mainRound);
 				heightScaleTween(midRect.scale, output, time, heightEase);
-				
+
 				heightBaseTween(leftUpRound, (mainHeight - data) / 2, time, heightEase);
 				heightBaseTween(midUpRect, (mainHeight - data) / 2, time, heightEase);  
 				heightBaseTween(rightUpRound, (mainHeight - data) / 2, time, heightEase);
@@ -361,7 +379,7 @@ class RoundRect extends FlxSpriteGroup
 				var output:Float = calcData(mainHeight, data, mainRound);
 				heightScaleTween(midRect.scale, output, time, heightEase);
 				heightBaseTween(midRect, (mainHeight - data) / 2 + mainRound, time, heightEase);
-				
+
 				heightBaseTween(leftUpRound, height - data, time, heightEase);
 				heightBaseTween(midUpRect, height - data, time, heightEase);  
 				heightBaseTween(rightUpRound, height - data, time, heightEase);

@@ -23,6 +23,7 @@ typedef CharacterFile = {
 	var healthbar_colors:Array<Int>;
 	var vocals_file:String;
 	@:optional var _editor_isPlayer:Null<Bool>;
+	var fixed_flip_x:Bool; //enable flip_x fixes for codename engine
 }
 
 typedef AnimArray = {
@@ -40,6 +41,8 @@ class Character extends FlxSkewedSprite //FlxSprite can usable too but I don't r
 	 * In case a character is missing, it will use this on its place
 	**/
 	public static final DEFAULT_CHARACTER:String = 'bf';
+
+	@:noCompletion var __swappedLeftRightAnims:Bool = false;
 
 	public var animOffsets:Map<String, Array<Dynamic>>;
 	public var debugMode:Bool = false;
@@ -203,6 +206,11 @@ class Character extends FlxSkewedSprite //FlxSprite can usable too but I don't r
 		// data
 		healthIcon = json.healthicon;
 		singDuration = json.sing_duration;
+
+		// character is flipped
+		if (json.flip_x != isPlayer && json.fixed_flip_x == true)
+			swapLeftRightAnimations();
+
 		flipX = (json.flip_x != isPlayer);
 		healthColorArray = (json.healthbar_colors != null && json.healthbar_colors.length > 2) ? json.healthbar_colors : [161, 161, 161];
 		vocalsFile = json.vocals_file != null ? json.vocals_file : '';
@@ -467,6 +475,24 @@ class Character extends FlxSkewedSprite //FlxSprite can usable too but I don't r
 			danceEveryNumBeats = Math.round(Math.max(calc, 1));
 		}
 		settingCharacterUp = false;
+	}
+
+	public function swapLeftRightAnimations() {
+		CoolUtil.switchAnimFrames(animation.getByName('singRIGHT'), animation.getByName('singLEFT'));
+		CoolUtil.switchAnimFrames(animation.getByName('singRIGHTmiss'), animation.getByName('singLEFTmiss'));
+
+		switchOffset('singLEFT', 'singRIGHT');
+		switchOffset('singLEFTmiss', 'singRIGHTmiss');
+
+		__swappedLeftRightAnims = true;
+	}
+
+	//Make more easier to change offsets between animations
+	public function switchOffset(anim1:String, anim2:String)
+	{
+		var old = animOffsets[anim1];
+		animOffsets[anim1] = animOffsets[anim2];
+		animOffsets[anim2] = old;
 	}
 
 	public function addOffset(name:String, x:Float = 0, y:Float = 0)

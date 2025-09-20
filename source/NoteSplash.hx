@@ -213,7 +213,7 @@ class NoteSplash extends FlxSprite
 		return skin;
 	}
 
-	public static function getNoteSkinPostfix(ogSkin:String)
+	public static function getNoteSkinPostfix(?ogSkin:String)
 	{
 		var skin:String = '';
 		if(ClientPrefs.data.splashSkin != ClientPrefs.defaultData.splashSkin)

@@ -124,10 +124,14 @@ class Main extends Sprite
 		#if LUA_ALLOWED Lua.set_callbacks_function(cpp.Callable.fromStaticFunction(CallbackHandler.call)); #end
 		ClientPrefs.loadDefaultKeys();
 		#if ACHIEVEMENTS_ALLOWED Achievements.load(); #end
-		addChild(new FlxGame(game.width, game.height, #if (mobile && MODS_ALLOWED) CopyState.checkExistingFiles() ? game.initialState : CopyState #else game.initialState #end, #if (flixel < "5.0.0") game.zoom, #end game.framerate, game.framerate, game.skipSplash, game.startFullscreen));
+
+		var framerateShit:Int = game.framerate;
+		if (Reflect.hasField(FlxG.save.data, 'framerate')) framerateShit = Reflect.field(FlxG.save.data, 'framerate'); //double check lol
+
+		addChild(new FlxGame(game.width, game.height, #if (mobile && MODS_ALLOWED) CopyState.checkExistingFiles() ? game.initialState : CopyState #else game.initialState #end, #if (flixel < "5.0.0") game.zoom, #end framerateShit, framerateShit, game.skipSplash, game.startFullscreen));
 
 		#if EXTRA_FPSCOUNTER
-		/* Note to future myself: don't forget the add FPS.tff into fonts folder because if font can't found game instantly crashes, if you forget it you're a idiot */
+		/* Note to future myself: don't forget the add FPS.tff into fonts folder because if font can't found game instantly crashes, if you forget it again you're a idiot */
 		fpsVarNova = new FPS(5, 5);
 		addChild(fpsVarNova);
 		if (fpsVarNova != null) { fpsVarNova.scaleX = fpsVarNova.scaleY = 1; fpsVarNova.visible = false; }
@@ -150,8 +154,6 @@ class Main extends Sprite
 		FlxG.mouse.visible = false;
 		#end
 
-		FlxG.fixedTimestep = false;
-		FlxG.game.focusLostFramerate = #if mobile 30 #else 60 #end;
 		#if web
 		FlxG.keys.preventDefaultKeys.push(TAB);
 		#else
@@ -162,29 +164,49 @@ class Main extends Sprite
 
 		#if mobile
 		FlxG.scaleMode = new MobileScaleMode();
-		//FlxG.stage.window.onResize.add((w:Int, h:Int) -> setScale());
 		#end
+
+		FlxG.fixedTimestep = false;
+		FlxG.game.focusLostFramerate = #if mobile 30 #else 60 #end;
+		Application.current.window.vsync = false;
+
+		FlxG.signals.preUpdate.add(fixSlowdown);
 
 		// shader and mobile device coords fix
 		// fixes notch problem, idk why
 		FlxG.signals.gameResized.add(function (w, h) {
 			if(fpsVar != null)
 				fpsVar.positionFPS(10, 3, Math.min(w / FlxG.width, h / FlxG.height));
-		     if (FlxG.cameras != null) {
-			   for (cam in FlxG.cameras.list) {
-				if (cam != null)
-					resetSpriteCache(cam.flashSprite);
-			   }
+
+			if (FlxG.cameras != null) {
+				for (cam in FlxG.cameras.list) {
+					if (cam != null)
+						resetSpriteCache(cam.flashSprite);
+				}
 			}
 
 			if (FlxG.game != null)
 				resetSpriteCache(FlxG.game);
 		});
 	}
+	
+	function fixSlowdown() {
+		if (Reflect.hasField(FlxG.save.data, 'framerate')) {
+			var intFrame:Int = FlxG.save.data.framerate;
+			if (FlxG.gameFramerate != FlxG.save.data.framerate) {
+				trace('framerates isnt same');
+				FlxG.gameFramerate = FlxG.save.data.framerate;
+			}
+		} else { //if save data doesn't have `framerate`
+			if (FlxG.gameFramerate != FlxG.save.data.framerate) {
+				FlxG.gameFramerate = 60;
+			}
+		}
+	}
 
 	static function resetSpriteCache(sprite:Sprite):Void {
 		@:privateAccess {
-		        sprite.__cacheBitmap = null;
+			sprite.__cacheBitmap = null;
 			sprite.__cacheBitmapData = null;
 		}
 	}

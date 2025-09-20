@@ -47,22 +47,15 @@ class GraphicsGroup extends OptionCata
 			[60, 240, ' FPS']
 		);
 		addOption(option);
-		option.onChange = onChangeFramerate;
+		option.onChange = () -> onChangeFramerate(option.defaultValue);
 
 		changeHeight(0);
 	}
 
-	function onChangeFramerate()
+	function onChangeFramerate(value:String)
 	{
-		if(ClientPrefs.data.framerate > FlxG.drawFramerate)
-		{
-			FlxG.updateFramerate = ClientPrefs.data.framerate;
-			FlxG.drawFramerate = ClientPrefs.data.framerate;
-		}
-		else
-		{
-			FlxG.drawFramerate = ClientPrefs.data.framerate;
-			FlxG.updateFramerate = ClientPrefs.data.framerate;
-		}
+		var intValue:Int = Std.parseInt(value);
+		trace('Int Value is: ${intValue}');
+		FlxG.gameFramerate = intValue;
 	}
 }

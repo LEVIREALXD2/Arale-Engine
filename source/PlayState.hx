@@ -178,6 +178,17 @@ class PlayState extends MusicBeatState
 	public var gf:Character = null;
 	public var boyfriend:Character = null;
 
+	// CNE Character Test (These will be merged with original Character.hx but use them for now)
+	public var dad_XML:Character_CNE = null;
+	public var gf_XML:Character_CNE = null;
+	public var boyfriend_XML:Character_CNE = null;
+	public var characters:Array<Character_CNE> = []; //custom characters handling here for applying somebasic fixes for now
+
+	//act as the original character (for example, if you add your char to playerChars, it copies the boyfriend's animations)
+	public var opponentChars:Array<Character_CNE> = [];
+	public var gfChars:Array<Character_CNE> = [];
+	public var playerChars:Array<Character_CNE> = [];
+
 	public var notes:FlxTypedGroup<Note>;
 	public var unspawnNotes:Array<Note> = [];
 	public var eventNotes:Array<EventNote> = [];
@@ -533,6 +544,30 @@ class PlayState extends MusicBeatState
 			startCharacterScripts(gf.curCharacter);
 		}
 
+		/*
+		dad_XML = new Character_CNE(0, 0, SONG.player2);
+		dadGroup.add(dad_XML);
+
+		boyfriend_XML = new Character_CNE(0, 0, SONG.player1, true);
+		boyfriendGroup.add(boyfriend_XML);
+
+		if (!stageData.hide_girlfriend)
+		{
+			if(SONG.gfVersion == null || SONG.gfVersion.length < 1) SONG.gfVersion = 'gf'; //Fix for the Chart Editor
+				gf_XML = new Character_CNE(0, 0, SONG.gfVersion);
+			gf_XML.scrollFactor.set(0.95, 0.95);
+			gfGroup.add(gf_XML);
+		}
+		*/
+
+		//Push them always, I don't want to broke Cyber Sensation Port rn
+		characters.push(dad_XML);
+		opponentChars.push(dad_XML);
+		characters.push(boyfriend_XML);
+		playerChars.push(boyfriend_XML);
+		characters.push(gf_XML);
+		gfChars.push(gf_XML);
+
 		dad = new Character(0, 0, SONG.player2);
 		startCharacterPos(dad, true);
 		dadGroup.add(dad);
@@ -715,6 +750,7 @@ class PlayState extends MusicBeatState
 		scoreTxt.scrollFactor.set();
 		scoreTxt.borderSize = 1.25;
 		scoreTxt.visible = !ClientPrefs.data.hideHud;
+		updateScore(false);
 		add(scoreTxt);
 
 		botplayTxt = new FlxText(400, timeBarBG.y + 55, FlxG.width - 800, "BOTPLAY", 32);
@@ -1468,31 +1504,48 @@ class PlayState extends MusicBeatState
 		}
 	}
 
-	public function updateScore(miss:Bool = false)
+	public function doScoreBop():Void {
+		if(!ClientPrefs.data.scoreZoom)
+			return;
+
+		if(scoreTxtTween != null)
+			scoreTxtTween.cancel();
+
+		scoreTxt.scale.x = 1.075;
+		scoreTxt.scale.y = 1.075;
+		scoreTxtTween = FlxTween.tween(scoreTxt.scale, {x: 1, y: 1}, 0.2, {
+			onComplete: function(twn:FlxTween) {
+				scoreTxtTween = null;
+			}
+		});
+	}
+
+	public dynamic function updateScore(miss:Bool = false, scoreBop:Bool = true)
 	{
 		var ret:Dynamic = callOnScripts('preUpdateScore', [miss], true);
 		if (ret == LuaUtils.Function_Stop)
 			return;
 
-		scoreTxt.text = 'Score: ' + songScore
-		+ ' | Misses: ' + songMisses
-		+ ' | Rating: ' + ratingName
-		+ (ratingName != '?' ? ' (${Highscore.floorDecimal(ratingPercent * 100, 2)}%) - $ratingFC' : '');
+		updateScoreText();
+		if (!miss && !cpuControlled && scoreBop)
+			doScoreBop();
 
-		if(ClientPrefs.data.scoreZoom && !miss && !cpuControlled)
-		{
-			if(scoreTxtTween != null) {
-				scoreTxtTween.cancel();
-			}
-			scoreTxt.scale.x = 1.075;
-			scoreTxt.scale.y = 1.075;
-			scoreTxtTween = FlxTween.tween(scoreTxt.scale, {x: 1, y: 1}, 0.2, {
-				onComplete: function(twn:FlxTween) {
-					scoreTxtTween = null;
-				}
-			});
-		}
 		callOnScripts('onUpdateScore', [miss]);
+	}
+
+	public dynamic function updateScoreText()
+	{
+		var str:String = ratingName;
+		if(totalPlayed != 0)
+		{
+			var percent:Float = CoolUtil.floorDecimal(ratingPercent * 100, 2);
+			str += ' (${percent}%) - ${ratingFC}';
+		}
+
+		var tempScore:String;
+		if(!instakillOnMiss) tempScore = 'Score: ${songScore} | Misses: ${songMisses} | Rating: ${str}';
+		else tempScore = 'Score: ${songScore} | Rating: ${str}';
+		scoreTxt.text = tempScore;
 	}
 
 	public function setSongTime(time:Float)
@@ -2413,16 +2466,31 @@ class PlayState extends MusicBeatState
 						dad.playAnim('cheer', true);
 						dad.specialAnim = true;
 						dad.heyTimer = flValue2;
+
+						for (char_XML in opponentChars) {
+							if (char_XML == null) continue;
+							char_XML.playAnim('cheer', true);
+						}
 					} else if (gf != null) {
 						gf.playAnim('cheer', true);
 						gf.specialAnim = true;
 						gf.heyTimer = flValue2;
+
+						for (char_XML in gfChars) {
+							if (char_XML == null) continue;
+							char_XML.playAnim('cheer', true);
+						}
 					}
 				}
 				if(value != 1) {
 					boyfriend.playAnim('hey', true);
 					boyfriend.specialAnim = true;
 					boyfriend.heyTimer = flValue2;
+
+					for (char_XML in playerChars) {
+						if (char_XML == null) continue;
+						char_XML.playAnim('hey', true);
+					}
 				}
 
 			case 'Set GF Speed':
@@ -2458,6 +2526,21 @@ class PlayState extends MusicBeatState
 				{
 					char.playAnim(value1, true);
 					char.specialAnim = true;
+				}
+
+				for (char_XML in playerChars) {
+					if (char_XML == null && char != boyfriend) continue;
+					char_XML.playAnim(value1, true);
+				}
+
+				for (char_XML in opponentChars) {
+					if (char_XML == null && char != dad) continue;
+					char_XML.playAnim(value1, true);
+				}
+
+				for (char_XML in gfChars) {
+					if (char_XML == null && char != gf) continue;
+					char_XML.playAnim(value1, true);
 				}
 			case 'Camera Follow Pos':
 				isCameraOnForcedPos = false;
@@ -3403,6 +3486,13 @@ class PlayState extends MusicBeatState
 			char.playAnim(animToPlay, true);
 		}
 
+		for (char_XML in playerChars)
+		{
+			if (char_XML == null) continue;
+			if(!daNote.noMissAnimation)
+				char_XML.playAnim(singAnimations[Std.int(Math.abs(daNote.noteData))] + 'miss' + daNote.animSuffix, true, MISS);
+		}
+
 		var result:Dynamic = callOnLuas('noteMiss', [notes.members.indexOf(daNote), daNote.noteData, daNote.noteType, daNote.isSustainNote]);
 		stagesFunc(function(stage:BaseStage) stage.noteMiss(daNote));
 		if(result != FunkinLua.Function_Stop && result != FunkinLua.Function_StopHScript && result != FunkinLua.Function_StopAll) callOnHScript('noteMiss', [daNote]);
@@ -3425,6 +3515,13 @@ class PlayState extends MusicBeatState
 			if (combo > 5 && gf != null && gf.animOffsets.exists('sad'))
 			{
 				gf.playAnim('sad');
+			}
+
+			for (char_XML in gfChars)
+			{
+				if (char_XML == null) continue;
+				if (combo > 5 && char_XML.animOffsets.exists('sad'))
+					char_XML.playAnim('sad');
 			}
 			combo = 0;
 
@@ -3449,6 +3546,10 @@ class PlayState extends MusicBeatState
 
 			if(boyfriend.hasMissAnimations) {
 				boyfriend.playAnim(singAnimations[Std.int(Math.abs(direction))] + 'miss', true);
+			}
+			for (char_XML in playerChars) {
+				if (char_XML == null) continue;
+				char_XML.playAnim(singAnimations[Std.int(Math.abs(direction))] + 'miss', true, MISS);
 			}
 			vocals.volume = 0;
 		}
@@ -3485,6 +3586,11 @@ class PlayState extends MusicBeatState
 			{
 				char.playAnim(animToPlay, true);
 				char.holdTimer = 0;
+			}
+
+			for (char_XML in opponentChars) {
+				if (char_XML == null) continue;
+				char_XML.playAnim(animToPlay, true, SING);
 			}
 		}
 
@@ -3532,6 +3638,11 @@ class PlayState extends MusicBeatState
 								boyfriend.playAnim('hurt', true);
 								boyfriend.specialAnim = true;
 							}
+
+							for (char_XML in playerChars) {
+								if (char_XML == null) continue;
+								if(char_XML.animation.getByName('hurt') != null) char_XML.playAnim('hurt', true);
+							}
 					}
 				}
 
@@ -3562,12 +3673,22 @@ class PlayState extends MusicBeatState
 					{
 						gf.playAnim(animToPlay + note.animSuffix, true);
 						gf.holdTimer = 0;
+
+						for (char_XML in gfChars) {
+							if (char_XML == null) continue;
+							char_XML.playAnim(animToPlay + note.animSuffix, true, SING);
+						}
 					}
 				}
 				else
 				{
 					boyfriend.playAnim(animToPlay + note.animSuffix, true);
 					boyfriend.holdTimer = 0;
+
+					for (char_XML in playerChars) {
+						if (char_XML == null) continue;
+						char_XML.playAnim(animToPlay + note.animSuffix, true, SING);
+					}
 				}
 
 				if(note.noteType == 'Hey!') {
@@ -3577,10 +3698,24 @@ class PlayState extends MusicBeatState
 						boyfriend.heyTimer = 0.6;
 					}
 
+					for (char_XML in playerChars) {
+						if (char_XML == null) continue;
+						if(char_XML.animOffsets.exists('hey')) {
+							char_XML.playAnim('hey', true);
+						}
+					}
+
 					if(gf != null && gf.animOffsets.exists('cheer')) {
 						gf.playAnim('cheer', true);
 						gf.specialAnim = true;
 						gf.heyTimer = 0.6;
+					}
+
+					for (char_XML in playerChars) {
+						if (char_XML == null) continue;
+						if(char_XML.animOffsets.exists('cheer')) {
+							char_XML.playAnim('cheer', true);
+						}
 					}
 				}
 			}
@@ -4269,16 +4404,16 @@ class PlayState extends MusicBeatState
 	}
 
 	//Lua Stuff for Mobile Controls
-	public function reloadControls(?customControllerValue:Int, ?mode:String, ?action:String)
+	public function reloadControls(?customControllerValue:Int, ?mode:String)
 	{
 		removeMobileControls();
-		addMobileControls(customControllerValue, mode, action);
+		addMobileControls(customControllerValue, mode);
 		if (customControllerValue <= 3 && customControllerValue >= 0) MusicBeatState.mobilec.alpha = ClientPrefs.data.mobilePadAlpha;
 	}
 
-	public function addControls(?customControllerValue:Int, ?mode:String, ?action:String)
+	public function addControls(?customControllerValue:Int, ?mode:String)
 	{
-		addMobileControls(customControllerValue, mode, action);
+		addMobileControls(customControllerValue, mode);
 		if (customControllerValue <= 3 && customControllerValue >= 0) MusicBeatState.mobilec.alpha = ClientPrefs.data.mobilePadAlpha;
 	}
 
@@ -4294,6 +4429,12 @@ class PlayState extends MusicBeatState
 			boyfriend.dance();
 		if (dad != null && beat % dad.danceEveryNumBeats == 0 && !dad.getAnimationName().startsWith('sing') && !dad.stunned)
 			dad.dance();
+
+		//fix idle animations
+		for (char in characters) {
+			if (char == null) continue;
+			char.beatHit(beat);
+		}
 	}
 
 	public function playerDance():Void

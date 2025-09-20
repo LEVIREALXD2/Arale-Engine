@@ -1,6 +1,6 @@
 package options.group;
 
-class MobileGroup extends OptionCata
+class ControlsGroup extends OptionCata
 {
 	#if android
 	var storageTypes:Array<String> = ["EXTERNAL_DATA", "EXTERNAL_OBB", "EXTERNAL_MEDIA", "EXTERNAL", "EXTERNAL_PE"];
@@ -49,6 +49,7 @@ class MobileGroup extends OptionCata
 		#end
 
 		#if TOUCH_CONTROLS
+		/* Goodbye In-game MobilePad Controls, I never miss them
 		var option:Option = new Option(this,
 			'Open Mobile Control Selector',
 			'Select Your In-game Control (MobilePad Controls will be removed soon for better modding)',
@@ -56,6 +57,7 @@ class MobileGroup extends OptionCata
 		);
 		addOption(option);
 		option.onChange = () -> OptionsState.instance.openSubState(new MobileControlSelectSubState());
+		*/
 
 		var option:Option = new Option(this,
 			'Open Extra Control Key Selector',
@@ -117,6 +119,14 @@ class MobileGroup extends OptionCata
 			'hitboxtype',
 			STRING,
 			['Gradient', 'No Gradient' , 'No Gradient (Old)']
+		);
+		addOption(option);
+
+		var option:Option = new Option(this,
+			'V Slice Mobile Controls',
+			'If checked, The game\'s control system will be like original Friday Night Funkin\': Mobile.\n(WARNING: This Option can break the some mechanics, please use supported mod)',
+			'VSliceControl',
+			BOOL
 		);
 		addOption(option);
 

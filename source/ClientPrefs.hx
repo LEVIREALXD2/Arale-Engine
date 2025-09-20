@@ -57,7 +57,8 @@ import TitleState;
 	#if HSC_ALLOWED
 	public var codenameFunctions:Bool = false; //experimental
 	#end
-	public var codenameCamAngle:Bool = false; //for codename mods
+	/* Codename Mod Compability Things */
+	public var codenameCamAngle:Bool = false;
 
 	/* V-Slice */
 	public var VSliceControl:Bool = false;
@@ -214,24 +215,6 @@ class ClientPrefs {
 		#end
 		if(Main.fpsVar != null #if PsychExtended_ExtraFPSCounters && ClientPrefs.data.FPSCounter == 'Psych' #end)
 			Main.fpsVar.visible = data.showFPS;
-
-		#if (!html5 && !switch)
-		if(FlxG.save.data.framerate == null) {
-			final refreshRate:Int = FlxG.stage.application.window.displayMode.refreshRate;
-			data.framerate = Std.int(FlxMath.bound(refreshRate, 60, 240));
-		}
-		#end
-
-		if(data.framerate > FlxG.drawFramerate)
-		{
-			FlxG.updateFramerate = data.framerate;
-			FlxG.drawFramerate = data.framerate;
-		}
-		else
-		{
-			FlxG.drawFramerate = data.framerate;
-			FlxG.updateFramerate = data.framerate;
-		}
 
 		if(FlxG.save.data.gameplaySettings != null)
 		{

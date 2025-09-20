@@ -108,22 +108,11 @@ class MusicBeatState extends FlxUIState
 			remove(mobilec);
 	}
 
-	public function addMobileControls(?customControllerValue:Int, ?mode:String, ?action:String) {
-		mobilec = new MobileControls(customControllerValue, mode, action);
+	public function addMobileControls(?customControllerValue:Int, ?mode:String) {
+		mobilec = new MobileControls(customControllerValue, mode);
 
-		switch (MobileControls.mode)
-		{
-			case MOBILEPAD_RIGHT | MOBILEPAD_LEFT | MOBILEPAD_CUSTOM:
-				controls.setMobilePadNOTES(mobilec.vpad, "FULL", "NONE");
-				MusicBeatState.checkHitbox = false;
-			case DUO:
-				controls.setMobilePadNOTES(mobilec.vpad, "DUO", "NONE");
-				MusicBeatState.checkHitbox = false;
-			case HITBOX:
-				controls.setHitBox(mobilec.newhbox, mobilec.hbox);
-				MusicBeatState.checkHitbox = true;
-			default:
-		}
+		controls.setHitBox(mobilec.newhbox, mobilec.hbox);
+		MusicBeatState.checkHitbox = true;
 
 		trackedinputsNOTES = controls.trackedInputsNOTES;
 		controls.trackedInputsNOTES = [];

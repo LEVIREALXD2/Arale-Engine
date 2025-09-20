@@ -1,5 +1,6 @@
 package;
 
+import haxe.io.Path;
 import flixel.math.FlxPoint;
 import flixel.graphics.frames.FlxFramesCollection;
 import flixel.graphics.frames.FlxFrame.FlxFrameAngle;
@@ -28,6 +29,7 @@ import flash.media.Sound;
 
 using StringTools;
 
+//class Paths extends Paths_CNE //Extend With CNE Functions, This makes more easier to access both of them
 class Paths
 {
 	inline public static var SOUND_EXT = #if web "mp3" #else "ogg" #end;
@@ -170,6 +172,11 @@ class Paths
 	inline static public function xml(key:String, ?library:String)
 	{
 		return getPath('data/$key.xml', TEXT, library);
+	}
+
+	inline static public function xmlMod(key:String, ?library:String)
+	{
+		return getPath('data/$key.xml', TEXT, library, true);
 	}
 
 	inline static public function json(key:String, ?library:String)
@@ -630,6 +637,23 @@ class Paths
 		currentTrackedAssets.set(file, newGraphic);
 		return newGraphic;
 	}
+	static public function getMultiAtlas(keys:Array<String>, ?parentFolder:String = null):FlxAtlasFrames
+	{
+		var parentFrames:FlxAtlasFrames = Paths.getAtlas(keys[0].trim());
+		if(keys.length > 1)
+		{
+			var original:FlxAtlasFrames = parentFrames;
+			parentFrames = new FlxAtlasFrames(parentFrames.parent);
+			parentFrames.addAtlas(original, true);
+			for (i in 1...keys.length)
+			{
+				var extraFrames:FlxAtlasFrames = Paths.getAtlas(keys[i].trim(), parentFolder);
+				if(extraFrames != null)
+					parentFrames.addAtlas(extraFrames, true);
+			}
+		}
+		return parentFrames;
+	}
 	static public function getAtlas(key:String, ?library:String):FlxAtlasFrames
 	{
 		#if MODS_ALLOWED
@@ -672,7 +696,7 @@ class Paths
 					spriteJson = getTextFromFile('images/$originalPath/spritemap1.json');
 					if(spriteJson != null)
 					{
-						//trace('found Sprite Json');
+						trace('found Sprite Json');
 						changedImage = true;
 						changedAtlasJson = true;
 						folderOrImg = Paths.image('$originalPath/spritemap1');
@@ -681,7 +705,7 @@ class Paths
 				}
 				else if(Paths.fileExists('images/$originalPath/spritemap1.png', IMAGE))
 				{
-					//trace('found Sprite PNG');
+					trace('found Sprite PNG');
 					changedImage = true;
 					folderOrImg = Paths.image('$originalPath/spritemap1');
 					break;
@@ -689,7 +713,7 @@ class Paths
 			}
 			if(!changedImage)
 			{
-				//trace('Changing folderOrImg to FlxGraphic');
+				trace('Changing folderOrImg to FlxGraphic');
 				changedImage = true;
 				folderOrImg = Paths.image(originalPath);
 			}
@@ -708,14 +732,6 @@ class Paths
 	#end
 
 	//Useful code types from Codename Engine
-	public static var tempFramesCache:Map<String, FlxFramesCollection> = [];
-
-	public static function init() {
-		FlxG.signals.preStateSwitch.add(function() {
-			tempFramesCache.clear();
-		});
-	}
-
 	inline static public function fragShaderPath(key:String)
 		return getPath('shaders/$key.frag');
 

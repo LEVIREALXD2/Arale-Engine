@@ -346,7 +346,7 @@ class Script extends FlxBasic implements IFlxDestroyable {
 			"BlendMode"		  => CoolUtil.getMacroAbstractClass("openfl.display.BlendMode"),
 
 			/* Objects */
-			"FlxAnimate"		=> flxanimate.PsychFlxAnimate,
+			"FlxAnimate"		=> flxanimate.FlxAnimate, //PsychFlxAnimate is removed for CNE compatibility
 			"HealthIcon"		=> HealthIcon,
 			"Note"			  => Note,
 			"Character"		 => Character,
@@ -363,6 +363,7 @@ class Script extends FlxBasic implements IFlxDestroyable {
 			"CustomShader"	  => funkin.backend.shaders.CustomShader,
 			"FunkinText"		=> funkin.backend.FunkinText,
 			"FunkinSprite"		=> funkin.backend.FunkinSprite,
+			"Character_XML"		  => funkin.game.Character_CNE, //will be merged with Character.hx for better usage
 
 			/* States */
 			"PlayState"		 => PlayState,

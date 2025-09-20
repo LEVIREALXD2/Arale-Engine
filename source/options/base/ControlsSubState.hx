@@ -29,9 +29,6 @@ class ControlsSubState extends MusicBeatSubstate {
 	private static var curSelected:Int = 1;
 	private static var curAlt:Bool = false;
 
-	#if TOUCH_CONTROLS
-	var SelectSubstate = MobileControlSelectSubState;
-	#end
 	private static var defaultKey:String = 'Reset to Default Keys';
 	private var bindLength:Int = 0;
 
@@ -143,17 +140,6 @@ class ControlsSubState extends MusicBeatSubstate {
 
 			if (controls.BACK) {
 				ClientPrefs.reloadControls();
-				#if TOUCH_CONTROLS
-				/* Not needed anymore
-				if (MobileControlSelectSubState.inControlsSubstate)
-				{
-					SelectSubstate.leftArrow.visible = SelectSubstate.rightArrow.visible = SelectSubstate.grpControls.visible = SelectSubstate.exit.visible = SelectSubstate.reset.visible = SelectSubstate.keyboard.visible = SelectSubstate.tipText.visible = true;
-
-					SelectSubstate.titleText.text = 'Mobile Controls';
-					MobileControlSelectSubState.inControlsSubstate = false; // Not Needed But IDK
-				}
-				*/
-				#end
 				close();
 				FlxG.sound.play(Paths.sound('cancelMenu'));
 			}

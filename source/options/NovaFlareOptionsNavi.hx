@@ -144,8 +144,6 @@ class NaviGroup extends FlxSpriteGroup
 
 class NaviMember extends FlxSpriteGroup
 {
-	var filePath:String = 'menuExtend/OptionsState/icons/';
-
 	public var optionSort:Int;
 	public var isModsAdd:Bool = false;
 

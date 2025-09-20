@@ -47,28 +47,11 @@ class MusicBeatSubstate extends FlxSubState
 		mobilePad.alpha = ClientPrefs.data.mobilePadAlpha;
 	}
 
-	/*
-	public function addVirtualPad(?DPad:String, ?Action:String) {
-		return addMobilePad(DPad, Action);
-	}
-	*/
+	public function addMobileControls(?customControllerValue:Int, ?mode:String) {
+		mobilec = new MobileControls(customControllerValue, mode);
 
-	public function addMobileControls(?customControllerValue:Int, ?mode:String, ?action:String) {
-		mobilec = new MobileControls(customControllerValue, mode, action);
-
-		switch (MobileControls.mode)
-		{
-			case MOBILEPAD_RIGHT | MOBILEPAD_LEFT | MOBILEPAD_CUSTOM:
-				controls.setMobilePadNOTES(mobilec.vpad, "FULL", "NONE");
-				MusicBeatState.checkHitbox = false;
-			case DUO:
-				controls.setMobilePadNOTES(mobilec.vpad, "DUO", "NONE");
-				MusicBeatState.checkHitbox = false;
-			case HITBOX:
-				controls.setHitBox(mobilec.newhbox, mobilec.hbox);
-				MusicBeatState.checkHitbox = true;
-			default:
-		}
+		controls.setHitBox(mobilec.newhbox, mobilec.hbox);
+		MusicBeatState.checkHitbox = true;
 
 		trackedinputsNOTES = controls.trackedInputsNOTES;
 		controls.trackedInputsNOTES = [];
@@ -95,14 +78,6 @@ class MusicBeatSubstate extends FlxSubState
 		FlxG.cameras.add(camcontrol, false);
 		mobilePad.cameras = [camcontrol];
 	}
-
-	/*
-	public function removeVirtualPad()
-		return removeMobilePad();
-
-	public function addVirtualPadCamera()
-		return addMobilePadCamera();
-	*/
 
 	override function destroy() {
 		if (trackedinputsNOTES.length > 0)

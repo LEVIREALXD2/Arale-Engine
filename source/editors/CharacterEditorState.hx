@@ -440,6 +440,7 @@ class CharacterEditorState extends MusicBeatState
 				],
 				no_antialiasing: false,
 				flip_x: false,
+				fixed_flip_x: false,
 				healthicon: 'face',
 				image: 'characters/BOYFRIEND',
 				sing_duration: 4,

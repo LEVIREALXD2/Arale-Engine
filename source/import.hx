@@ -21,16 +21,18 @@ import backend.data.*;
 import backend.ui.*;
 import shapeEx.*;
 
-// Scripting
-import funkin.backend.shaders.CustomShader;
-import funkin.backend.shaders.FunkinShader;
+// Scripting;
 import funkin.backend.scripting.ModState;
 import funkin.backend.scripting.events.*;
 import codenamecrew.hscript.macros.*;
-import funkin.backend.FunkinSprite;
-import funkin.backend.FunkinText;
 import funkin.backend.scripting.*;
+import funkin.backend.shaders.*;
 import options.group.ModGroup;
+import funkin.backend.assets.*;
+import funkin.backend.utils.*;
+import funkin.backend.system.*;
+import funkin.backend.*; //I'm making FunkinSprite in PsychExtended because it's fucking cool and useful
+import funkin.game.*;
 
 #if CNE_CHART_ALLOWED
 import funkin.backend.chart.*;
@@ -45,7 +47,7 @@ import editors.StageEditorState;
 // FlxAnimate
 #if flxanimate
 import flxanimate.*;
-import flxanimate.PsychFlxAnimate as FlxAnimate;
+//import flxanimate.PsychFlxAnimate as FlxAnimate;
 #end
 
 import options.base.*; //Import base ones instead of NovaFlare's
