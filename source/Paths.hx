@@ -199,17 +199,27 @@ class Paths
 
 	inline public static function getScriptPath(file:String = '')
 	{
-		return 'scripting/$file';
+		#if mobile
+		//Check External first (
+		if(FileSystem.exists(StorageUtil.getExternalStorageDirectory() + 'scripting/$file')) {
+			trace('file: ' + StorageUtil.getExternalStorageDirectory() + file + ' exists');
+			return StorageUtil.getExternalStorageDirectory() + 'scripting/$file';
+		}
+		else
+		#end
+			return 'scripting/$file';
 	}
 
-	inline static public function script(key:String, ?library:String, isAssetsPath:Bool = false) {
+	inline static public function script(key:String, ?library:String, isOnlyScriptingPath:Bool = false) {
 		#if SCRIPTING_ALLOWED
 		var scriptToLoad:String = null;
 		for(ex in Script.scriptExtensions) {
 			#if MODS_ALLOWED
-			scriptToLoad = Paths.modFolders('data/${key}.$ex'); //menuFolders can usable instead but this repo doesn't support it for now
+			scriptToLoad = Paths.modFolders('${key}.$ex');
 			if(!FileSystem.exists(scriptToLoad))
 				scriptToLoad = Paths.getScriptPath('${key}.$ex');
+
+			if (isOnlyScriptingPath) scriptToLoad = Paths.getScriptPath('${key}.$ex');
 			#else
 			scriptToLoad = Paths.getScriptPath('${key}.$ex');
 			#end

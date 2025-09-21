@@ -55,6 +55,7 @@ import openfl.display.OpenGLView;
 
 using flixel.util.FlxArrayUtil;
 #end
+import lime.app.Application;
 
 #if html5
 import flixel.system.frontEnds.HTML5FrontEnd;
@@ -800,6 +801,8 @@ class FlxG
 	{
 		updateFramerate = value;
 		drawFramerate = value;
+		if (Application.current.window.vsync) Application.current.window.vsync = false;
+		if (fixedTimestep) fixedTimestep = false;
 		return value;
 	}
 

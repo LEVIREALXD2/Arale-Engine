@@ -94,6 +94,7 @@ class CustomSwitchState
 					filePath = customPath;
 
 				var path = Paths.script(filePath);
+				trace('CustomSwitchPath: $path');
 				var script = Script.create(path);
 				script.remappedNames.set(script.fileName, '${script.fileName}');
 				stateScripts.add(script);

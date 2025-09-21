@@ -454,7 +454,7 @@ class FlxGame extends Sprite
 		debugger.stats.onFocusLost();
 		#end
 
-		//stage.frameRate = focusLostFramerate;
+		stage.frameRate = focusLostFramerate;
 		#if FLX_SOUND_SYSTEM
 		FlxG.sound.onFocusLost();
 		#end

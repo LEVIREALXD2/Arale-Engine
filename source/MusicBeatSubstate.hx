@@ -234,7 +234,7 @@ class MusicBeatSubstate extends FlxSubState
 				var filePath:String = "substates/" + scriptName;
 				if (customPath != null)
 					filePath = customPath;
-				var path = Paths.script(filePath);
+				var path = Paths.script('data/' + filePath);
 				var script = Script.create(path);
 				script.remappedNames.set(script.fileName, '${script.fileName}');
 				stateScripts.add(script);

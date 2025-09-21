@@ -425,20 +425,22 @@ class MusicBeatState extends FlxUIState
 				var filePath:String = "states/" + scriptName;
 				if (customPath != null)
 					filePath = customPath;
-				var path = Paths.script(filePath);
+				var path = Paths.script('data/' + filePath);
 				trace('script path: ${path}');
 				var script = Script.create(path);
 				script.remappedNames.set(script.fileName, '${script.fileName}');
 				stateScripts.add(script);
 
 				//Apply it on every state
+				/* we got a better one
 				var pathGlobal = Paths.script("states/Global");
 				trace('script path: ${pathGlobal}');
 				var scriptGlobal = Script.create(pathGlobal);
 				stateScripts.add(scriptGlobal);
+				*/
 
 				script.load();
-				scriptGlobal.load();
+				//scriptGlobal.load();
 				call('create');
 			}
 			else stateScripts.reload();

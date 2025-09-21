@@ -1,6 +1,7 @@
 package scripting;
 
 #if SCRIPTING_ALLOWED
+import flixel.FlxState;
 import ClientPrefs;
 import haxe.io.Path;
 import haxe.exceptions.NotImplementedException;
@@ -422,8 +423,7 @@ class Script extends FlxBasic implements IFlxDestroyable {
 	 */
 	public static var scriptExtensions:Array<String> = [
 		"hx", "hscript", "hsc", "hxs",
-		"pack", // combined file
-		"lua" /** ACTUALLY NOT SUPPORTED, ONLY FOR THE MESSAGE **/
+		"pack" // combined file
 	];
 
 	/**
@@ -832,4 +832,113 @@ class ScriptPack extends Script {
 		]);
 	}
 }
+
+
+#if GLOBAL_SCRIPT
+/**
+ * Class for THE Global Script, aka script that runs in the background at all times.
+ * Only support by Scripting folder for now.
+ */
+class GlobalScript {
+	public static var scripts:ScriptPack;
+
+	private static var initialized:Bool = false;
+	private static var reloading:Bool = false;
+	private static var _lastAllow_Reload:Bool = false;
+
+	public static function init() {
+		if(initialized) return;
+		initialized = true;
+
+		onSetupScript();
+
+		//maybe later
+		//Conductor.onBeatHit.add(beatHit);
+		//Conductor.onStepHit.add(stepHit);
+
+		FlxG.signals.focusGained.add(function() {
+			call("focusGained");
+		});
+		FlxG.signals.focusLost.add(function() {
+			call("focusLost");
+		});
+		FlxG.signals.gameResized.add(function(w:Int, h:Int) {
+			call("gameResized", [w, h]);
+		});
+		FlxG.signals.postDraw.add(function() {
+			call("postDraw");
+		});
+		FlxG.signals.postGameReset.add(function() {
+			call("postGameReset");
+		});
+		FlxG.signals.postGameStart.add(function() {
+			call("postGameStart");
+		});
+		FlxG.signals.postStateSwitch.add(function() {
+			call("postStateSwitch");
+		});
+		FlxG.signals.postUpdate.add(function() {
+			call("postUpdate", [FlxG.elapsed]);
+		});
+		FlxG.signals.preDraw.add(function() {
+			call("preDraw");
+		});
+		FlxG.signals.preGameReset.add(function() {
+			call("preGameReset");
+		});
+		FlxG.signals.preGameStart.add(function() {
+			call("preGameStart");
+		});
+		FlxG.signals.preStateCreate.add(function(state:FlxState) {
+			call("preStateCreate", [state]);
+		});
+		FlxG.signals.preStateSwitch.add(function() {
+			call("preStateSwitch", []);
+		});
+
+		FlxG.signals.preUpdate.add(function() {
+			call("preUpdate", [FlxG.elapsed]);
+			call("update", [FlxG.elapsed]);
+		});
+	}
+
+	public static function onSetupScript() {
+		destroy();
+		scripts = new ScriptPack("GlobalScript");
+
+		var path = Paths.script('data/global', null, true); //I used `true` because I don't want add this feature to the mods rn
+		trace(path);
+		var script = Script.create(path);
+		if (script is DummyScript) {
+			trace('script is dummy');
+			//do nothing
+		} else {
+			trace('script isn\'t dummy');
+			script.remappedNames.set(script.fileName, '${script.fileName}');
+			scripts.add(script);
+			script.load();
+		}
+	}
+
+	public static inline function event<T:CancellableEvent>(name:String, event:T):T {
+		if (scripts != null)
+			scripts.event(name, event);
+		return event;
+	}
+
+	public static inline function call(name:String, ?args:Array<Dynamic>)
+		if (scripts != null) scripts.call(name, args);
+
+	public static inline function beatHit(curBeat:Int)
+		call("beatHit", [curBeat]);
+
+	public static inline function stepHit(curStep:Int)
+		call("stepHit", [curStep]);
+
+	public static inline function destroy() if (scripts != null) {
+		call("destroy");
+		scripts = FlxDestroyUtil.destroy(scripts);
+	}
+}
+#end
 #end

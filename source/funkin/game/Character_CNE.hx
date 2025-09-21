@@ -75,7 +75,7 @@ class Character_CNE extends FunkinSprite implements IBeatReceiver implements IOf
 		xml = getXMLFromCharName(this);
 
 		if(!disableScripts)
-			script = Script.create(Paths.script(Path.withoutExtension(Paths.xmlMod('characters/$curCharacter')), null, true));
+			script = Script.create(Paths.script('data/' + Path.withoutExtension(Paths.xmlMod('characters/$curCharacter')), null, true));
 		if (script == null)
 			script = new DummyScript(curCharacter);
 

@@ -31,7 +31,7 @@
 	<!-- ____________________________ Window Settings ___________________________ -->
 
 	<!--These window settings apply to all targets-->
-	<window width="1280" height="720" fps="60" background="#000000" hardware="true" vsync="false" allow-high-dpi="true" />
+	<window width="1280" height="720" fps="" background="#000000" hardware="true" vsync="false" allow-high-dpi="true" />
 
 	<!--HTML5-specific-->
 	<window if="html5" resizable="true" />
@@ -62,8 +62,11 @@
 	<classpath name="library" />
 
 	<!-- PSYCH EXTENDED CUSTOMIZATION -->
+	
+	<!-- || Mobile Defines || -->
 	<define name="TOUCH_CONTROLS" if="mobile" />
 
+	<!-- || Usele Defines || -->
 	<define name="EXTRA_FPSCOUNTER" unless="extras_disabled"/>
 
 	<define name="EXTRA_FREEPLAY" unless="extras_disabled"/>
@@ -74,20 +77,25 @@
 
 	<define name="EXTRA_PAUSE" unless="extras_disabled"/>
 
+	<!-- Comment this out if you want to disable Modpacks (When Comment this out, you can't use most of the custom menus from mods) -->
+	<define name="MODPACK_ALLOWED" />
+
+	<!-- || Codename Engine Defines || -->
+
 	<!-- Comment this out if you want to disable CNE Chart Converter (When Comment this out, you can't use CNE Charts in PsychExtended) -->
 	<define name="CNE_CHART_ALLOWED" />
 
 	<!-- Mimic the FLX_CNE_FORK value (It gives the warning but works) -->
 	<define name="FLX_CNE_FORK" />
 
-	<!-- Comment this out if you want to disable Modpacks (When Comment this out, you can't use most of the custom menus from mods) -->
-	<define name="MODPACK_ALLOWED" />
-
 	<!-- Comment this out if you want to disable HScript Improved Scripts (Not Recommend) -->
 	<define name="HSC_ALLOWED" />
 
 	<!-- Allow to change states/substates with hscript -->
 	<define name="SCRIPTING_ALLOWED" />
+
+	<!-- Global Script shit, I'll write the desc later -->
+	<define name="GLOBAL_SCRIPT" if="SCRIPTING_ALLOWED" />
 
 	<!-- Comment this out to prevent extending classes in hscript.
 		 Reduces compilation time at the cost of limited HScript flexibility. !-->
@@ -192,8 +200,6 @@
 	<haxelib name="faxe" if='switch'/>
 
 	<haxelib name="discord_rpc" if="desktop"/>
-
-	<!-- <haxelib name="extension-androidtools" if="android"/> -->
 
 	<haxelib name="SScript" if="HSCRIPT_ALLOWED"/>
 

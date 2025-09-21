@@ -64,14 +64,14 @@ class Main extends Sprite
 
 	public function new()
 	{
-		super();
+		CrashHandler.init();
 		#if mobile
 		#if android
 		StorageUtil.requestPermissions();
 		#end
 		Sys.setCwd(StorageUtil.getStorageDirectory());
 		#end
-		CrashHandler.init();
+		super();
 
 		#if windows
 		@:functionCode("
@@ -130,6 +130,10 @@ class Main extends Sprite
 
 		addChild(new FlxGame(game.width, game.height, #if (mobile && MODS_ALLOWED) CopyState.checkExistingFiles() ? game.initialState : CopyState #else game.initialState #end, #if (flixel < "5.0.0") game.zoom, #end framerateShit, framerateShit, game.skipSplash, game.startFullscreen));
 
+		#if GLOBAL_SCRIPT
+		scripting.HScript.GlobalScript.init();
+		#end
+
 		#if EXTRA_FPSCOUNTER
 		/* Note to future myself: don't forget the add FPS.tff into fonts folder because if font can't found game instantly crashes, if you forget it again you're a idiot */
 		fpsVarNova = new FPS(5, 5);
@@ -169,7 +173,6 @@ class Main extends Sprite
 		FlxG.fixedTimestep = false;
 		FlxG.game.focusLostFramerate = #if mobile 30 #else 60 #end;
 		Application.current.window.vsync = false;
-
 		FlxG.signals.preUpdate.add(fixSlowdown);
 
 		// shader and mobile device coords fix
@@ -189,19 +192,13 @@ class Main extends Sprite
 				resetSpriteCache(FlxG.game);
 		});
 	}
-	
+
+	/* Fixes the Modpack Switch Slowdown */
 	function fixSlowdown() {
-		if (Reflect.hasField(FlxG.save.data, 'framerate')) {
-			var intFrame:Int = FlxG.save.data.framerate;
-			if (FlxG.gameFramerate != FlxG.save.data.framerate) {
-				trace('framerates isnt same');
-				FlxG.gameFramerate = FlxG.save.data.framerate;
-			}
-		} else { //if save data doesn't have `framerate`
-			if (FlxG.gameFramerate != FlxG.save.data.framerate) {
-				FlxG.gameFramerate = 60;
-			}
-		}
+		if (Reflect.hasField(FlxG.save.data, 'framerate'))
+			FlxG.gameFramerate = FlxG.save.data.framerate;
+		else
+			FlxG.gameFramerate = 60;
 	}
 
 	static function resetSpriteCache(sprite:Sprite):Void {
