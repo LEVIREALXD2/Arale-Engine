@@ -423,7 +423,8 @@ class Script extends FlxBasic implements IFlxDestroyable {
 	 */
 	public static var scriptExtensions:Array<String> = [
 		"hx", "hscript", "hsc", "hxs",
-		"pack" // combined file
+		"pack", // combined file
+		"lua" /** ACTUALLY NOT SUPPORTED, ONLY FOR THE MESSAGE **/
 	];
 
 	/**
@@ -711,7 +712,7 @@ class ScriptPack extends Script {
 	public override function load() {
 		for(e in scripts) {
 			e.load();
-			trace('Script Loaded: ${e}');
+			//trace('Script Loaded: ${e}');
 		}
 	}
 

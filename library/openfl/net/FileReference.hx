@@ -476,6 +476,7 @@ class FileReference extends EventDispatcher
 	public var extension(get, null):String;
 
 	@:noCompletion private var __data:ByteArray;
+	@:noCompletion private var __dataAsDynamic:Dynamic;
 	@:noCompletion public var __path:String;
 	@:noCompletion private var __urlLoader:URLLoader;
 	#if (js && html5)
@@ -1061,8 +1062,11 @@ class FileReference extends EventDispatcher
 	{
 		__data = null;
 		__path = null;
+		__dataAsDynamic = null;
 
 		if (data == null) return;
+
+		__dataAsDynamic = data; //use this there
 
 		#if (desktop || android)
 		if ((data is ByteArrayData))
@@ -1451,12 +1455,17 @@ class FileReference extends EventDispatcher
 
 	@:noCompletion private function saveFileDialog_onSelect(path:String):Void
 	{
-		#if (desktop && sys)
+		#if (desktop && sys || android && sys)
 		name = Path.withoutDirectory(path);
 
 		if (__data != null)
 		{
-			File.saveBytes(path, __data);
+			#if android
+			trace('your data is: ${__dataAsDynamic}');
+			trace('your data path is: ${path}');
+			trace('your data fixed path is: ' + getFixedAndroidPath(path));
+			#end
+			File.saveBytes(#if android getFixedAndroidPath(path) #else path #end, __data);
 
 			__data = null;
 			__path = null;
@@ -1469,6 +1478,35 @@ class FileReference extends EventDispatcher
 
 		dispatchEvent(new Event(Event.SELECT));
 	}
+
+	/**
+	 * Basically Fixes the Save System For Android Devices
+	 * Not tested on other android devices right now, so there's can be a problem
+	*/
+	#if android
+	@:noCompletion public function getFixedAndroidPath(path:String):String
+	{
+		//bunch of `if` conduction here because Idk how can I do this better ;)
+		if (path.startsWith('/document/raw:')) //Global Path Fix
+			path = path.replace('/document/raw:', '');
+		if (path.startsWith('/document/primary:')) //Download, Images, etc... Fix (I know there's 1 too, but many of the peoples only has 0, so fuck it)
+			path = path.replace('/document/primary:', '/storage/emulated/0/');
+		if (path.startsWith('/document//')) //Data Fix
+			path = path.replace('/document/', '/');
+		if (path.startsWith('/document/')) //SD Card Fix Part 1
+			path = path.replace('/document/', '/storage/');
+
+		//SD Card Fix Part 2 (Get the first `:` symbol and change it with `/`)
+		var original:String = path;
+		var colonIndex:Int = original.indexOf(":");
+		if (colonIndex != -1) {
+			path = original.substring(0, colonIndex) + "/" + original.substring(colonIndex + 1);
+			trace(path); // Output Should be like this: `/storage/BB77-1C14/week1.json` (Accessable Path)
+		}
+
+		return path;
+	}
+	#end
 
 	@:noCompletion private function urlLoader_download_onComplete(event:Event):Void
 	{

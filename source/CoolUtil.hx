@@ -245,6 +245,21 @@ class CoolUtil
 	@:noUsing public static inline function maxInt(p1:Int, p2:Int)
 		return p1 < p2 ? p2 : p1;
 
+	/**
+	 * Pushes an element to an array, but only if it doesn't already exist.
+	 * @param array Array to push to
+	 * @param element Element to push
+	 */
+	public static inline function pushOnce<T>(array:Array<T>, element:T) {
+		#if (haxe >= "4.0.0")
+		if (!array.contains(element))
+			array.push(element);
+		#else
+		if (array.indexOf(element) == -1)
+			array.push(element);
+		#end
+	}
+
 	inline public static function quantize(f:Float, snap:Float){
 		// changed so this actually works lol
 		var m:Float = Math.fround(f * snap);

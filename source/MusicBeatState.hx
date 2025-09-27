@@ -351,6 +351,8 @@ class MusicBeatState extends FlxUIState
 			stage.curDecStep = curDecStep;
 			stage.stepHit();
 		});
+		#if GLOBAL_SCRIPT GlobalScript.stepHit(curStep); #end
+		call("stepHit", [curStep]);
 
 		if (curStep % 4 == 0)
 			beatHit();
@@ -365,6 +367,8 @@ class MusicBeatState extends FlxUIState
 			stage.curDecBeat = curDecBeat;
 			stage.beatHit();
 		});
+		#if GLOBAL_SCRIPT GlobalScript.beatHit(curBeat); #end
+		call("beatHit", [curBeat]);
 	}
 
 	public function sectionHit():Void
@@ -374,6 +378,7 @@ class MusicBeatState extends FlxUIState
 			stage.curSection = curSection;
 			stage.sectionHit();
 		});
+		call("measureHit", [curSection]); //Its same as the sectionHit I guess
 	}
 
 	function getBeatsOnSection()
@@ -497,5 +502,15 @@ class MusicBeatState extends FlxUIState
 		{
 			subState.tryUpdate(elapsed);
 		}
+	}
+
+	public override function onFocus() {
+		super.onFocus();
+		call("onFocus");
+	}
+
+	public override function onFocusLost() {
+		super.onFocusLost();
+		call("onFocusLost");
 	}
 }

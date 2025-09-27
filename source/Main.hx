@@ -3,6 +3,7 @@ package;
 import mobile.backend.CrashHandler;
 import openfl.events.UncaughtErrorEvent;
 import debug.FPSCounter;
+import flixel.addons.transition.FlxTransitionableState;
 #if EXTRA_FPSCOUNTER
 import objects.screen.Graphics;
 import objects.screen.FPS;
@@ -128,6 +129,10 @@ class Main extends Sprite
 		var framerateShit:Int = game.framerate;
 		if (Reflect.hasField(FlxG.save.data, 'framerate')) framerateShit = Reflect.field(FlxG.save.data, 'framerate'); //double check lol
 
+		if (!TitleState.initialized) { //double check lol
+			FlxTransitionableState.skipNextTransIn = true;
+			FlxTransitionableState.skipNextTransOut = true;
+		}
 		addChild(new FlxGame(game.width, game.height, #if (mobile && MODS_ALLOWED) CopyState.checkExistingFiles() ? game.initialState : CopyState #else game.initialState #end, #if (flixel < "5.0.0") game.zoom, #end framerateShit, framerateShit, game.skipSplash, game.startFullscreen));
 
 		#if GLOBAL_SCRIPT

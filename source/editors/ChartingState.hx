@@ -50,7 +50,7 @@ import flash.media.Sound;
 class ChartingState extends MusicBeatState
 {
 	public static var isFreePlay:Bool = false;
-	var useDesktopThings:Bool = #if TOUCH_CONTROLS (ClientPrefs.data.KeyboardFixes ? true : false) #else true #end;
+	var usingMobile:Bool = #if TOUCH_CONTROLS (ClientPrefs.data.KeyboardFixes ? false : true) #else false #end;
 	public static var noteTypeList:Array<String> = //Used for backwards compatibility with 0.1 - 0.3.2 charts, though, you should add your hardcoded custom note types here too.
 	[
 		'',
@@ -328,7 +328,7 @@ class ChartingState extends MusicBeatState
 		UI_box.y = 25;
 		UI_box.scrollFactor.set();
 
-		if (!useDesktopThings)
+		if (usingMobile)
 		{
 			text = "Up/Down - Change Conductor's strum time
 			\nLeft/Right - Go to the previous/next section"
@@ -400,7 +400,7 @@ class ChartingState extends MusicBeatState
 
 		#if TOUCH_CONTROLS
 		addMobilePad("CHART_EDITOR", "CHART_EDITOR");
-		if (useDesktopThings) mobilePad.y = 1920; //visible doesn't work, so I'll use this instead
+		if (!usingMobile) mobilePad.active = mobilePad.visible = false;
 		#end
 
 		super.create();
@@ -1501,7 +1501,7 @@ class ChartingState extends MusicBeatState
 		persistentUpdate = true;
 		#if TOUCH_CONTROLS
 		addMobilePad("CHART_EDITOR", "CHART_EDITOR");
-		if (useDesktopThings) mobilePad.y = 1920; //visible doesn't work, so I'll use this instead
+		if (!usingMobile) mobilePad.active = mobilePad.visible = false;
 		#end
 		if(playtesting)
 		{
@@ -1761,10 +1761,27 @@ class ChartingState extends MusicBeatState
 		FlxG.watch.addQuick('daBeat', curBeat);
 		FlxG.watch.addQuick('daStep', curStep);
 
-		if (!useDesktopThings)
+		if (usingMobile)
 		{
 			for (touch in FlxG.touches.list)
 			{
+				if (touch.x > gridBG.x
+					&& touch.x < gridBG.x + gridBG.width
+					&& touch.y > gridBG.y
+					&& touch.y < gridBG.y + (GRID_SIZE * getSectionBeats() * 4) * zoomList[curZoom])
+				{
+					dummyArrow.visible = true;
+					dummyArrow.x = Math.floor(touch.x / GRID_SIZE) * GRID_SIZE;
+					if (FlxG.keys.pressed.SHIFT #if TOUCH_CONTROLS || mobilePad.buttonY.pressed #end)
+						dummyArrow.y = touch.y;
+					else
+						dummyArrow.y = Math.floor(touch.y / GRID_SIZE) * GRID_SIZE;
+				}
+				else
+				{
+					dummyArrow.visible = false;
+				}
+
 				if (touch.justPressed)
 				{
 					if (touch.overlaps(curRenderedNotes))
@@ -1805,23 +1822,6 @@ class ChartingState extends MusicBeatState
 						}
 					}
 					#end
-				}
-
-				if (touch.x > gridBG.x
-					&& touch.x < gridBG.x + gridBG.width
-					&& touch.y > gridBG.y
-					&& touch.y < gridBG.y + (GRID_SIZE * getSectionBeats() * 4) * zoomList[curZoom])
-				{
-					dummyArrow.visible = true;
-					dummyArrow.x = Math.floor(touch.x / GRID_SIZE) * GRID_SIZE;
-					if (FlxG.keys.pressed.SHIFT #if TOUCH_CONTROLS || mobilePad.buttonY.pressed #end)
-						dummyArrow.y = touch.y;
-					else
-						dummyArrow.y = Math.floor(touch.y / GRID_SIZE) * GRID_SIZE;
-				}
-				else
-				{
-					dummyArrow.visible = false;
 				}
 			}
 		}
@@ -2031,7 +2031,7 @@ class ChartingState extends MusicBeatState
 					resetSection();
 			}
 
-			if (useDesktopThings)
+			if (!usingMobile)
 			{
 				if (FlxG.mouse.wheel != 0)
 				{
@@ -3116,7 +3116,7 @@ class ChartingState extends MusicBeatState
 		//	undos.push(newsong);
 		var noteStrum = getStrumTime(dummyArrow.y * (getSectionBeats() / 4), false) + sectionStartTime();
 		var noteData = 0;
-		if (!useDesktopThings)
+		if (usingMobile)
 			for (touch in FlxG.touches.list)
 				noteData = Math.floor((touch.x - GRID_SIZE) / GRID_SIZE);
 		else

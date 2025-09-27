@@ -154,6 +154,14 @@ class WeekEditorState extends MusicBeatState
 		saveWeekButton.screenCenter(X);
 		saveWeekButton.x += 120;
 		add(saveWeekButton);
+
+		var saveAsWeekButton:FlxButton = new FlxButton(0, 650, "Save As Week", function() {
+			saveWeek(weekFile, true);
+		});
+		saveAsWeekButton.screenCenter(X);
+		saveAsWeekButton.x += 120;
+		saveAsWeekButton.y -= 120;
+		add(saveAsWeekButton);
 	}
 
 	var songsInputText:FlxUIInputText;
@@ -694,6 +702,14 @@ class WeekEditorFreeplayState extends MusicBeatState
 		saveWeekButton.screenCenter(X);
 		saveWeekButton.x += 120;
 		add(saveWeekButton);
+
+		var saveAsWeekButton:FlxButton = new FlxButton(0, 685, "Save As Week", function() {
+			WeekEditorState.saveWeek(weekFile, true);
+		});
+		saveAsWeekButton.screenCenter(X);
+		saveAsWeekButton.x += 120;
+		saveAsWeekButton.y -= 120;
+		add(saveAsWeekButton);
 	}
 	
 	override function getEvent(id:String, sender:Dynamic, data:Dynamic, ?params:Array<Dynamic>) {

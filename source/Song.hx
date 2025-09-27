@@ -28,8 +28,6 @@ typedef SwagSong =
 	var stage:String;
 	var format:String;
 
-	@:optional var chartSystem:String; //Doesn't work for now
-	@:optional var cameraMode:String;
 	@:optional var disableVSliceControls:Bool; //for mechanics
 
 	@:optional var gameOverChar:String;
@@ -42,6 +40,17 @@ typedef SwagSong =
 	@:optional var arrowSkin:String;
 	@:optional var splashSkin:String;
 	var validScore:Bool;
+}
+
+typedef ExtraChartOptionsMain =
+{
+	options:Array<ExtraChartOptions>
+}
+
+typedef ExtraChartOptions =
+{
+	forcedChart:String, // forced chart system, works like txt ones but this one in json instead of txt.
+	forcedCamera:String //0.6 or 0.7x camera system (maybe CNE Camera can be added when Stage system full finished)
 }
 
 class Song
@@ -173,13 +182,9 @@ class Song
 	public static function loadFromJson(jsonInput:String, ?folder:String):SwagSong
 	{
 		PlayState.forcedChartLoadSystem = null;
-		//forced charts (only changes the chart loading, if you want to use editor you need to change Chart Load System From Options)
-		var loadedSongFolder = 'data/' + Paths.formatToSongPath(folder) + '/1.0-Chart.txt'; //Forces to load 1.0x charts
-		var loadedOldSongFolder = 'data/' + Paths.formatToSongPath(folder) + '/0.6-Chart.txt'; //Only useful for base game songs
-		var chartOption = ClientPrefs.data.chartLoadSystem;
+		PlayState.cameraMode = null;
 
-		if(Paths.fileExists(loadedSongFolder, TEXT, false) && chartOption != '1.0x') PlayState.forcedChartLoadSystem = '1.0x';
-		else if(Paths.fileExists(loadedOldSongFolder, TEXT, false) && chartOption != '0.4-0.7x') PlayState.forcedChartLoadSystem = '0.4-0.7x';
+		getExtraChartOptions(folder);
 
 		var cneChartExists:Bool = false;
 		var convertedChart:String = null;
@@ -216,7 +221,7 @@ class Song
 			loadedSongName = folder;
 			chartPath = _lastPath.replace('/', '\\');
 			if(jsonInput != 'events') StageData.loadDirectory(PlayState.SONG);
-			return PlayState.SONG; 
+			return PlayState.SONG;
 		}
 		else
 		{
@@ -259,6 +264,31 @@ class Song
 			onLoadJson(songJson);
 			if (ClientPrefs.data.chartLoadSystem == '1.0x') PlayState.SONG = songJson; //1.0 option fix
 			return songJson;
+		}
+	}
+
+	public static function getExtraChartOptions(folder:String) {
+		var chartOption = ClientPrefs.data.chartLoadSystem;
+		var loadedSongFolder = 'data/' + Paths.formatToSongPath(folder) + '/extraOptions.json';
+		var extraChartOptions:ExtraChartOptionsMain;
+		trace('getExtraChartOptions: Started');
+
+		if (Paths.fileExists(loadedSongFolder, TEXT, false)) {
+			//trace('getExtraChartOptions: File Found');
+			var customChartOption = Paths.getPath(loadedSongFolder, TEXT, true);
+			extraChartOptions = cast Json.parse(File.getContent(customChartOption));
+
+			for (option in extraChartOptions.options) {
+				//trace('getExtraChartOptions: Options Loading');
+				if (option.forcedCamera != null) PlayState.cameraMode = option.forcedCamera;
+				if(option.forcedChart == '1.0x' && chartOption != '1.0x') PlayState.forcedChartLoadSystem = '1.0x';
+				else if(option.forcedChart == '0.4-0.7x' && chartOption != '0.4-0.7x') PlayState.forcedChartLoadSystem = '0.4-0.7x';
+				else PlayState.forcedChartLoadSystem = null;
+
+				//trace('getExtraChartOptions: Options Loaded');
+				//trace('getExtraChartOptions: forcedCamera: ${PlayState.cameraMode}');
+				//trace('getExtraChartOptions: forcedChart: ${PlayState.forcedChartLoadSystem}');
+			}
 		}
 	}
 

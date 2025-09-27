@@ -1718,7 +1718,13 @@ class StageEditorState extends MusicBeatState implements PsychUIEventHandler.Psy
 		_file.addEventListener(IOErrorEvent.IO_ERROR, onLoadError);
 
 		final filters = [new FileFilter('PNG (Image)', '*.png'), new FileFilter('XML (Sparrow)', '*.xml'), new FileFilter('JSON (Aseprite)', '*.json'), new FileFilter('TXT (Packer)', '*.txt')];
-		_file.browse(#if !mac filters #elseif android ["png"] #else [] #end);
+
+		#if android
+		var jsonFilter:FileFilter = new FileFilter('PNG (Image)', 'png');
+		_file.browse([jsonFilter]);
+		#else
+		_file.browse(#if !mac filters #else [] #end);
+		#end
 	}
 	
 	private function onLoadComplete(_):Void

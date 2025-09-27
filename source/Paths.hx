@@ -200,9 +200,9 @@ class Paths
 	inline public static function getScriptPath(file:String = '')
 	{
 		#if mobile
-		//Check External first (
+		//Check External first
 		if(FileSystem.exists(StorageUtil.getExternalStorageDirectory() + 'scripting/$file')) {
-			trace('file: ' + StorageUtil.getExternalStorageDirectory() + file + ' exists');
+			//trace('file: ' + StorageUtil.getExternalStorageDirectory() + file + ' exists');
 			return StorageUtil.getExternalStorageDirectory() + 'scripting/$file';
 		}
 		else
@@ -706,7 +706,7 @@ class Paths
 					spriteJson = getTextFromFile('images/$originalPath/spritemap1.json');
 					if(spriteJson != null)
 					{
-						trace('found Sprite Json');
+						//trace('found Sprite Json');
 						changedImage = true;
 						changedAtlasJson = true;
 						folderOrImg = Paths.image('$originalPath/spritemap1');
@@ -715,7 +715,7 @@ class Paths
 				}
 				else if(Paths.fileExists('images/$originalPath/spritemap1.png', IMAGE))
 				{
-					trace('found Sprite PNG');
+					//trace('found Sprite PNG');
 					changedImage = true;
 					folderOrImg = Paths.image('$originalPath/spritemap1');
 					break;
@@ -723,7 +723,7 @@ class Paths
 			}
 			if(!changedImage)
 			{
-				trace('Changing folderOrImg to FlxGraphic');
+				//trace('Changing folderOrImg to FlxGraphic');
 				changedImage = true;
 				folderOrImg = Paths.image(originalPath);
 			}

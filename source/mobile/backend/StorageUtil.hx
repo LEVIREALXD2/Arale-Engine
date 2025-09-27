@@ -70,7 +70,7 @@ class StorageUtil
 			}
 		}
 
-		/* More Beginner Friendly Code */
+		/* Hardcoded Storage Types, these types cannot be changed by Custom Type */
 		switch(curStorageType) {
 			case 'EXTERNAL':
 				daPath = '/storage/emulated/0/.Psych Extended';
@@ -129,6 +129,11 @@ class StorageUtil
 			if (!FileSystem.exists(StorageUtil.getExternalStorageDirectory() + 'modpack'))
 				FileSystem.createDirectory(StorageUtil.getExternalStorageDirectory() + 'modpack');
 			#end
+			#if SCRIPTING_ALLOWED
+			//Add this because other peoples are idiot
+			if (!FileSystem.exists(StorageUtil.getExternalStorageDirectory() + 'scripting'))
+				FileSystem.createDirectory(StorageUtil.getExternalStorageDirectory() + 'scripting');
+			#end
 		}
 		catch (e:Dynamic)
 		{
@@ -182,8 +187,10 @@ class StorageUtil
 	{
 		var process = new Process('grep -o "/storage/....-...." /proc/mounts | paste -sd \',\'');
 		var paths:String = process.stdout.readAll().toString();
+		trace(paths);
 		if (splitStorage)
 			paths = paths.replace('/storage/', '');
+		trace(paths);
 		return paths.split(',');
 	}
 

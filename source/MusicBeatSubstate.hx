@@ -87,6 +87,8 @@ class MusicBeatSubstate extends FlxSubState
 			controls.removeVirtualControlsInput(trackedinputsUI);
 
 		super.destroy();
+		call("destroy");
+		stateScripts = FlxDestroyUtil.destroy(stateScripts);
 
 		if (mobilePad != null)
 			mobilePad = FlxDestroyUtil.destroy(mobilePad);
@@ -184,17 +186,20 @@ class MusicBeatSubstate extends FlxSubState
 
 	public function stepHit():Void
 	{
+		call("stepHit", [curStep]);
 		if (curStep % 4 == 0)
 			beatHit();
 	}
 
 	public function beatHit():Void
 	{
+		call("beatHit", [curBeat]);
 		//do literally nothing dumbass
 	}
 
 	public function sectionHit():Void
 	{
+		call("measureHit", [curSection]); //Its same as the sectionHit I guess
 		//yep, you guessed it, nothing again, dumbass
 	}
 
@@ -302,5 +307,15 @@ class MusicBeatSubstate extends FlxSubState
 			stateScripts.call(name, [event]);
 		#end
 		return event;
+	}
+
+	public override function onFocus() {
+		super.onFocus();
+		call("onFocus");
+	}
+
+	public override function onFocusLost() {
+		super.onFocusLost();
+		call("onFocusLost");
 	}
 }
