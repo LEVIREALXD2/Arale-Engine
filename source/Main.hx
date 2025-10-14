@@ -1,5 +1,7 @@
 package;
 
+import openfl.text.TextField;
+import openfl.text.TextFormat;
 import mobile.backend.CrashHandler;
 import openfl.events.UncaughtErrorEvent;
 import debug.FPSCounter;
@@ -133,7 +135,17 @@ class Main extends Sprite
 			FlxTransitionableState.skipNextTransIn = true;
 			FlxTransitionableState.skipNextTransOut = true;
 		}
-		addChild(new FlxGame(game.width, game.height, #if (mobile && MODS_ALLOWED) CopyState.checkExistingFiles() ? game.initialState : CopyState #else game.initialState #end, #if (flixel < "5.0.0") game.zoom, #end framerateShit, framerateShit, game.skipSplash, game.startFullscreen));
+		var game:FlxGame = new FlxGame(game.width, game.height, #if (mobile && MODS_ALLOWED) CopyState.checkExistingFiles() ? game.initialState : CopyState #else game.initialState #end, #if (flixel < "5.0.0") game.zoom, #end framerateShit, framerateShit, game.skipSplash, game.startFullscreen);
+		addChild(game);
+
+		#if CUSTOM_RESOLUTION_ALLOWED
+		if (Reflect.hasField(FlxG.save.data, 'realResolution')) {
+			var resolution = Reflect.field(FlxG.save.data, 'realResolution');
+			var parts = resolution.split('/');
+			//Option Safety
+			if (Std.parseInt(parts[1]) >= 720) FlxG.changeGameSize(Std.parseInt(parts[0]), Std.parseInt(parts[1]));
+		}
+		#end
 
 		#if GLOBAL_SCRIPT
 		scripting.HScript.GlobalScript.init();
@@ -149,6 +161,11 @@ class Main extends Sprite
 		fpsVar = new FPSCounter(10, 3, 0xFFFFFF);
 		addChild(fpsVar);
 		if(fpsVar != null) fpsVar.visible = false;
+
+		/*
+		debugTrace = new FlxTypedGroup<DebugText>();
+		addChild(debugTrace);
+		*/
 
 		Lib.current.stage.align = "tl";
 		Lib.current.stage.scaleMode = StageScaleMode.NO_SCALE;
@@ -198,8 +215,29 @@ class Main extends Sprite
 		});
 	}
 
-	/* Fixes the Modpack Switch Slowdown */
+	/*
+	private var debugTrace:FlxTypedGroup<DebugText>;
+	public function addTextToDebug(text:String, ?color:FlxColor = FlxColor.RED) {
+		var newText:DebugText = debugTrace.recycle(DebugText);
+		newText.text = text;
+		newText.color = color;
+		newText.disableTime = 6;
+		newText.alpha = 1;
+		newText.x = FlxG.game.x + 10;
+		newText.y = FlxG.game.y + 8 - newText.height;
+
+		debugTrace.forEachAlive(function(spr:DebugText) {
+			spr.y += newText.height + 2;
+		});
+		debugTrace.add(newText);
+		Sys.println(text);
+	}
+	*/
+
+	/* Fixes the Modpack Switch Slowdown I guess */
 	function fixSlowdown() {
+		Application.current.window.vsync = false;
+		FlxG.fixedTimestep = false; //FUCK, I forgot this
 		if (Reflect.hasField(FlxG.save.data, 'framerate'))
 			FlxG.gameFramerate = FlxG.save.data.framerate;
 		else
@@ -221,3 +259,29 @@ class Main extends Sprite
 	}
 	#end
 }
+
+/*
+class DebugText extends TextField
+{
+	public var disableTime:Float = 6;
+	public function new() {
+		super();
+		x = FlxG.game.x + 10;
+		y = FlxG.game.y + 10;
+		selectable = false;
+		mouseEnabled = false;
+		defaultTextFormat = new TextFormat(Paths.font("vcr.ttf"), 16, FlxColor.WHITE);
+		width = FlxG.width;
+		multiline = true;
+	}
+
+	override function __update(elapsed:Float) {
+		super.__update(elapsed);
+		disableTime -= elapsed;
+		if(disableTime < 0) disableTime = 0;
+		if(disableTime < 1) alpha = disableTime;
+		
+		if(alpha == 0 || y >= FlxG.height) kill();
+	}
+}
+*/

@@ -26,27 +26,33 @@ class Difficulty
 
 	inline public static function loadFromWeek(week:WeekData = null)
 	{
-		if(week == null) week = WeekData.getCurrentWeek();
+		try {
+			if(week == null) week = WeekData.getCurrentWeek();
 
-		var diffStr:String = week.difficulties;
-		if(diffStr != null && diffStr.length > 0)
-		{
-			var diffs:Array<String> = diffStr.trim().split(',');
-			var i:Int = diffs.length - 1;
-			while (i > 0)
+			var diffStr:String = week.difficulties;
+			if(diffStr != null && diffStr.length > 0)
 			{
-				if(diffs[i] != null)
+				var diffs:Array<String> = diffStr.trim().split(',');
+				var i:Int = diffs.length - 1;
+				while (i > 0)
 				{
-					diffs[i] = diffs[i].trim();
-					if(diffs[i].length < 1) diffs.remove(diffs[i]);
+					if(diffs[i] != null)
+					{
+						diffs[i] = diffs[i].trim();
+						if(diffs[i].length < 1) diffs.remove(diffs[i]);
+					}
+					--i;
 				}
-				--i;
-			}
 
-			if(diffs.length > 0 && diffs[0].length > 0)
-				list = diffs;
+				if(diffs.length > 0 && diffs[0].length > 0)
+					list = diffs;
+			}
+			else resetList();
 		}
-		else resetList();
+		catch(e:Dynamic)
+		{
+			resetList();
+		}
 	}
 
 	inline public static function resetList()

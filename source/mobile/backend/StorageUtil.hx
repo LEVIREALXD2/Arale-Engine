@@ -27,7 +27,7 @@ class StorageUtil
 
 	public static function getCustomStorageDirectories(?doNotSeperate:Bool):Array<String>
 	{
-		var curTextFile:String = '/storage/emulated/0/Android/data/${packageName}/files/assets/mobile/storageModes.txt';
+		var curTextFile:String = '/storage/emulated/0/Android/data/${packageName}/files/' + Paths.getSharedPath() + 'mobile/storageModes.txt';
 		var ArrayReturn:Array<String> = [];
 		for (mode in CoolUtil.coolTextFile(curTextFile))
 		{

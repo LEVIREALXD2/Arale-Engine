@@ -166,8 +166,6 @@ class PauseSubState extends MusicBeatSubstate
 			addMobilePad("FULL", "A");
 		addMobilePadCamera();
 		#end
-
-		#if SCRIPTING_ALLOWED call("postPauseCreate"); #end //automatic one doesn't work, idk why
 	}
 
 	function getPauseSong()
@@ -418,8 +416,8 @@ class PauseSubState extends MusicBeatSubstate
 	function changeSelection(change:Int = 0):Void
 	{
 		curSelected = FlxMath.wrap(curSelected + change, 0, menuItems.length - 1);
-		//call('onSelectItem', [curSelected]);
-		//call('changeSelection', [curSelected]); //same thing with onSelectItem
+		#if SCRIPTING_ALLOWED call('onSelectItem', [curSelected]); #end
+		#if SCRIPTING_ALLOWED call('changeSelection', [curSelected]); #end //same thing with onSelectItem
 		for (num => item in grpMenuShit.members)
 		{
 			item.targetY = num - curSelected;

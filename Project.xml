@@ -7,10 +7,11 @@
 	<architecture exclude="armeabi-v7a" if="ONLY_ARM64" />
 	<architecture exclude="arm64" if="ONLY_ARMV7" />
 	<architecture exclude="arm64-v8a" if="ONLY_ARMV7" />
+	<define name="debugBuild" if="termux" />
 
 	<app title="FNF': Psych Extended Rebase" file="PsychEngine" packageName="com.kraloyuncu.psychextendedrebase" package="com.kraloyuncu.psychextendedrebase" main="Main" version="0.2.8" company="KralOyuncu" />
 
-	<section if="termux"> <!-- Seperate debug & github builds -->
+	<section if="debugBuild"> <!-- Seperate debug & github builds -->
 		<app title="FNF': Psych Extended Debug" file="PsychEngine" packageName="com.kraloyuncu.psychextendedrebasedebug" package="com.kraloyuncu.psychextendedrebasedebug" main="Main" version="0.2.8" company="KralOyuncu" />
 	</section>
 
@@ -80,6 +81,9 @@
 	<!-- Comment this out if you want to disable Modpacks (When Comment this out, you can't use most of the custom menus from mods) -->
 	<define name="MODPACK_ALLOWED" />
 
+	<!-- This won't included the full version of v1.0.2 -->
+	<define name="CUSTOM_RESOLUTION_ALLOWED" if="debugBuild" />
+
 	<!-- || Codename Engine Defines || -->
 
 	<!-- Comment this out if you want to disable CNE Chart Converter (When Comment this out, you can't use CNE Charts in PsychExtended) -->
@@ -120,48 +124,42 @@
 	<!-- DELETE THE if="officialBuild" for enabling this on an unofficial build -->
 	<define name="TITLE_SCREEN_EASTER_EGG" if="officialBuild"/>
 
-	<!-- Crash Handler Shit (Idk what it does, If you ask me it doesn't do anything -->
+	<!-- Crash Handler Shit (Idk what it does, If you ask me it doesn't do anything) -->
 	<define name="CRASH_HANDLER" if="desktop || mobile" />
 
-	<assets path="assets/preload" rename="assets" exclude="*.ogg" if="web"/>
-	<assets path="assets/preload" rename="assets" exclude="*.mp3"  unless="web"/>
+	<assets path="assets/shared"        exclude="*.ogg" if="web"/>
+	<assets path="assets/shared"        exclude="*.mp3" unless="web"/>
 	<section if="TITLE_SCREEN_EASTER_EGG">
-		<assets path="assets/secrets" rename="assets" exclude="*.ogg" if="web"/>
-		<assets path="assets/secrets" rename="assets" exclude="*.mp3"  unless="web"/>
+		<assets path="assets/secrets" rename="assets/shared" exclude="*.ogg" if="web"/>
+		<assets path="assets/secrets" rename="assets/shared" exclude="*.mp3"  unless="web"/>
 	</section>
 
 	<!-- DONT ENABLE THIS -->
-	<define name="CHECK_FOR_UPDATES" if="desktop officialBuild"/>
+	<!--;<define name="CHECK_FOR_UPDATES" if="desktop officialBuild"/> -->
 
-	<!-- <define name="PRELOAD_ALL" /> -->
-	<define name="PRELOAD_ALL" unless="web" />
-	<define name="NO_PRELOAD_ALL" unless="PRELOAD_ALL"/>
-	
-	<section if="TOUCH_CONTROLS">
-		<assets path="mobile"         rename="assets/mobile"        exclude="*.ogg" if="web"/>
-		<assets path="mobile"         rename="assets/mobile"        exclude="*.mp3" unless="web"/>
-	</section>
-	
-	<library name="videos"        preload="true" />
-	<section if="PRELOAD_ALL">
-		<library name="songs"         preload="true" />
-		<library name="shared"        preload="true" />
-		<library name="week_assets"         preload="true" />
-	</section>
-	
-	<section if="NO_PRELOAD_ALL">
-		<library name="songs"         preload="true" />
-		<library name="shared"        preload="false" />
-		<library name="week_assets"         preload="false" />
-	</section>
-	
+	<!-- PsychEngine Assets -->
+	<assets path="assets/shared"        exclude="*.ogg" if="web"/>
+	<assets path="assets/shared"        exclude="*.mp3" unless="web"/>
 	<assets path="assets/videos"        library="videos"        if="VIDEOS_ALLOWED"/>
 	<assets path="assets/songs"         library="songs"         exclude="*.ogg" if="web"/>
 	<assets path="assets/songs"         library="songs"         exclude="*.mp3" unless="web"/>
-	<assets path="assets/shared"        library="shared"        exclude="*.ogg" if="web"/>
-	<assets path="assets/shared"        library="shared"        exclude="*.mp3" unless="web"/>
-	<assets path="assets/week_assets"         library="week_assets"         exclude="*.ogg" if="web"/>
-	<assets path="assets/week_assets"         library="week_assets"         exclude="*.mp3" unless="web"/>
+	<assets path="assets/week_assets"   library="week_assets"           exclude="*.ogg" if="web"/>
+	<assets path="assets/week_assets"   library="week_assets"           exclude="*.mp3" unless="web"/>
+
+	<!-- Psych Extended Assets -->
+	<section if="TOUCH_CONTROLS">
+		<assets path="mobile"         rename="assets/shared/mobile"        exclude="*.ogg" if="web"/>
+		<assets path="mobile"         rename="assets/shared/mobile"        exclude="*.mp3" unless="web"/>
+	</section>
+
+	<section if="EXTRA_FREEPLAY">
+		<assets path="extra_assets"         rename="assets"        exclude="*.ogg" if="web"/>
+		<assets path="extra_assets"         rename="assets"        exclude="*.mp3" unless="web"/>
+	</section>
+	
+	<library name="videos"        preload="true" />
+	<library name="songs"         preload="true" />
+	<library name="week_assets"   preload="true" />
 	
 	<section if="MODS_ALLOWED">
 		<assets path='example_mods' rename='mods' embed='false'/>

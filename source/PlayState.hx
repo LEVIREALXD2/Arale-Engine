@@ -185,17 +185,6 @@ class PlayState extends MusicBeatState
 	public var gf:Character = null;
 	public var boyfriend:Character = null;
 
-	// CNE Character Test (These will be merged with original Character.hx but use them for now)
-	public var dad_XML:Character_CNE = null;
-	public var gf_XML:Character_CNE = null;
-	public var boyfriend_XML:Character_CNE = null;
-	public var characters:Array<Character_CNE> = []; //custom characters handling here for applying somebasic fixes for now
-
-	//act as the original character (for example, if you add your char to playerChars, it copies the boyfriend's animations)
-	public var opponentChars:Array<Character_CNE> = [];
-	public var gfChars:Array<Character_CNE> = [];
-	public var playerChars:Array<Character_CNE> = [];
-
 	public var notes:FlxTypedGroup<Note>;
 	public var unspawnNotes:Array<Note> = [];
 	public var eventNotes:Array<EventNote> = [];
@@ -555,30 +544,6 @@ class PlayState extends MusicBeatState
 			gfGroup.add(gf);
 			startCharacterScripts(gf.curCharacter);
 		}
-
-		/*
-		dad_XML = new Character_CNE(0, 0, SONG.player2);
-		dadGroup.add(dad_XML);
-
-		boyfriend_XML = new Character_CNE(0, 0, SONG.player1, true);
-		boyfriendGroup.add(boyfriend_XML);
-
-		if (!stageData.hide_girlfriend)
-		{
-			if(SONG.gfVersion == null || SONG.gfVersion.length < 1) SONG.gfVersion = 'gf'; //Fix for the Chart Editor
-				gf_XML = new Character_CNE(0, 0, SONG.gfVersion);
-			gf_XML.scrollFactor.set(0.95, 0.95);
-			gfGroup.add(gf_XML);
-		}
-		*/
-
-		//Push them always, I don't want to broke Cyber Sensation Port rn
-		characters.push(dad_XML);
-		opponentChars.push(dad_XML);
-		characters.push(boyfriend_XML);
-		playerChars.push(boyfriend_XML);
-		characters.push(gf_XML);
-		gfChars.push(gf_XML);
 
 		dad = new Character(0, 0, SONG.player2);
 		startCharacterPos(dad, true);
@@ -1072,13 +1037,13 @@ class PlayState extends MusicBeatState
 			luaFile = Paths.modFolders(luaFile);
 			doPush = true;
 		} else {
-			luaFile = Paths.getPreloadPath(luaFile);
+			luaFile = Paths.getSharedPath(luaFile);
 			if(FileSystem.exists(luaFile)) {
 				doPush = true;
 			}
 		}
 		#else
-		luaFile = Paths.getPreloadPath(luaFile);
+		luaFile = Paths.getSharedPath(luaFile);
 		if(Assets.exists(luaFile)) {
 			doPush = true;
 		}
@@ -1233,6 +1198,8 @@ class PlayState extends MusicBeatState
 	#if TOUCH_CONTROLS
 	public var VSliceControls:Bool = false;
 	public var playerNotePositions:Array<Int> = [260, 440, 710, 890];
+	public var playerNotePositionsFixed:Array<Int> = [-360, -140, 140, 360];
+	public static var playerNotePositionsFixedStatic:Array<Int> = [-360, -140, 140, 360];
 	#end
 	public function startCountdown():Void
 	{
@@ -1449,9 +1416,6 @@ class PlayState extends MusicBeatState
 		//I took this from PsychEngine's discord server and make it to work with HScript Improved (.hsc), now I'm using it on source code 😂
 		// Credit: @allaxnofake (Discord)
 		// https://discord.com/channels/922849922175340586/1395222169037836430 (This link sends you to directly the original post)
-		PlayState.instance.reloadControls(4, "V-Slice"); //I'm lazy to write removeMobileControls, so I'll keep it the same
-		MusicBeatState.mobilec.cameras = [camHUD]; //Visual Fix (Honestly not needed because you can't see hitboxes)
-		MusicBeatState.mobilec.visible = false; //hides the hitbox (better visuality, bitch)
 		for (i in 0...unspawnNotes.length)
 		{
 			if (!unspawnNotes[i].mustPress)
@@ -1461,10 +1425,16 @@ class PlayState extends MusicBeatState
 			opponentStrums.members[i].y = 40;
 			//playerStrums.members[i].y = 550;
 			opponentStrums.members[i].x = 10 + (i * 65);
-			playerStrums.members[i].x = playerNotePositions[i];
+			playerStrums.members[i].screenCenter(X);
+			playerStrums.members[i].x += playerNotePositionsFixed[i];
+			playerNotePositionsFixedStatic[i] = Std.int(playerStrums.members[i].x) - 20;
 			opponentStrums.members[i].scale.x = opponentStrums.members[i].scale.x / 1.75;
 			opponentStrums.members[i].scale.y = opponentStrums.members[i].scale.y / 1.75;
 		}
+		//use More Resulation Friendly one
+		PlayState.instance.reloadControls(4, "V Slice"); //I'm lazy to write removeMobileControls, so I'll keep it the same
+		MusicBeatState.mobilec.cameras = [camHUD]; //Visual Fix (Honestly not needed because you can't see hitboxes)
+		MusicBeatState.mobilec.visible = false; //hides the hitbox (better visuality, bitch)
 	}
 	#end
 
@@ -2478,28 +2448,16 @@ class PlayState extends MusicBeatState
 						dad.playAnim('cheer', true);
 						dad.specialAnim = true;
 						dad.heyTimer = flValue2;
-
-						for (char_XML in opponentChars) {
-							if (char_XML != null) char_XML.playAnim('cheer', true);
-						}
 					} else if (gf != null) {
 						gf.playAnim('cheer', true);
 						gf.specialAnim = true;
 						gf.heyTimer = flValue2;
-
-						for (char_XML in gfChars) {
-							if (char_XML != null) char_XML.playAnim('cheer', true);
-						}
 					}
 				}
 				if(value != 1) {
 					boyfriend.playAnim('hey', true);
 					boyfriend.specialAnim = true;
 					boyfriend.heyTimer = flValue2;
-
-					for (char_XML in playerChars) {
-						if (char_XML != null) char_XML.playAnim('hey', true);
-					}
 				}
 
 			case 'Set GF Speed':
@@ -2536,25 +2494,6 @@ class PlayState extends MusicBeatState
 					char.playAnim(value1, true);
 					char.specialAnim = true;
 				}
-
-				if (char == boyfriend) {
-					for (char_XML in playerChars) {
-						if (char_XML != null) char_XML.playAnim(value1, true);
-					}
-				}
-
-				if (char == dad) {
-					for (char_XML in opponentChars) {
-						if (char_XML != null) char_XML.playAnim(value1, true);
-					}
-				}
-
-				if (char == gf) {
-					for (char_XML in gfChars) {
-						if (char_XML != null) char_XML.playAnim(value1, true);
-					}
-				}
-
 			case 'Camera Follow Pos':
 				isCameraOnForcedPos = false;
 				if(flValue1 != null || flValue2 != null)
@@ -3498,13 +3437,6 @@ class PlayState extends MusicBeatState
 			var animToPlay:String = singAnimations[Std.int(Math.abs(daNote.noteData))] + 'miss' + daNote.animSuffix;
 			char.playAnim(animToPlay, true);
 		}
-
-		for (char_XML in playerChars)
-		{
-			if(!daNote.noMissAnimation && char_XML != null)
-				char_XML.playAnim(singAnimations[Std.int(Math.abs(daNote.noteData))] + 'miss' + daNote.animSuffix, true, MISS);
-		}
-
 		var result:Dynamic = callOnLuas('noteMiss', [notes.members.indexOf(daNote), daNote.noteData, daNote.noteType, daNote.isSustainNote]);
 		stagesFunc(function(stage:BaseStage) stage.noteMiss(daNote));
 		if(result != FunkinLua.Function_Stop && result != FunkinLua.Function_StopHScript && result != FunkinLua.Function_StopAll) callOnHScript('noteMiss', [daNote]);
@@ -3527,12 +3459,6 @@ class PlayState extends MusicBeatState
 			if (combo > 5 && gf != null && gf.animOffsets.exists('sad'))
 			{
 				gf.playAnim('sad');
-			}
-
-			for (char_XML in gfChars)
-			{
-				if (combo > 5 && char_XML.animOffsets.exists('sad') && char_XML != null)
-					char_XML.playAnim('sad');
 			}
 			combo = 0;
 
@@ -3557,9 +3483,6 @@ class PlayState extends MusicBeatState
 
 			if(boyfriend.hasMissAnimations) {
 				boyfriend.playAnim(singAnimations[Std.int(Math.abs(direction))] + 'miss', true);
-			}
-			for (char_XML in playerChars) {
-				if (char_XML != null) char_XML.playAnim(singAnimations[Std.int(Math.abs(direction))] + 'miss', true, MISS);
 			}
 			vocals.volume = 0;
 		}
@@ -3596,10 +3519,6 @@ class PlayState extends MusicBeatState
 			{
 				char.playAnim(animToPlay, true);
 				char.holdTimer = 0;
-			}
-
-			for (char_XML in opponentChars) {
-				if (char_XML != null) char_XML.playAnim(animToPlay, true, SING);
 			}
 		}
 
@@ -3647,10 +3566,6 @@ class PlayState extends MusicBeatState
 								boyfriend.playAnim('hurt', true);
 								boyfriend.specialAnim = true;
 							}
-
-							for (char_XML in playerChars) {
-								if(char_XML.animation.getByName('hurt') != null && char_XML != null) char_XML.playAnim('hurt', true);
-							}
 					}
 				}
 
@@ -3679,22 +3594,14 @@ class PlayState extends MusicBeatState
 				{
 					if(gf != null)
 					{
-						gf.playAnim(animToPlay + note.animSuffix, true);
+						gf.playAnim(animToPlay + note.animSuffix, true, SING);
 						gf.holdTimer = 0;
-
-						for (char_XML in gfChars) {
-							if (char_XML != null) char_XML.playAnim(animToPlay + note.animSuffix, true, SING);
-						}
 					}
 				}
 				else
 				{
-					boyfriend.playAnim(animToPlay + note.animSuffix, true);
+					boyfriend.playAnim(animToPlay + note.animSuffix, true, SING);
 					boyfriend.holdTimer = 0;
-
-					for (char_XML in playerChars) {
-						if (char_XML != null) char_XML.playAnim(animToPlay + note.animSuffix, true, SING);
-					}
 				}
 
 				if(note.noteType == 'Hey!') {
@@ -3704,22 +3611,10 @@ class PlayState extends MusicBeatState
 						boyfriend.heyTimer = 0.6;
 					}
 
-					for (char_XML in playerChars) {
-						if(char_XML.animOffsets.exists('hey') && char_XML != null) {
-							char_XML.playAnim('hey', true);
-						}
-					}
-
 					if(gf != null && gf.animOffsets.exists('cheer')) {
 						gf.playAnim('cheer', true);
 						gf.specialAnim = true;
 						gf.heyTimer = 0.6;
-					}
-
-					for (char_XML in playerChars) {
-						if(char_XML.animOffsets.exists('cheer') && char_XML != null) {
-							char_XML.playAnim('cheer', true);
-						}
 					}
 				}
 			}
@@ -3871,11 +3766,6 @@ class PlayState extends MusicBeatState
 		iconP1.updateHitbox();
 		iconP2.updateHitbox();
 
-		//fix idle animations
-		for (char in characters) {
-			if (char == null) continue;
-			char.beatHit(curBeat);
-		}
 		characterBopper(curBeat);
 
 		lastBeatHit = curBeat;
@@ -3955,12 +3845,12 @@ class PlayState extends MusicBeatState
 		}
 		else
 		{
-			luaFile = Paths.getPreloadPath(luaFile);
+			luaFile = Paths.getSharedPath(luaFile);
 			if(FileSystem.exists(luaFile))
 				doPush = true;
 		}
 		#else
-		luaFile = Paths.getPreloadPath(luaFile);
+		luaFile = Paths.getSharedPath(luaFile);
 		if(Assets.exists(luaFile)) doPush = true;
 		#end
 
@@ -3983,7 +3873,7 @@ class PlayState extends MusicBeatState
 		}
 		else 
 		{
-			scriptFile = Paths.getPreloadPath(scriptFile);
+			scriptFile = Paths.getSharedPath(scriptFile);
 			if(FileSystem.exists(scriptFile))
 				doPush = true;
 		}
@@ -4006,11 +3896,11 @@ class PlayState extends MusicBeatState
 		#if MODS_ALLOWED
 		var luaToLoad:String = Paths.modFolders(luaFile);
 		if(!FileSystem.exists(luaToLoad))
-			luaToLoad = Paths.getPreloadPath(luaFile);
+			luaToLoad = Paths.getSharedPath(luaFile);
 
 		if(FileSystem.exists(luaToLoad))
 		#elseif sys
-		var luaToLoad:String = Paths.getPreloadPath(luaFile);
+		var luaToLoad:String = Paths.getSharedPath(luaFile);
 		if(OpenFlAssets.exists(luaToLoad))
 		#end
 		{
@@ -4030,9 +3920,9 @@ class PlayState extends MusicBeatState
 		#if MODS_ALLOWED
 		var scriptToLoad:String = Paths.modFolders(scriptFile);
 		if(!FileSystem.exists(scriptToLoad))
-			scriptToLoad = Paths.getPreloadPath(scriptFile);
+			scriptToLoad = Paths.getSharedPath(scriptFile);
 		#else
-		var scriptToLoad:String = Paths.getPreloadPath(scriptFile);
+		var scriptToLoad:String = Paths.getSharedPath(scriptFile);
 		#end
 
 		if(FileSystem.exists(scriptToLoad))
@@ -4048,7 +3938,7 @@ class PlayState extends MusicBeatState
 
 	public function findAndStartScripts(scriptFolder:String, ?onlyUseImproved:Bool)
 	{
-		var foldersToCheck:Array<String> = Mods.directoriesWithFile(Paths.getPreloadPath(), '${scriptFolder}/');
+		var foldersToCheck:Array<String> = Mods.directoriesWithFile(Paths.getSharedPath(), '${scriptFolder}/');
 
 		for (folder in foldersToCheck)
 			for (file in FileSystem.readDirectory(folder))
@@ -4432,18 +4322,23 @@ class PlayState extends MusicBeatState
 	
 	public function characterBopper(beat:Int):Void
 	{
-		if (gf != null && beat % Math.round(gfSpeed * gf.danceEveryNumBeats) == 0 && !gf.getAnimationName().startsWith('sing') && !gf.stunned)
+		//Cne chars
+		if (boyfriend.isCodenameChar) boyfriend.beatHit(beat);
+		if (dad.isCodenameChar) dad.beatHit(beat);
+		if (gf.isCodenameChar) gf.beatHit(beat);
+
+		if (gf != null && beat % Math.round(gfSpeed * gf.danceEveryNumBeats) == 0 && !gf.getAnimationName().startsWith('sing') && !gf.stunned && !gf.isCodenameChar)
 			gf.dance();
-		if (boyfriend != null && beat % boyfriend.danceEveryNumBeats == 0 && !boyfriend.getAnimationName().startsWith('sing') && !boyfriend.stunned)
+		if (boyfriend != null && beat % boyfriend.danceEveryNumBeats == 0 && !boyfriend.getAnimationName().startsWith('sing') && !boyfriend.stunned && !boyfriend.isCodenameChar)
 			boyfriend.dance();
-		if (dad != null && beat % dad.danceEveryNumBeats == 0 && !dad.getAnimationName().startsWith('sing') && !dad.stunned)
+		if (dad != null && beat % dad.danceEveryNumBeats == 0 && !dad.getAnimationName().startsWith('sing') && !dad.stunned && !dad.isCodenameChar)
 			dad.dance();
 	}
 
 	public function playerDance():Void
 	{
 		var anim:String = boyfriend.getAnimationName();
-		if(boyfriend.holdTimer > Conductor.stepCrochet * (0.0011 / FlxG.sound.music.pitch) * boyfriend.singDuration && anim.startsWith('sing') && !anim.endsWith('miss'))
+		if(boyfriend.holdTimer > Conductor.stepCrochet * (0.0011 / FlxG.sound.music.pitch) * boyfriend.singDuration && anim.startsWith('sing') && !anim.endsWith('miss') && !boyfriend.isCodenameChar)
 			boyfriend.dance();
 	}
 

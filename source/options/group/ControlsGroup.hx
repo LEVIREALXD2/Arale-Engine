@@ -124,7 +124,7 @@ class ControlsGroup extends OptionCata
 
 		var option:Option = new Option(this,
 			'V Slice Mobile Controls',
-			'If checked, The game\'s control system will be like original Friday Night Funkin\': Mobile.\n(WARNING: This Option can break the some mechanics, please use supported mod)',
+			'If checked, The game\'s control will be like original Friday Night Funkin\': Mobile.\n(WARNING: This Option can break the some mechanics, please use supported mod)',
 			'VSliceControl',
 			BOOL
 		);

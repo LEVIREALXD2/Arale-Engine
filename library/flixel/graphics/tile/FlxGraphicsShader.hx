@@ -87,6 +87,8 @@ void main(void)
 
 	public function setCamSize(x:Float, y:Float, width:Float, height:Float)
 	{
-		if (data != null) data._camSize.value = [x, y, width, height]; //use if for null object fix
+		try {
+			if (data != null) data._camSize.value = [x, y, width, height]; //use if for null object fix
+		} catch(e:Dynamic) {}
 	}
 }

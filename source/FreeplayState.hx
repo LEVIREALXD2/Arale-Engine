@@ -63,6 +63,7 @@ class FreeplayState extends MusicBeatState
 		DiscordClient.changePresence("In the Menus", null);
 		#end
 
+		var globalPos:Int = 0;
 		if(WeekData.weeksList.length < 1)
 		{
 			FlxTransitionableState.skipNextTransIn = true;
@@ -95,7 +96,19 @@ class FreeplayState extends MusicBeatState
 				{
 					colors = [146, 113, 253];
 				}
-				addSong(song[0], i, song[1], FlxColor.fromRGB(colors[0], colors[1], colors[2]));
+				globalPos = i;
+				addSong(song[0], globalPos, song[1], FlxColor.fromRGB(colors[0], colors[1], colors[2]));
+			}
+		}
+		// Show Codename Engine Songs (Not Recommend but many peoples have a problem with adding weeks)
+		// This shit is example do not expect to work everything fine
+		if (Paths.fileExists('data/freeplaySonglist.txt', TEXT))
+		{
+			var cneSongArray:Array<String> = CoolUtil.coolTextFile(Paths.getPath('data/freeplaySonglist.txt', TEXT, true));
+			for (songExample in cneSongArray)
+			{
+				addSong(songExample, globalPos + 1, 'bf', FlxColor.fromRGB(255, 255, 255));
+				trace(songExample);
 			}
 		}
 		Mods.loadTopMod();

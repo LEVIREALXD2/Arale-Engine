@@ -27,12 +27,14 @@ class Flags {
 
 	// CNE Character Stuff
 	@:also(funkin.game.Character_CNE.FALLBACK_CHARACTER)
+	@:also(funkin.game.Character.FALLBACK_CHARACTER)
 	public static var DEFAULT_CHARACTER:String = "bf";
 	public static var DEFAULT_GIRLFRIEND:String = "gf";
 	public static var DEFAULT_OPPONENT:String = "dad";
 	public static var DEFAULT_HEALTH_ICON:String = "face";
 
 	@:also(funkin.game.Character_CNE.FALLBACK_DEAD_CHARACTER)
+	@:also(funkin.game.Character.FALLBACK_DEAD_CHARACTER)
 	public static var DEFAULT_GAMEOVER_CHARACTER:String = "bf-dead";
 	public static var STUNNED_TIME:Float = 5 / 60;
 

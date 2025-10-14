@@ -613,6 +613,27 @@ class FlxG
 	}
 
 	/**
+	 * A custom function for changing render width & height,
+	 * with that custom resulations can be set but at the same time game can be broken
+	 */
+	@:allow(flixel.FlxGame.new)
+	public static function changeGameSize(width:Int, height:Int):Void
+	{
+		if (width < 0)
+			width = -width;
+		if (height < 0)
+			height = -height;
+
+		FlxG.width = width;
+		FlxG.height = height;
+
+		FlxG.initialWidth = width;
+		FlxG.initialHeight = height;
+
+		resizeGame(Lib.current.stage.stageWidth, Lib.current.stage.stageHeight);
+	}
+
+	/**
 	 * Called by `FlxGame` to set up `FlxG` during `FlxGame`'s constructor.
 	 */
 	@:allow(flixel.FlxGame.new)

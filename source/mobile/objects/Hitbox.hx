@@ -1,5 +1,9 @@
 package mobile.objects;
 
+#if hscript
+import hscript.Parser;
+import hscript.Interp;
+#end
 import flixel.graphics.FlxGraphic;
 import openfl.display.BitmapData;
 import openfl.display.Shape;
@@ -36,7 +40,13 @@ class Hitbox extends FlxSpriteGroup
 			hitbox_hint = new FlxSprite(0, (ClientPrefs.data.hitboxLocation == 'Bottom' && ClientPrefs.data.extraKeys != 0) ? -150 : 0).loadGraphic(Paths.image('mobile/Hitbox/hitbox_hint'));
 			add(hitbox_hint);
 		}
-		if ((ClientPrefs.data.hitboxmode != 'Classic' && CustomMode == null) || CustomMode != null){
+		if ((ClientPrefs.data.hitboxmode == 'V Slice' && CustomMode == null) || CustomMode == 'V Slice'){
+			add(buttonLeft = createHint(PlayState.playerNotePositionsFixedStatic[0], 0, 140, Std.int(FlxG.height * 1), 0xFFC24B99));
+			add(buttonDown = createHint(PlayState.playerNotePositionsFixedStatic[1], 0, 140, Std.int(FlxG.height * 1), 0xFF00FFFF));
+			add(buttonUp = createHint(PlayState.playerNotePositionsFixedStatic[2], 0, 140, Std.int(FlxG.height * 1), 0xFF12FA05));
+			add(buttonRight = createHint(PlayState.playerNotePositionsFixedStatic[3], 0, 140, Std.int(FlxG.height * 1), 0xFFF9393F));
+		}
+		else if ((ClientPrefs.data.hitboxmode != 'Classic' && CustomMode == null) || CustomMode != null){
 			var Custom:String = CustomMode != null ? CustomMode : ClientPrefs.data.hitboxmode;
 			if (!MobileData.hitboxModes.exists(Custom))
 				throw 'The Custom Hitbox File doesn\'t exists.';
@@ -57,10 +67,24 @@ class Hitbox extends FlxSpriteGroup
 
 			for (buttonData in currentHint)
 			{
-				var buttonX = buttonData.x;
-				var buttonY = buttonData.y;
-				var buttonWidth = buttonData.width;
-				var buttonHeight = buttonData.height;
+				var buttonX:Float = 0;
+				var buttonY:Float = 0;
+				var buttonXString:String = null;
+				var buttonYString:String = null;
+				if (buttonData.x is String) buttonXString = buttonData.x;
+				else buttonX = buttonData.x;
+				if (buttonData.y is String) buttonYString = buttonData.y;
+				else buttonY = buttonData.y;
+
+				var buttonWidth:Int = 0;
+				var buttonHeight:Int = 0;
+				var buttonWidthString:String = null;
+				var buttonHeightString:String = null;
+				if (buttonData.width is String) buttonWidthString = buttonData.width;
+				else buttonWidth = buttonData.width;
+				if (buttonData.height is String) buttonHeightString = buttonData.height;
+				else buttonHeight = buttonData.height;
+
 				var buttonColor = buttonData.color;
 				var customReturn = buttonData.returnKey;
 				var location = ClientPrefs.data.hitboxLocation;
@@ -68,24 +92,46 @@ class Hitbox extends FlxSpriteGroup
 
 				switch (location) {
 					case 'Top':
-						if (buttonData.topX != null) buttonX = buttonData.topX;
-						if (buttonData.topY != null) buttonY = buttonData.topY;
-						if (buttonData.topWidth != null) buttonWidth = buttonData.topWidth;
-						if (buttonData.topHeight != null) buttonHeight = buttonData.topHeight;
+						//Position
+						if (buttonData.topX != null && buttonData.topX is String) buttonXString = buttonData.topX;
+						else if (buttonData.topX != null) buttonX = buttonData.topX;
+						if (buttonData.topY != null && buttonData.topY is String) buttonYString = buttonData.topY;
+						else if (buttonData.topY != null) buttonY = buttonData.topY;
+
+						//Size
+						if (buttonData.topWidth != null && buttonData.topWidth is String) buttonWidthString = buttonData.topWidth;
+						else if (buttonData.topWidth != null) buttonWidth = buttonData.topWidth;
+						if (buttonData.topHeight != null && buttonData.topHeight is String) buttonHeightString = buttonData.topHeight;
+						else if (buttonData.topWidth != null) buttonHeight = buttonData.topHeight;
+
 						if (buttonData.topColor != null) buttonColor = buttonData.topColor;
 						if (buttonData.topReturnKey != null) customReturn = buttonData.topReturnKey;
 					case 'Middle':
-						if (buttonData.middleX != null) buttonX = buttonData.middleX;
-						if (buttonData.middleY != null) buttonY = buttonData.middleY;
-						if (buttonData.middleWidth != null) buttonWidth = buttonData.middleWidth;
-						if (buttonData.middleHeight != null) buttonHeight = buttonData.middleHeight;
+						if (buttonData.middleX != null && buttonData.middleX is String) buttonXString = buttonData.middleX;
+						else if (buttonData.middleX != null) buttonX = buttonData.middleX;
+						if (buttonData.middleY != null && buttonData.middleY is String) buttonYString = buttonData.middleY;
+						else if (buttonData.middleY != null) buttonY = buttonData.middleY;
+
+						//Size
+						if (buttonData.middleWidth != null && buttonData.middleWidth is String) buttonWidthString = buttonData.middleWidth;
+						else if (buttonData.middleWidth != null) buttonWidth = buttonData.middleWidth;
+						if (buttonData.middleHeight != null && buttonData.middleHeight is String) buttonHeightString = buttonData.middleHeight;
+						else if (buttonData.middleHeight != null) buttonHeight = buttonData.middleHeight;
+
 						if (buttonData.middleColor != null) buttonColor = buttonData.middleColor;
 						if (buttonData.middleReturnKey != null) customReturn = buttonData.middleReturnKey;
 					case 'Bottom':
-						if (buttonData.bottomX != null) buttonX = buttonData.bottomX;
-						if (buttonData.bottomY != null) buttonY = buttonData.bottomY;
-						if (buttonData.bottomWidth != null) buttonWidth = buttonData.bottomWidth;
-						if (buttonData.bottomHeight != null) buttonHeight = buttonData.bottomHeight;
+						if (buttonData.bottomX != null && buttonData.bottomX is String) buttonXString = buttonData.bottomX;
+						else if (buttonData.bottomX != null) buttonX = buttonData.bottomX;
+						if (buttonData.bottomY != null && buttonData.bottomY is String) buttonYString = buttonData.bottomY;
+						else if (buttonData.bottomY != null) buttonY = buttonData.bottomY;
+
+						//Size
+						if (buttonData.bottomWidth != null && buttonData.bottomWidth is String) buttonWidthString = buttonData.bottomWidth;
+						else if (buttonData.bottomWidth != null) buttonWidth = buttonData.bottomWidth;
+						if (buttonData.bottomHeight != null && buttonData.bottomHeight is String) buttonHeightString = buttonData.bottomHeight;
+						else if (buttonData.bottomWidth != null) buttonHeight = buttonData.bottomHeight;
+
 						if (buttonData.bottomColor != null) buttonColor = buttonData.bottomColor;
 						if (buttonData.bottomReturnKey != null) customReturn = buttonData.bottomReturnKey;
 				}
@@ -95,8 +141,36 @@ class Hitbox extends FlxSpriteGroup
 					if (customReturn == null && buttonData.button == 'buttonExtra${i}') customReturn = button.toUpperCase();
 				}
 
-				if (ClientPrefs.data.extraKeys == 0 && buttonData.extraKeyMode == 0 || ClientPrefs.data.extraKeys == 1 && buttonData.extraKeyMode == 1 || ClientPrefs.data.extraKeys == 2 && buttonData.extraKeyMode == 2 ||
-					ClientPrefs.data.extraKeys == 3 && buttonData.extraKeyMode == 3 || ClientPrefs.data.extraKeys == 4 && buttonData.extraKeyMode == 4)
+				//HScript in Json (This allows to make hitboxes for any resolution)
+				//Custom Parser will be added later, because not every project using hscript
+				var parser = new Parser();
+				var interp = new Interp();
+				interp.variables.set("FlxG", FlxG);
+				interp.variables.set("MusicBeatState", MusicBeatState);
+				interp.variables.set("MusicBeatSubstate", MusicBeatSubstate);
+				interp.variables.set("CoolUtil", CoolUtil); //this should be funny
+				var bruhShit:Array<Dynamic> = [buttonXString, buttonYString, buttonWidthString, buttonHeightString];
+				for (i in 0...4) {
+					try {
+						if (bruhShit[i] != null) {
+							var expr = parser.parseString(bruhShit[i]);
+							var result:Dynamic = interp.execute(expr);
+							//Bruh
+							if (i == 0) buttonX = Std.parseFloat(result);
+							else if (i == 1) buttonY = Std.parseFloat(result);
+							else if (i == 2) buttonWidth = Std.int(result);
+							else if (i == 3) buttonHeight = Std.int(result);
+
+							trace(buttonData.button + ' || ' + result);
+						}
+					} catch (e:Dynamic) {}
+				}
+
+				if (ClientPrefs.data.extraKeys == 0 && buttonData.extraKeyMode == 0 ||
+				   ClientPrefs.data.extraKeys == 1 && buttonData.extraKeyMode == 1 ||
+				   ClientPrefs.data.extraKeys == 2 && buttonData.extraKeyMode == 2 ||
+				   ClientPrefs.data.extraKeys == 3 && buttonData.extraKeyMode == 3 ||
+				   ClientPrefs.data.extraKeys == 4 && buttonData.extraKeyMode == 4)
 				{
 					addButton = true;
 				}
@@ -171,6 +245,7 @@ class Hitbox extends FlxSpriteGroup
 	{
 		var hint:MobileButton = new MobileButton(X, Y);
 		hint.loadGraphic(createHintGraphic(Width, Height, Color));
+
 		hint.solid = false;
 		hint.immovable = true;
 		hint.scrollFactor.set();

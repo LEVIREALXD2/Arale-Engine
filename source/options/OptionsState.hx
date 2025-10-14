@@ -15,6 +15,7 @@ class OptionsState extends MusicBeatState
 {
 	public static var instance:OptionsState;
 	#if android final lastStorageType:String = ClientPrefs.data.storageType; #end
+	#if CUSTOM_RESOLUTION_ALLOWED final lastResolution:String = ClientPrefs.data.realResolution; #end
 
 	var filePath:String = 'menuExtend/OptionsState/';
 
@@ -397,6 +398,16 @@ class OptionsState extends MusicBeatState
 		{
 			backCheck = true;
 			FlxG.sound.play(Paths.sound('cancelMenu'));
+			// Get custom resolution
+			#if CUSTOM_RESOLUTION_ALLOWED
+			if (ClientPrefs.data.realResolution != lastResolution) {
+				var resolution = ClientPrefs.data.realResolution;
+				var parts = resolution.split('/');
+				//Option Safety
+				if (Std.parseInt(parts[1]) >= 720) FlxG.changeGameSize(Std.parseInt(parts[0]), Std.parseInt(parts[1]));
+			}
+			#end
+
 			#if android
 			if (ClientPrefs.data.storageType != lastStorageType) {
 				File.saveContent(lime.system.System.applicationStorageDirectory + 'storagetype.txt', ClientPrefs.data.storageType);
@@ -408,6 +419,7 @@ class OptionsState extends MusicBeatState
 			#end
 				ClientPrefs.saveSettings();
 			#if EXTRA_FPSCOUNTER onChangeFPSCounterShit(); #end
+
 			switch (stateType)
 			{
 				case 0:

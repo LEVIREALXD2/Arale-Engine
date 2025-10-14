@@ -19,16 +19,16 @@ class MobileData
 		save = new FlxSave();
 		save.bind('MobileControls', CoolUtil.getSavePath());
 
-		readDirectory(Paths.getPreloadPath('mobile/MobileButton/DPadModes'), dpadModes);
-		readDirectory(Paths.getPreloadPath('mobile/Hitbox/HitboxModes'), hitboxModes);
-		readDirectory(Paths.getPreloadPath('mobile/MobileButton/ActionModes'), actionModes);
+		readDirectory(Paths.getSharedPath('mobile/MobileButton/DPadModes'), dpadModes);
+		readDirectory(Paths.getSharedPath('mobile/Hitbox/HitboxModes'), hitboxModes);
+		readDirectory(Paths.getSharedPath('mobile/MobileButton/ActionModes'), actionModes);
 		#if MODS_ALLOWED
-		for (folder in Mods.directoriesWithFile(Paths.getPreloadPath(), 'mobile/MobileButton/'))
+		for (folder in Mods.directoriesWithFile(Paths.getSharedPath(), 'mobile/MobileButton/'))
 		{
 			readDirectory(Path.join([folder, 'DPadModes']), dpadModes);
 			readDirectory(Path.join([folder, 'ActionModes']), actionModes);
 		}
-		for (folder in Mods.directoriesWithFile(Paths.getPreloadPath(), 'mobile/Hitbox/'))
+		for (folder in Mods.directoriesWithFile(Paths.getSharedPath(), 'mobile/Hitbox/'))
 		{
 			readDirectory(Path.join([folder, 'HitboxModes']), hitboxModes);
 		}
@@ -76,34 +76,34 @@ typedef HitboxData =
 {
 	button:String, // what Hitbox Button should be used, must be a valid Hitbox Button var from Hitbox as a string.
 	//if custom ones isn't setted these will be used
-	x:Null<Float>, // the button's X position on screen.
-	y:Null<Float>, // the button's Y position on screen.
-	width:Null<Int>, // the button's Width on screen.
-	height:Null<Int>, // the button's Height on screen.
+	x:Dynamic, // the button's X position on screen.
+	y:Dynamic, // the button's Y position on screen.
+	width:Dynamic, // the button's Width on screen.
+	height:Dynamic, // the button's Height on screen.
 	color:String, // the button color, default color is white.
 	returnKey:String, // the button return, default return is nothing (please don't add custom return if you don't need).
 	extraKeyMode:Null<Int>,
 	//Top
-	topX:Null<Float>,
-	topY:Null<Float>,
-	topWidth:Null<Int>,
-	topHeight:Null<Int>,
+	topX:Dynamic,
+	topY:Dynamic,
+	topWidth:Dynamic,
+	topHeight:Dynamic,
 	topColor:String,
 	topReturnKey:String,
 	topExtraKeyMode:Null<Int>,
 	//Middle
-	middleX:Null<Float>,
-	middleY:Null<Float>,
-	middleWidth:Null<Int>,
-	middleHeight:Null<Int>,
+	middleX:Dynamic,
+	middleY:Dynamic,
+	middleWidth:Dynamic,
+	middleHeight:Dynamic,
 	middleColor:String,
 	middleReturnKey:String,
 	middleExtraKeyMode:Null<Int>,
 	//Bottom
-	bottomX:Null<Float>,
-	bottomY:Null<Float>,
-	bottomWidth:Null<Int>,
-	bottomHeight:Null<Int>,
+	bottomX:Dynamic,
+	bottomY:Dynamic,
+	bottomWidth:Dynamic,
+	bottomHeight:Dynamic,
 	bottomColor:String,
 	bottomReturnKey:String,
 	bottomExtraKeyMode:Null<Int>

@@ -1280,8 +1280,8 @@ class CharacterEditorState extends MusicBeatState
 
 	var characterList:Array<String> = [];
 	function reloadCharacterDropDown() {
-		characterList = Mods.mergeAllTextsNamed('data/characterList.txt', Paths.getPreloadPath());
-		var foldersToCheck:Array<String> = Mods.directoriesWithFile(Paths.getPreloadPath(), 'characters/');
+		characterList = Mods.mergeAllTextsNamed('data/characterList.txt', Paths.getSharedPath());
+		var foldersToCheck:Array<String> = Mods.directoriesWithFile(Paths.getSharedPath(), 'characters/');
 		for (folder in foldersToCheck)
 			for (file in Paths.readDirectory(folder))
 				if(file.toLowerCase().endsWith('.json'))

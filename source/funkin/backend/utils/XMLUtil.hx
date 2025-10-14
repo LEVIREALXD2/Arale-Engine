@@ -343,8 +343,17 @@ final class XMLUtil {
 		return MISSING_PROPERTY;
 	}
 
-	public static inline function defaultForcedCheck(animName:String, sprite:FunkinSprite):Bool
-		return sprite is Character_CNE && (animName.startsWith("idle") || animName.startsWith("danceLeft") || animName.startsWith("danceRight")) ? false : sprite.spriteAnimType == BEAT;
+	public static inline function defaultForcedCheck(animName:String, sprite:FunkinSprite):Bool {
+		if (sprite is Character && (animName.startsWith("idle") || animName.startsWith("danceLeft") || animName.startsWith("danceRight"))) {
+			return false;
+		}
+		else if (sprite is Character_CNE && (animName.startsWith("idle") || animName.startsWith("danceLeft") || animName.startsWith("danceRight"))) {
+			return false;
+		}
+		else {
+			return sprite.spriteAnimType == BEAT;
+		}
+	}
 
 	public static inline function fixXMLText(text:String) {
 		var v:String;

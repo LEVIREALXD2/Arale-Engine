@@ -85,7 +85,7 @@ class MobilePad extends FlxTypedSpriteGroup<MobileButton> {
 	public function createVirtualButton(x:Float, y:Float, Frames:String, ?ColorS:Int = 0xFFFFFF):MobileButton {
 		var frames:FlxGraphic;
 
-		final path:String = 'assets/mobile/MobileButton/VirtualPad/original/$Frames.png';
+		final path:String = Paths.getSharedPath() + 'mobile/MobileButton/VirtualPad/original/$Frames.png';
 		#if MODS_ALLOWED
 		final modsPath:String = Paths.modFolders('mobile/MobileButton/VirtualPad/original/$Frames');
 		if(sys.FileSystem.exists(modsPath))
@@ -93,7 +93,7 @@ class MobilePad extends FlxTypedSpriteGroup<MobileButton> {
 		else #end if(Assets.exists(path))
 			frames = FlxGraphic.fromBitmapData(Assets.getBitmapData(path));
 		else
-			frames = FlxGraphic.fromBitmapData(Assets.getBitmapData('assets/mobile/MobileButton/VirtualPad/original/default.png'));
+			frames = FlxGraphic.fromBitmapData(Assets.getBitmapData(Paths.getSharedPath() + 'mobile/MobileButton/VirtualPad/original/default.png'));
 
 		var button = new MobileButton(x, y);
 		button.frames = FlxTileFrames.fromGraphic(frames, FlxPoint.get(Std.int(frames.width / 2), frames.height));

@@ -12,6 +12,7 @@ import js.html.*;
 #if DISCORD_ALLOWED
 import Discord.DiscordClient;
 #end
+import novaengine.FreeplayStateNOVANew;
 
 //options
 import objects.state.general.*;

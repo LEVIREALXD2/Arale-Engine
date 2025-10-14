@@ -489,7 +489,7 @@ class LoadingState extends MusicBeatState
 			var nam:String = folder.trim();
 			if(nam.endsWith('/'))
 			{
-				for (subfolder in Mods.directoriesWithFile(Paths.getPreloadPath(), '$prefix/$nam'))
+				for (subfolder in Mods.directoriesWithFile(Paths.getSharedPath(), '$prefix/$nam'))
 				{
 					for (file in FileSystem.readDirectory(subfolder))
 					{
