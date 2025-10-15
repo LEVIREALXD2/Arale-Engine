@@ -17,7 +17,7 @@ jobs:
             system: Windows
           - name: Android-Arm64
             os: ubuntu-24.04
-            buildArgs: "android -D officialBuild -ONLY_ARM64 -final" 
+            buildArgs: "android -D officialBuild -ONLY_ARM64 -final"
             setupCommand: sh ./setup/unix.sh
             artifactName: androidBuild-Arm64
             artifactPath: "export/release/android/bin/app/build/outputs/apk/release/*.apk"
@@ -29,11 +29,25 @@ jobs:
             artifactName: androidBuild-Armv7
             artifactPath: "export/release/android/bin/app/build/outputs/apk/release/*.apk"
             system: Android
-          - name: Android-Both
+          - name: Android
             os: ubuntu-24.04
             buildArgs: "android -D officialBuild -final" 
             setupCommand: sh ./setup/unix.sh
-            artifactName: androidBuild-Both
+            artifactName: androidBuild
+            artifactPath: "export/release/android/bin/app/build/outputs/apk/release/*.apk"
+            system: Android
+          - name: Windows-Debug
+            os: windows-2022
+            buildArgs: "windows -D officialBuild -D debugBuild -final"
+            setupCommand: .\"setup/windows.bat"
+            artifactName: windowsDebugBuild-x86_64
+            artifactPath: export\release\windows\bin\*
+            system: Windows
+          - name: Android-Debug
+            os: ubuntu-24.04
+            buildArgs: "android -D officialBuild -D debugBuild -final" 
+            setupCommand: sh ./setup/unix.sh
+            artifactName: androidDebugBuild
             artifactPath: "export/release/android/bin/app/build/outputs/apk/release/*.apk"
             system: Android
     uses: ./.github/workflows/build.yml

@@ -511,11 +511,16 @@ class ChartingState extends MusicBeatState
 		stepperSpeed.name = 'song_speed';
 		blockPressWhileTypingOnStepper.push(stepperSpeed);
 		#if MODS_ALLOWED
-		var directories:Array<String> = [Paths.mods('characters/'), Paths.mods(Mods.currentModDirectory + '/characters/'), Paths.getSharedPath('characters/')];
-		for(mod in Mods.getGlobalMods())
+		var directories:Array<String> = [
+			Paths.mods('characters/'), Paths.mods(Mods.currentModDirectory + '/characters/'), Paths.getSharedPath('characters/'),
+			Paths.mods('data/characters/'), Paths.mods(Mods.currentModDirectory + '/data/characters/'), Paths.getSharedPath('data/characters/')
+		];
+		for(mod in Mods.getGlobalMods()) {
 			directories.push(Paths.mods(mod + '/characters/'));
+			directories.push(Paths.mods(mod + '/data/characters/'));
+		}
 		#else
-		var directories:Array<String> = [Paths.getSharedPath('characters/')];
+		var directories:Array<String> = [Paths.getSharedPath('characters/'), Paths.getSharedPath('data/characters/')];
 		#end
 
 		var tempArray:Array<String> = [];
@@ -532,7 +537,7 @@ class ChartingState extends MusicBeatState
 			if(FileSystem.exists(directory)) {
 				for (file in Paths.readDirectory(directory)) {
 					var path = haxe.io.Path.join([directory, file]);
-					if (!FileSystem.isDirectory(path) && file.endsWith('.json')) {
+					if (!FileSystem.isDirectory(path) && (file.endsWith('.json') || file.endsWith('.xml'))) {
 						var charToCheck:String = file.substr(0, file.length - 5);
 						if(charToCheck.trim().length > 0 && !charToCheck.endsWith('-dead') && !tempArray.contains(charToCheck)) {
 							tempArray.push(charToCheck);

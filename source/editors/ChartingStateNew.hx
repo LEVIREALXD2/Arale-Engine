@@ -450,7 +450,7 @@ class ChartingStateNew extends MusicBeatState implements PsychUIEventHandler.Psy
 		updateGridVisibility();
 
 		// CHARACTERS FOR THE DROP DOWNS
-		var gameOverCharacters:Array<String> = loadFileList('characters/', 'data/characterList.txt');
+		var gameOverCharacters:Array<String> = loadFileList('characters/', 'data/characterList.txt', ['.json', '.xml'], 'data/characters/');
 		var characterList:Array<String> = gameOverCharacters.filter((name:String) -> (!name.endsWith('-dead') && !name.endsWith('-death')));
 		playerDropDown.list = characterList;
 		opponentDropDown.list = characterList;
@@ -5156,7 +5156,7 @@ class ChartingStateNew extends MusicBeatState implements PsychUIEventHandler.Psy
 		super.destroy();
 	}
 
-	function loadFileList(mainFolder:String, ?optionalList:String = null, ?fileTypes:Array<String> = null)
+	function loadFileList(mainFolder:String, ?optionalList:String = null, ?fileTypes:Array<String> = null, ?secondFolder:String)
 	{
 		if(fileTypes == null) fileTypes = ['.json'];
 
@@ -5185,6 +5185,28 @@ class ChartingStateNew extends MusicBeatState implements PsychUIEventHandler.Psy
 						{
 							fileList.push(fileToCheck);
 							break;
+						}
+					}
+				}
+			}
+		}
+
+		if (secondFolder != null) {
+			for (directory in Mods.directoriesWithFile(Paths.getSharedPath(), secondFolder))
+			{
+				for (file in Paths.readDirectory(directory))
+				{
+					var path = haxe.io.Path.join([directory, file.trim()]);
+					if (!FileSystem.isDirectory(path) && !file.startsWith('readme.'))
+					{
+						for (fileType in fileTypes)
+						{
+							var fileToCheck:String = file.substr(0, file.length - fileType.length);
+							if(fileToCheck.length > 0 && path.endsWith(fileType) && !fileList.contains(fileToCheck))
+							{
+								fileList.push(fileToCheck);
+								break;
+							}
 						}
 					}
 				}

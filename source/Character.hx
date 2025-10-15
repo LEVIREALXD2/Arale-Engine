@@ -69,6 +69,7 @@ typedef AnimArray = {
 class Character extends FunkinMergedSprite implements IBeatReceiver implements IOffsetCompatible implements IPrePostDraw
 {
 	/* Codename Engine */
+	public var canUseStageCamOffset:Bool = true; //Needed Because StageOffsets changes the position too much, default is false
 	public var sprite:String = Flags.DEFAULT_CHARACTER;
 
 	public var lastHit:Float = Math.NEGATIVE_INFINITY;
@@ -149,6 +150,7 @@ class Character extends FunkinMergedSprite implements IBeatReceiver implements I
 		if (Assets.exists(pathChar))
 		#end
 		{
+			if (isPlayer) healthColorArray = [0, 255, 0];
 			trace("Codename Char Used");
 			isCodenameChar = true;
 			animOffsets_CNE = new Map<String, FlxPoint>();
@@ -161,7 +163,7 @@ class Character extends FunkinMergedSprite implements IBeatReceiver implements I
 			xml = getXMLFromCharName(this);
 
 			if(!disableScripts)
-				script = Script.create(Paths.script('data/' + Path.withoutExtension(Paths.xmlMod('characters/$curCharacter')), null, true));
+				script = Script.create(Paths.script('data/characters/$curCharacter', null, false, ["hscript", "hsc", "hxs"]));
 			if (script == null)
 				script = new DummyScript(curCharacter);
 
@@ -769,11 +771,13 @@ class Character extends FunkinMergedSprite implements IBeatReceiver implements I
 	 */
 	public var danceOnBeat:Bool = true;
 	public override function beatHit(curBeat:Int) {
-		scripts.call("beatHit", [curBeat]);
+		if (isCodenameChar) {
+			scripts.call("beatHit", [curBeat]);
 
-		if (skipNegativeBeats && curBeat < 0) return;
-		if (danceOnBeat && (curBeat + beatOffset) % (beatInterval * CoolUtil.maxInt(Math.floor(4 / MusicBeatState.stepsPerBeat), 1)) == 0 && !__lockAnimThisFrame)
-			tryDance();
+			if (skipNegativeBeats && curBeat < 0) return;
+			if (danceOnBeat && (curBeat + beatOffset) % (beatInterval * CoolUtil.maxInt(Math.floor(4 / MusicBeatState.stepsPerBeat), 1)) == 0 && !__lockAnimThisFrame)
+				tryDance();
+		}
 	}
 
 	public override function measureHit(curMeasure:Int)
@@ -878,6 +882,17 @@ class Character extends FunkinMergedSprite implements IBeatReceiver implements I
 		return new FlxPoint(event.x, event.y);
 	}
 
+	public inline function getCameraPositionAsPsych(?getX:Bool) {
+		var midpoint:FlxPoint = getMidpoint();
+		var event = EventManager.get(PointEvent).recycle(
+			midpoint.x + (isPlayer ? -100 : 150) + globalOffset.x + cameraOffset.x,
+			midpoint.y - 100 + globalOffset.y + cameraOffset.y);
+		scripts.call("onGetCamPos", [event]);
+
+		midpoint.put();
+		return getX ? event.x : event.y;
+	}
+
 	@:noCompletion var __reverseTrailProcedure:Bool = false;
 
 	// When using trails on characters you should do `trail.beforeCache = char.beforeTrailCache;` and `trail.afterCache = char.afterTrailCache;`
@@ -926,6 +941,7 @@ class Character extends FunkinMergedSprite implements IBeatReceiver implements I
 		this.xml = xml; // Modders wassup :D
 
 		if (xml.x.exists("isPlayer")) playerOffsets = (xml.x.get("isPlayer") == "true");
+		if (xml.x.exists("stageCamOffset")) canUseStageCamOffset = (xml.x.get("stageCamOffset") == "true");
 		if (xml.x.exists("x")) globalOffset.x = Std.parseFloat(xml.x.get("x"));
 		if (xml.x.exists("y")) globalOffset.y = Std.parseFloat(xml.x.get("y"));
 		if (xml.x.exists("gameOverChar")) gameOverCharacter = xml.x.get("gameOverChar");
@@ -982,7 +998,8 @@ class Character extends FunkinMergedSprite implements IBeatReceiver implements I
 	public static var characterProperties:Array<String> = [
 		"x", "y", "sprite", "scale", "antialiasing",
 		"flipX", "camx", "camy", "isPlayer", "icon",
-		"color", "gameOverChar", "holdTime"
+		"color", "gameOverChar", "holdTime",
+		"stageCamOffset"
 	];
 	public static var characterAnimProperties:Array<String> = [
 		"name", "anim", "x", "y", "fps", "loop", "indices"

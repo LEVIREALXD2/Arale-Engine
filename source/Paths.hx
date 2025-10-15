@@ -211,16 +211,19 @@ class Paths
 			return 'scripting/$file';
 	}
 
-	inline static public function script(key:String, ?library:String, isOnlyScriptingPath:Bool = false) {
+	inline static public function script(key:String, ?library:String, isOnlyScriptingPath:Bool = false, ?customEx:Array<String> = null) {
 		#if SCRIPTING_ALLOWED
 		var scriptToLoad:String = null;
+		var arrayNumber:Int = 0;
 		for(ex in Script.scriptExtensions) {
+			if (customEx != null) {
+				ex = customEx[arrayNumber];
+				arrayNumber += 1;
+			}
 			#if MODS_ALLOWED
 			scriptToLoad = Paths.modFolders('${key}.$ex');
-			if(!FileSystem.exists(scriptToLoad))
+			if(!FileSystem.exists(scriptToLoad) || isOnlyScriptingPath)
 				scriptToLoad = Paths.getScriptPath('${key}.$ex');
-
-			if (isOnlyScriptingPath) scriptToLoad = Paths.getScriptPath('${key}.$ex');
 			#else
 			scriptToLoad = Paths.getScriptPath('${key}.$ex');
 			#end

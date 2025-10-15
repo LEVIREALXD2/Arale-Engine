@@ -1291,6 +1291,17 @@ class CharacterEditorState extends MusicBeatState
 						characterList.push(charToCheck);
 				}
 
+		//Allow to see CNE Chars on editor too
+		var foldersToCheck:Array<String> = Mods.directoriesWithFile(Paths.getSharedPath(), 'data/characters/');
+		for (folder in foldersToCheck)
+			for (file in Paths.readDirectory(folder))
+				if(file.toLowerCase().endsWith('.xml'))
+				{
+					var charToCheck:String = file.substr(0, file.length - 5);
+					if(!characterList.contains(charToCheck))
+						characterList.push(charToCheck);
+				}
+
 		if(characterList.length < 1) characterList.push('');
 		charDropDown.setData(FlxUIDropDownMenu.makeStrIdLabelArray(characterList, true));
 		charDropDown.selectedLabel = _char;
