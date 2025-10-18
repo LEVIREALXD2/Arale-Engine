@@ -1,7 +1,7 @@
 {
   "options": [
     {
-      "forcedChart": "1.0x",
+      "forcedChart": "psych_v1",
       "forcedCamera": "0.7x"
     }
   ]

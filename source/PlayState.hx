@@ -94,7 +94,6 @@ class PlayState extends MusicBeatState
 	#if TOUCH_CONTROLS
 	public var luaMobilePad:MobilePad; //trust me, you'll never need to access this directly
 	#end
-	public static var forcedChartLoadSystem:String;
 	public static var cameraMode:String;
 	
 	/**
@@ -1722,11 +1721,11 @@ class PlayState extends MusicBeatState
 				var gottaHitNote:Bool = false;
 				var oldNote:Note = null;
 
-				if (ClientPrefs.data.chartLoadSystem == '1.0x' || forcedChartLoadSystem == '1.0x')
+				if (Song.currentChartLoadSystem == 'psych_v1')
 				{
 					gottaHitNote = (songNotes[1] < 4);
 				}
-				else
+				else if (Song.currentChartLoadSystem == 'psych_legacy')
 				{
 					gottaHitNote = section.mustHitSection;
 					if (songNotes[1] > 3)
@@ -1742,11 +1741,11 @@ class PlayState extends MusicBeatState
 				swagNote.mustPress = gottaHitNote;
 				swagNote.sustainLength = songNotes[2];
 				swagNote.gfNote = (section.gfSection && (songNotes[1]<4));
-				if (ClientPrefs.data.chartLoadSystem == '1.0x' || forcedChartLoadSystem == '1.0x')
+				if (Song.currentChartLoadSystem == 'psych_v1')
 					if(section.altAnim && !swagNote.mustPress && !section.gfSection) swagNote.animSuffix = '-alt';
 
 				swagNote.noteType = songNotes[3];
-				if(!Std.isOfType(songNotes[3], String) && (ClientPrefs.data.chartLoadSystem == '0.4-0.7x' || forcedChartLoadSystem == '0.4-0.7x'))
+				if(!Std.isOfType(songNotes[3], String) && Song.currentChartLoadSystem == 'psych_legacy')
 					swagNote.noteType = editors.ChartingState.noteTypeList[songNotes[3]]; //Backward compatibility + compatibility with Week 7 charts
 
 				swagNote.scrollFactor.set();
@@ -1763,13 +1762,13 @@ class PlayState extends MusicBeatState
 						oldNote = unspawnNotes[Std.int(unspawnNotes.length - 1)];
 
 						var sustainNote:Note = new Note(daStrumTime + (Conductor.stepCrochet * susNote), daNoteData, oldNote, true);
-						if (ClientPrefs.data.chartLoadSystem == '1.0x' || forcedChartLoadSystem == '1.0x')
+						if (Song.currentChartLoadSystem == 'psych_v1')
 						{
 							sustainNote.animSuffix = swagNote.animSuffix;
 							sustainNote.mustPress = swagNote.mustPress;
 							sustainNote.gfNote = swagNote.gfNote;
 						}
-						else
+						else if (Song.currentChartLoadSystem == 'psych_legacy')
 						{
 							sustainNote.mustPress = gottaHitNote;
 							sustainNote.gfNote = (section.gfSection && (songNotes[1]<4));
@@ -1821,7 +1820,7 @@ class PlayState extends MusicBeatState
 				if(!noteTypes.contains(swagNote.noteType))
 					noteTypes.push(swagNote.noteType);
 
-				if (ClientPrefs.data.chartLoadSystem == '1.0x' || forcedChartLoadSystem == '1.0x') oldNote = swagNote;
+				if (Song.currentChartLoadSystem == 'psych_v1') oldNote = swagNote;
 			}
 			daBeats += 1;
 		}
@@ -3013,8 +3012,7 @@ class PlayState extends MusicBeatState
 						prevCamFollowPos = camFollowPos;
 					}
 
-					if (ClientPrefs.data.chartLoadSystem == '1.0x') Song.loadFromJson(PlayState.storyPlaylist[0] + difficulty, PlayState.storyPlaylist[0]);
-					else PlayState.SONG = Song.loadFromJson(PlayState.storyPlaylist[0] + difficulty, PlayState.storyPlaylist[0]);
+					PlayState.SONG = Song.loadFromJson(PlayState.storyPlaylist[0] + difficulty, PlayState.storyPlaylist[0]);
 					FlxG.sound.music.stop();
 					cancelMusicFadeTween();
 					canResync = false;

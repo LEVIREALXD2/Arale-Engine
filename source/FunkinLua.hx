@@ -878,8 +878,7 @@ class FunkinLua {
 				difficultyNum = PlayState.storyDifficulty;
 
 			var poop = Highscore.formatSong(name, difficultyNum);
-			if (ClientPrefs.data.chartLoadSystem == '1.0x') Song.loadFromJson(poop, name);
-			else PlayState.SONG = Song.loadFromJson(poop, name);
+			PlayState.SONG = Song.loadFromJson(poop, name);
 			PlayState.storyDifficulty = difficultyNum;
 			FlxG.state.persistentUpdate = false;
 			LoadingState.loadAndSwitchState(new PlayState());

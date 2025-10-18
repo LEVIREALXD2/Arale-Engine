@@ -406,8 +406,7 @@ class FreeplayState extends MusicBeatState
 
 			try
 			{
-				if (ClientPrefs.data.chartLoadSystem == '1.0x') Song.loadFromJson(poop, songLowercase);
-				else PlayState.SONG = Song.loadFromJson(poop, songLowercase);
+				PlayState.SONG = Song.loadFromJson(poop, songLowercase);
 
 				PlayState.isStoryMode = false;
 				PlayState.storyDifficulty = curDifficulty;

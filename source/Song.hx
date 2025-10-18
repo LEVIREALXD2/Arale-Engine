@@ -55,6 +55,7 @@ typedef ExtraChartOptions =
 
 class Song
 {
+	public static var currentChartLoadSystem:String = null;
 	public var song:String;
 	public var notes:Array<SwagSection>;
 	public var events:Array<Dynamic>;
@@ -74,63 +75,7 @@ class Song
 	public var gfVersion:String = 'gf';
 	public var format:String = 'psych_v1';
 
-	public static function convert(songJson:Dynamic) // Convert old charts to psych_v1 format
-	{
-		if(songJson.gfVersion == null)
-		{
-			songJson.gfVersion = songJson.player3;
-			if (ClientPrefs.data.chartLoadSystem == '1.0x' || PlayState.forcedChartLoadSystem == '1.0x') if(Reflect.hasField(songJson, 'player3')) Reflect.deleteField(songJson, 'player3');
-			else songJson.player3 = null;
-		}
-
-		if(songJson.events == null)
-		{
-			songJson.events = [];
-			for (secNum in 0...songJson.notes.length)
-			{
-				var sec:SwagSection = songJson.notes[secNum];
-
-				var i:Int = 0;
-				var notes:Array<Dynamic> = sec.sectionNotes;
-				var len:Int = notes.length;
-				while(i < len)
-				{
-					var note:Array<Dynamic> = notes[i];
-					if(note[1] < 0)
-					{
-						songJson.events.push([note[0], [[note[2], note[3], note[4]]]]);
-						notes.remove(note);
-						len = notes.length;
-					}
-					else i++;
-				}
-			}
-		}
-
-		var sectionsData:Array<SwagSection> = songJson.notes;
-		if (ClientPrefs.data.chartLoadSystem == '1.0x' || PlayState.forcedChartLoadSystem == '1.0x')
-		{
-			if(sectionsData == null) return;
-			for (section in sectionsData)
-			{
-				var beats:Null<Float> = cast section.sectionBeats;
-				if (beats == null || Math.isNaN(beats))
-				{
-					section.sectionBeats = 4;
-					if(Reflect.hasField(section, 'lengthInSteps')) Reflect.deleteField(section, 'lengthInSteps');
-				}
-				for (note in section.sectionNotes)
-				{
-					var gottaHitNote:Bool = (note[1] < 4) ? section.mustHitSection : !section.mustHitSection;
-					note[1] = (note[1] % 4) + (gottaHitNote ? 0 : 4);
-					if(note[3] != null && !Std.isOfType(note[3], String))
-						note[3] = Note.defaultNoteTypes[note[3]]; //compatibility with Week 7 and 0.1-0.3 psych charts
-				}
-			}
-		}
-	}
-
-	private static function onLoadJson(songJson:Dynamic) // This is 0.6.3 Chart Load System Because Chart Editor Doesn't Support 1.0 Charts
+	private static function onLoadJson(songJson:Dynamic)
 	{
 		if(songJson.gfVersion == null)
 		{
@@ -181,7 +126,7 @@ class Song
 
 	public static function loadFromJson(jsonInput:String, ?folder:String):SwagSong
 	{
-		PlayState.forcedChartLoadSystem = null;
+		currentChartLoadSystem = null;
 		PlayState.cameraMode = null;
 
 		getExtraChartOptions(folder);
@@ -213,7 +158,7 @@ class Song
 		else trace('CNE Chart Not Exists, Using PsychEngine Chart Instead!');
 		#end
 
-		if (ClientPrefs.data.chartLoadSystem == '1.0x' || PlayState.forcedChartLoadSystem == '1.0x')
+		if (currentChartLoadSystem == 'psych_v1')
 		{
 			trace('Current Chart System: 1.0');
 			if(folder == null) folder = jsonInput;
@@ -223,7 +168,7 @@ class Song
 			if(jsonInput != 'events') StageData.loadDirectory(PlayState.SONG);
 			return PlayState.SONG;
 		}
-		else
+		else if (currentChartLoadSystem == 'psych_legacy')
 		{
 			trace('Current Chart System: 0.4-0.7x');
 			var rawJson = null;
@@ -262,9 +207,12 @@ class Song
 			loadedSongName = folder;
 			if(jsonInput != 'events') StageData.loadDirectory(songJson);
 			onLoadJson(songJson);
-			if (ClientPrefs.data.chartLoadSystem == '1.0x') PlayState.SONG = songJson; //1.0 option fix
+			if (ClientPrefs.data.chartLoadSystem == '1.0x')
+				PlayState.SONG = songJson; //1.0 option fix
 			return songJson;
 		}
+		else
+			return null;
 	}
 
 	public static function getExtraChartOptions(folder:String) {
@@ -281,13 +229,70 @@ class Song
 			for (option in extraChartOptions.options) {
 				//trace('getExtraChartOptions: Options Loading');
 				if (option.forcedCamera != null) PlayState.cameraMode = option.forcedCamera;
-				if(option.forcedChart == '1.0x' && chartOption != '1.0x') PlayState.forcedChartLoadSystem = '1.0x';
-				else if(option.forcedChart == '0.4-0.7x' && chartOption != '0.4-0.7x') PlayState.forcedChartLoadSystem = '0.4-0.7x';
-				else PlayState.forcedChartLoadSystem = null;
 
-				//trace('getExtraChartOptions: Options Loaded');
-				//trace('getExtraChartOptions: forcedCamera: ${PlayState.cameraMode}');
-				//trace('getExtraChartOptions: forcedChart: ${PlayState.forcedChartLoadSystem}');
+				switch (option.forcedChart) {
+					case 'psych_v1':
+						currentChartLoadSystem = 'psych_v1';
+					case 'psych_legacy':
+						currentChartLoadSystem = 'psych_legacy';
+					default:
+						if (ClientPrefs.data.chartLoadSystem == '1.0x') currentChartLoadSystem = 'psych_v1';
+						else currentChartLoadSystem = 'psych_legacy';
+				}
+			}
+		}
+	}
+
+	// PsychEngine 1.0
+	public static function convert(songJson:Dynamic) // Convert old charts to psych_v1 format
+	{
+		if(songJson.gfVersion == null)
+		{
+			songJson.gfVersion = songJson.player3;
+			if(Reflect.hasField(songJson, 'player3'))
+				Reflect.deleteField(songJson, 'player3');
+		}
+
+		if(songJson.events == null)
+		{
+			songJson.events = [];
+			for (secNum in 0...songJson.notes.length)
+			{
+				var sec:SwagSection = songJson.notes[secNum];
+
+				var i:Int = 0;
+				var notes:Array<Dynamic> = sec.sectionNotes;
+				var len:Int = notes.length;
+				while(i < len)
+				{
+					var note:Array<Dynamic> = notes[i];
+					if(note[1] < 0)
+					{
+						songJson.events.push([note[0], [[note[2], note[3], note[4]]]]);
+						notes.remove(note);
+						len = notes.length;
+					}
+					else i++;
+				}
+			}
+		}
+
+		var sectionsData:Array<SwagSection> = songJson.notes;
+		if(sectionsData == null) return;
+		for (section in sectionsData)
+		{
+			var beats:Null<Float> = cast section.sectionBeats;
+			if (beats == null || Math.isNaN(beats))
+			{
+				section.sectionBeats = 4;
+				if(Reflect.hasField(section, 'lengthInSteps')) Reflect.deleteField(section, 'lengthInSteps');
+			}
+			for (note in section.sectionNotes)
+			{
+				var gottaHitNote:Bool = (note[1] < 4) ? section.mustHitSection : !section.mustHitSection;
+				note[1] = (note[1] % 4) + (gottaHitNote ? 0 : 4);
+				if(note[3] != null && !Std.isOfType(note[3], String))
+					note[3] = Note.defaultNoteTypes[note[3]]; //compatibility with Week 7 and 0.1-0.3 psych charts
 			}
 		}
 	}

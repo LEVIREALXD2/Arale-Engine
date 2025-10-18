@@ -246,8 +246,7 @@ class PauseSubState extends MusicBeatSubstate
 				{
 					if(menuItems.length - 1 != curSelected && difficultyChoices.contains(daSelected))
 					{
-						if (ClientPrefs.data.chartLoadSystem == '1.0x' || PlayState.forcedChartLoadSystem == '1.0x') Song.loadFromJson(poop, songLowercase);
-						else PlayState.SONG = Song.loadFromJson(poop, songLowercase);
+						PlayState.SONG = Song.loadFromJson(poop, songLowercase);
 						PlayState.storyDifficulty = curSelected;
 						MusicBeatState.resetState();
 						FlxG.sound.music.volume = 0;
@@ -296,7 +295,7 @@ class PauseSubState extends MusicBeatSubstate
 				case "Leave Charting Mode":
 					restartSong();
 					PlayState.chartingMode = false;
-					if (ClientPrefs.data.chartLoadSystem == '1.0x') editors.ChartingStateNew.curSec = 0;
+					if (Song.currentChartLoadSystem == 'psych_v1') editors.ChartingStateNew.curSec = 0;
 					else editors.ChartingState.curSec = 0;
 				case 'Skip Time':
 					if(curTime < Conductor.songPosition)
