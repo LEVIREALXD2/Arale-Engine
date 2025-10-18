@@ -27,6 +27,10 @@ import options.base.*;
 import backend.Mods;
 #end
 
+#if DISCORD_ALLOWED
+import Discord.DiscordClient;
+#end
+
 #if ACHIEVEMENTS_ALLOWED
 import backend.Achievements;
 import objects.AchievementPopup;
