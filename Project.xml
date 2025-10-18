@@ -60,6 +60,7 @@
 	</section>
 
 	<classpath name="source" />
+	<classpath name="source_nova" if="ENABLE_NOVA"/>
 	<classpath name="library" />
 
 	<!-- PSYCH EXTENDED CUSTOMIZATION -->
@@ -68,15 +69,15 @@
 	<define name="TOUCH_CONTROLS" if="mobile" />
 
 	<!-- || Usele Defines || -->
-	<define name="EXTRA_FPSCOUNTER" unless="extras_disabled"/>
+	<define name="EXTRA_FPSCOUNTER" if="ENABLE_NOVA"/>
 
-	<define name="EXTRA_FREEPLAY" unless="extras_disabled"/>
+	<define name="EXTRA_FREEPLAY" if="ENABLE_NOVA"/>
 
-	<define name="EXTRA_TRANSITIONS" unless="extras_disabled"/>
+	<define name="EXTRA_TRANSITIONS" if="ENABLE_NOVA"/>
 
-	<define name="EXTRA_MAINMENU" unless="extras_disabled"/>
+	<define name="EXTRA_MAINMENU" if="ENABLE_NOVA"/>
 
-	<define name="EXTRA_PAUSE" unless="extras_disabled"/>
+	<define name="EXTRA_PAUSE" if="ENABLE_NOVA"/>
 
 	<!-- Comment this out if you want to disable Modpacks (When Comment this out, you can't use most of the custom menus from mods) -->
 	<define name="MODPACK_ALLOWED" />
@@ -152,9 +153,9 @@
 		<assets path="mobile"         rename="assets/shared/mobile"        exclude="*.mp3" unless="web"/>
 	</section>
 
-	<section if="EXTRA_FREEPLAY">
-		<assets path="extra_assets"         rename="assets"        exclude="*.ogg" if="web"/>
-		<assets path="extra_assets"         rename="assets"        exclude="*.mp3" unless="web"/>
+	<section if="ENABLE_NOVA">
+		<assets path="assets_nova"         rename="assets"        exclude="*.ogg" if="web"/>
+		<assets path="assets_nova"         rename="assets"        exclude="*.mp3" unless="web"/>
 	</section>
 	
 	<library name="videos"        preload="true" />

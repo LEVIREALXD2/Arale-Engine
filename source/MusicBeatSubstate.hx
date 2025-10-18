@@ -8,7 +8,7 @@ import flixel.FlxSprite;
 import flixel.input.actions.FlxActionInput;
 
 #if SCRIPTING_ALLOWED
-import scripting.HScript;
+import funkin.backend.scripting.HScript;
 #end
 
 class MusicBeatSubstate extends FlxSubState

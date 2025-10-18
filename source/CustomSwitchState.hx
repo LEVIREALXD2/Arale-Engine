@@ -1,7 +1,7 @@
 package;
 
 #if SCRIPTING_ALLOWED
-import scripting.HScript;
+import funkin.backend.scripting.HScript;
 #end
 import editors.ChartingState;
 import editors.ChartingStateNew;

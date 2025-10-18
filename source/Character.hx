@@ -17,7 +17,7 @@ import flixel.graphics.frames.FlxFrame;
 import flixel.math.FlxPoint;
 import flixel.math.FlxRect;
 import flixel.util.FlxColor;
-import scripting.HScript;
+import funkin.backend.scripting.HScript;
 import funkin.backend.FunkinSprite;
 import funkin.backend.system.interfaces.IBeatReceiver;
 import funkin.backend.system.interfaces.IOffsetCompatible;
@@ -50,7 +50,6 @@ typedef CharacterFile = {
 	var healthbar_colors:Array<Int>;
 	var vocals_file:String;
 	@:optional var _editor_isPlayer:Null<Bool>;
-	var fixed_flip_x:Bool; //enable flip_x fixes for codename engine
 }
 
 typedef AnimArray = {
@@ -69,7 +68,8 @@ typedef AnimArray = {
 class Character extends FunkinMergedSprite implements IBeatReceiver implements IOffsetCompatible implements IPrePostDraw
 {
 	/* Codename Engine */
-	public var canUseStageCamOffset:Bool = true; //Needed Because StageOffsets changes the position too much, default is false
+	public var canUseStageCamOffset:Bool = true; //StageOffsets can be disabled for cne chars, default is true
+	public var groupEnabled:Bool = true; //cne doesn't have groups for chars, so you can disable this, default is true
 	public var sprite:String = Flags.DEFAULT_CHARACTER;
 
 	public var lastHit:Float = Math.NEGATIVE_INFINITY;
@@ -882,6 +882,21 @@ class Character extends FunkinMergedSprite implements IBeatReceiver implements I
 		return new FlxPoint(event.x, event.y);
 	}
 
+	public dynamic function getCharacterCamPos(?pos:FlxPoint = null, ?ignoreInvisible:Bool = true):CamPosData {
+		if (pos == null) pos = FlxPoint.get();
+		var amount = 0;
+		var cpos = getCameraPosition();
+		pos.x += cpos.x;
+		pos.y += cpos.y;
+		amount++;
+		//cpos.put(); // not actually in the pool, so no need
+		if (amount > 0) {
+			pos.x /= amount;
+			pos.y /= amount;
+		}
+		return new CamPosData(pos, amount);
+	}
+
 	public inline function getCameraPositionAsPsych(?getX:Bool) {
 		var midpoint:FlxPoint = getMidpoint();
 		var event = EventManager.get(PointEvent).recycle(
@@ -942,6 +957,7 @@ class Character extends FunkinMergedSprite implements IBeatReceiver implements I
 
 		if (xml.x.exists("isPlayer")) playerOffsets = (xml.x.get("isPlayer") == "true");
 		if (xml.x.exists("stageCamOffset")) canUseStageCamOffset = (xml.x.get("stageCamOffset") == "true");
+		if (xml.x.exists("groupEnabled")) groupEnabled = (xml.x.get("groupEnabled") == "true");
 		if (xml.x.exists("x")) globalOffset.x = Std.parseFloat(xml.x.get("x"));
 		if (xml.x.exists("y")) globalOffset.y = Std.parseFloat(xml.x.get("y"));
 		if (xml.x.exists("gameOverChar")) gameOverCharacter = xml.x.get("gameOverChar");
@@ -1151,5 +1167,30 @@ class Character extends FunkinMergedSprite implements IBeatReceiver implements I
 		if (xml != null && xml.x.exists("icon")) icon = xml.x.get("icon");
 
 		return icon;
+	}
+}
+
+class CamPosData {
+	/**
+	 * The camera position.
+	**/
+	public var pos:FlxPoint;
+	/**
+	 * The amount of characters that was involved in the calculation.
+	**/
+	public var amount:Int;
+
+	public function new(pos:FlxPoint, amount:Int) {
+		this.pos = pos;
+		this.amount = amount;
+	}
+
+	/**
+	 * Puts the position back into the pool, making it reusable.
+	**/
+	public function put() {
+		if(pos == null) return;
+		pos.put();
+		pos = null;
 	}
 }

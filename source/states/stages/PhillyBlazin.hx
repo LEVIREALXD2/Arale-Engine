@@ -2,6 +2,7 @@ package states.stages;
 
 import openfl.filters.ShaderFilter;
 import shaders.RainShader;
+import PlayState.StrumLine;
 
 import flixel.addons.transition.FlxTransitionableState;
 import flixel.addons.display.FlxTiledSprite;
@@ -25,6 +26,8 @@ class PhillyBlazin extends BaseStage
 
 	override function create()
 	{
+		StrumLine.opponentStrumAlpha = 0;
+		StrumLine.middleScroll = true; //MiddleScroll thing
 		FlxTransitionableState.skipNextTransOut = true; //skip the original transition fade
 		function setupScale(spr:BGSprite)
 		{
@@ -80,6 +83,7 @@ class PhillyBlazin extends BaseStage
 			setupRainShader();
 
 		var _song = PlayState.SONG;
+		PauseSubState.forcedPauseSong = 'breakfast-pico';
 		if(_song.gameOverSound == null || _song.gameOverSound.trim().length < 1) GameOverSubstate.deathSoundName = 'fnf_loss_sfx-pico-gutpunch';
 		if(_song.gameOverLoop == null || _song.gameOverLoop.trim().length < 1) GameOverSubstate.loopSoundName = 'gameOver-pico';
 		if(_song.gameOverEnd == null || _song.gameOverEnd.trim().length < 1) GameOverSubstate.endSoundName = 'gameOverEnd-pico';
@@ -178,6 +182,11 @@ class PhillyBlazin extends BaseStage
 
 	override function update(elapsed:Float)
 	{
+		if(game.health <= 0.0 && !game.practiceMode) {
+			FlxG.camera.setFilters([]); //remove rain shader when player died
+			rainShader = null;
+		}
+
 		if(scrollingSky != null) scrollingSky.scrollX -= elapsed * 35;
 
 		if(rainShader != null)
@@ -186,7 +195,7 @@ class PhillyBlazin extends BaseStage
 			rainShader.update(elapsed * rainTimeScale);
 			rainTimeScale = FlxMath.lerp(0.02, Math.min(1, rainTimeScale), Math.exp(-elapsed / (1/3)));
 		}
-		
+
 		lightningTimer -= elapsed;
 		if (lightningTimer <= 0)
 		{

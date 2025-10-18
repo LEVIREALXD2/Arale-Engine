@@ -440,7 +440,6 @@ class CharacterEditorState extends MusicBeatState
 				],
 				no_antialiasing: false,
 				flip_x: false,
-				fixed_flip_x: false,
 				healthicon: 'face',
 				image: 'characters/BOYFRIEND',
 				sing_duration: 4,
@@ -1291,13 +1290,13 @@ class CharacterEditorState extends MusicBeatState
 						characterList.push(charToCheck);
 				}
 
-		//Allow to see CNE Chars on editor too
+		//Allow to see CNE Chars on editor too (probably they cannot be load but I need to try)
 		var foldersToCheck:Array<String> = Mods.directoriesWithFile(Paths.getSharedPath(), 'data/characters/');
 		for (folder in foldersToCheck)
 			for (file in Paths.readDirectory(folder))
 				if(file.toLowerCase().endsWith('.xml'))
 				{
-					var charToCheck:String = file.substr(0, file.length - 5);
+					var charToCheck:String = file.substr(0, file.length - 4);
 					if(!characterList.contains(charToCheck))
 						characterList.push(charToCheck);
 				}

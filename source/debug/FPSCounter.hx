@@ -25,6 +25,7 @@ class FPSCounter extends TextField
 		The current frame rate, expressed using frames-per-second
 	**/
 	public var currentFPS(default, null):Int;
+	public static var currentFPSStatic(default, null):Int;
 
 	/**
 		The current memory usage (WARNING: this is NOT your total program memory usage, rather it shows the garbage collector memory)
@@ -47,6 +48,7 @@ class FPSCounter extends TextField
 		positionFPS(x, y);
 
 		currentFPS = 0;
+		currentFPSStatic = 0;
 		selectable = false;
 		mouseEnabled = false;
 		defaultTextFormat = new TextFormat("_sans", 14, color);
@@ -71,7 +73,8 @@ class FPSCounter extends TextField
 			return;
 		}
 
-		currentFPS = times.length < FlxG.updateFramerate ? times.length : FlxG.updateFramerate;		
+		currentFPS = times.length < FlxG.updateFramerate ? times.length : FlxG.updateFramerate;
+		currentFPSStatic = times.length < FlxG.updateFramerate ? times.length : FlxG.updateFramerate;
 		updateText();
 		deltaTimeout = 0.0;
 	}

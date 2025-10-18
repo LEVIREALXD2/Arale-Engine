@@ -1,7 +1,7 @@
 package options.group;
 
 #if SCRIPTING_ALLOWED
-import scripting.HScript;
+import funkin.backend.scripting.HScript;
 
 class ModGroupBase extends OptionCata
 {

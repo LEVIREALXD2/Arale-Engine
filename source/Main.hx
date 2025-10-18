@@ -148,7 +148,7 @@ class Main extends Sprite
 		#end
 
 		#if GLOBAL_SCRIPT
-		scripting.HScript.GlobalScript.init();
+		funkin.backend.scripting.HScript.GlobalScript.init();
 		#end
 
 		#if EXTRA_FPSCOUNTER

@@ -8,7 +8,7 @@ import mobile.substates.MobileExtraControl;
 import mobile.states.CopyState;
 import ClientPrefs;
 import StageData;
-import options.NovaFlareOptionsObjects.Option;
+import options.packages.Objects.Option;
 import funkin.backend.scripting.events.CataEvent;
 
 class OptionsState extends MusicBeatState
@@ -418,7 +418,7 @@ class OptionsState extends MusicBeatState
 			else
 			#end
 				ClientPrefs.saveSettings();
-			#if EXTRA_FPSCOUNTER onChangeFPSCounterShit(); #end
+			onChangeFPSCounterShit();
 
 			switch (stateType)
 			{

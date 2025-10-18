@@ -6,7 +6,7 @@ import flixel.math.FlxPoint;
 import haxe.xml.Access;
 import funkin.backend.utils.XMLUtil.XMLImportedScriptInfo;
 import funkin.backend.system.interfaces.IBeatReceiver;
-import scripting.HScript;
+import funkin.backend.scripting.HScript;
 import funkin.backend.scripting.events.stage.*;
 import haxe.io.Path;
 

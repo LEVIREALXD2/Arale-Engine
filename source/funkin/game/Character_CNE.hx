@@ -8,7 +8,7 @@ import flixel.graphics.frames.FlxFrame;
 import flixel.math.FlxPoint;
 import flixel.math.FlxRect;
 import flixel.util.FlxColor;
-import scripting.HScript;
+import funkin.backend.scripting.HScript;
 import funkin.backend.FunkinSprite;
 import funkin.backend.system.interfaces.IBeatReceiver;
 import funkin.backend.system.interfaces.IOffsetCompatible;

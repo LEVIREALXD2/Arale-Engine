@@ -1,13 +1,9 @@
 package;
 
+#if DISCORD_ALLOWED
 import Sys.sleep;
 import discord_rpc.DiscordRpc;
 import lime.app.Application;
-
-#if LUA_ALLOWED
-import llua.Lua;
-import llua.State;
-#end
 
 class DiscordClient
 {
@@ -122,7 +118,7 @@ class DiscordClient
 		_options.details = details;
 		_options.state = state;
 		_options.largeImageKey = 'icon';
-		_options.largeImageText = "Engine Version: " + MainMenuState.psychEngineVersion;
+		_options.largeImageText = "Engine Version: " + states.MainMenuState.psychEngineVersion;
 		_options.smallImageKey = smallImageKey;
 		// Obtained times are in milliseconds so they are divided so Discord can use it
 		_options.startTimestamp = Std.int(startTimestamp / 1000);
@@ -160,3 +156,4 @@ class DiscordClient
 	}
 	#end
 }
+#end

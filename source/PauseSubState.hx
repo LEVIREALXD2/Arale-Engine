@@ -7,6 +7,7 @@ import flixel.addons.transition.FlxTransitionableState;
 
 class PauseSubState extends MusicBeatSubstate
 {
+	public static var forcedPauseSong:String = null;
 	var grpMenuShit:FlxTypedGroup<Alphabet>;
 
 	var menuItems:Array<String> = [];
@@ -77,7 +78,8 @@ class PauseSubState extends MusicBeatSubstate
 		try
 		{
 			var pauseSong:String = getPauseSong();
-			if(pauseSong != null) pauseMusic.loadEmbedded(Paths.music(pauseSong), true, true);
+			if (forcedPauseSong != null) pauseMusic.loadEmbedded(Paths.music(forcedPauseSong), true, true);
+			else if(pauseSong != null) pauseMusic.loadEmbedded(Paths.music(pauseSong), true, true);
 		}
 		catch(e:Dynamic) {}
 		pauseMusic.volume = 0;

@@ -30,6 +30,14 @@ class GameplayGroup extends OptionCata
 		addOption(option);
 
 		var option:Option = new Option(this,
+			'Use CNE\'s Camera Angle',
+			"If checked, camera angle works like in Codename Engine\nThis is useful for some CNE mods like Cyber Sensation",
+			'codenameCamAngle',
+			BOOL
+		);
+		addOption(option);
+
+		var option:Option = new Option(this,
 			'HScript Version',
 			'If You Have A Any Problem With Mods Change This',
 			'hscriptversion',
@@ -49,8 +57,8 @@ class GameplayGroup extends OptionCata
 
 		#if HSC_ALLOWED
 		var option:Option = new Option(this,
-			'Codename Functions',
-			'If checked, you can use some function from Codename Engine, simple enough.',
+			'Codename Like Functions',
+			'If checked, you can use some functions like in Codename Engine, simple enough.\n(THIS THING ONLY HAS A COUNTDOWN FOR NOW)',
 			'codenameFunctions',
 			BOOL
 		);

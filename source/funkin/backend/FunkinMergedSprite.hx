@@ -99,15 +99,14 @@ class FunkinMergedSprite extends FlxSkewedSprite implements IBeatReceiver implem
 	public override function update(elapsed:Float)
 	{
 		super.update(elapsed);
-		if (animateAtlas != null)
-			animateAtlas.update(elapsed);
+		if (isCodenameChar) { // Put this here for fixing the Speaker Pico's animations
+			if (animateAtlas != null)
+				animateAtlas.update(elapsed);
 
-		// hate how it looks like but hey at least its optimized and fast  - Nex
-		if (!debugMode && isAnimFinished()) {
-			var name = getAnimName() + '-loop';
-			if (hasAnimation_CNE(name)) {
-				if (isCodenameChar) playAnim_CNE(name, null, lastAnimContext);
-				else playAnim();
+			// hate how it looks like but hey at least its optimized and fast  - Nex
+			if (!debugMode && isAnimFinished()) {
+				var name = getAnimName() + '-loop';
+				if (hasAnimation_CNE(name)) playAnim_CNE(name, null, lastAnimContext);
 			}
 		}
 	}

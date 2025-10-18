@@ -16,7 +16,7 @@ import flixel.graphics.FlxGraphic;
 import openfl.display.BitmapData;
 import haxe.Json;
 #if SCRIPTING_ALLOWED
-import scripting.HScript.Script;
+import funkin.backend.scripting.HScript.Script;
 #end
 
 import flash.media.Sound;

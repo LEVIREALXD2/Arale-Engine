@@ -12,7 +12,9 @@ import js.html.*;
 #if DISCORD_ALLOWED
 import Discord.DiscordClient;
 #end
+#if ENABLE_NOVA
 import novaengine.FreeplayStateNOVANew;
+#end
 
 //options
 import objects.state.general.*;
@@ -51,7 +53,7 @@ import flxanimate.*;
 //import flxanimate.PsychFlxAnimate as FlxAnimate;
 #end
 
-import options.base.*; //Import base ones instead of NovaFlare's
+import options.base.*;
 #if MODS_ALLOWED
 import backend.Mods;
 #end

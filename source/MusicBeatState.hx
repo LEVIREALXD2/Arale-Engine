@@ -19,7 +19,7 @@ import flixel.util.FlxDestroyUtil;
 import backend.PsychCamera;
 
 #if SCRIPTING_ALLOWED
-import scripting.HScript;
+import funkin.backend.scripting.HScript;
 #end
 
 class MusicBeatState extends FlxUIState

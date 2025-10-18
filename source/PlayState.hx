@@ -76,12 +76,18 @@ import states.stages.objects.*;
 import backend.BaseStage;
 
 #if HSC_ALLOWED
-import scripting.HScript.Script;
-import scripting.HScript.ScriptPack;
+import funkin.backend.scripting.HScript.Script;
+import funkin.backend.scripting.HScript.ScriptPack;
 import haxe.io.Path;
 #end
 
 using StringTools;
+
+//Make easier to change some StrumLine Variables
+class StrumLine {
+	public static var middleScroll:Bool = ClientPrefs.data.middleScroll;
+	public static var opponentStrumAlpha:Float = 0.35;
+}
 
 class PlayState extends MusicBeatState
 {
@@ -348,6 +354,9 @@ class PlayState extends MusicBeatState
 		MobileData.init();
 		#end
 
+		StrumLine.opponentStrumAlpha = 0.35; //Reset to default
+		StrumLine.middleScroll = ClientPrefs.data.middleScroll; //Reset to default
+		PauseSubState.forcedPauseSong = null; //Reset to default
 		debugKeysChart = ClientPrefs.copyKey(ClientPrefs.keyBinds.get('debug_1'));
 		debugKeysCharacter = ClientPrefs.copyKey(ClientPrefs.keyBinds.get('debug_2'));
 		PauseSubState.songName = null; //Reset to default
@@ -452,11 +461,15 @@ class PlayState extends MusicBeatState
 			SONG.stage = StageData.vanillaSongStage(Paths.formatToSongPath(Song.loadedSongName));
 		curStage = SONG.stage;
 
-		var stageData:StageFile = StageData.getStageFile(curStage);
-		/* this shit doesn't work anymore, idk why
-		if(stageData == null) //Stage couldn't be found, create a dummy stage for preventing a crash
+		var stageData:StageFile;
+		try {
+			stageData = StageData.getStageFile(curStage);
+			//Stage couldn't be found, create a dummy stage for preventing a crash
+			if(stageData == null) stageData = StageData.dummy();
+		} catch(e:Dynamic) {
 			stageData = StageData.dummy();
-		*/
+		}
+
 		//CNE Stage Shit (I don't have enough time to merge it with BaseStage)
 		try {
 			stage = new Stage(SONG.stage, PlayState.instance);
@@ -547,18 +560,21 @@ class PlayState extends MusicBeatState
 				gf = new Character(0, 0, SONG.gfVersion);
 			startCharacterPos(gf);
 			gf.scrollFactor.set(0.95, 0.95);
-			gfGroup.add(gf);
+			if (gf.groupEnabled) gfGroup.add(gf);
+			else add(gf);
 			startCharacterScripts(gf.curCharacter);
 		}
 
 		dad = new Character(0, 0, SONG.player2);
 		startCharacterPos(dad, true);
-		dadGroup.add(dad);
+		if (dad.groupEnabled) dadGroup.add(dad);
+		else add(dad);
 		startCharacterScripts(dad.curCharacter);
 
 		boyfriend = new Character(0, 0, SONG.player1, true);
 		startCharacterPos(boyfriend);
-		boyfriendGroup.add(boyfriend);
+		if (boyfriend.groupEnabled) boyfriendGroup.add(boyfriend);
+		else add(boyfriend);
 		startCharacterScripts(boyfriend.curCharacter);
 
 		var camPos:FlxPoint = new FlxPoint(girlfriendCameraOffset[0], girlfriendCameraOffset[1]);
@@ -581,7 +597,7 @@ class PlayState extends MusicBeatState
 
 		Conductor.songPosition = -5000 / Conductor.songPosition;
 
-		strumLine = new FlxSprite(ClientPrefs.data.middleScroll ? STRUM_X_MIDDLESCROLL : STRUM_X, 50).makeGraphic(FlxG.width, 10);
+		strumLine = new FlxSprite(StrumLine.middleScroll ? STRUM_X_MIDDLESCROLL : STRUM_X, 50).makeGraphic(FlxG.width, 10);
 		if(downscroll) strumLine.y = FlxG.height - 150;
 		strumLine.scrollFactor.set();
 
@@ -831,11 +847,6 @@ class PlayState extends MusicBeatState
 		}
 
 		precacheList.set('alphabet', 'image');
-	
-		#if DISCORD_ALLOWED
-		// Updating Discord Rich Presence.
-		DiscordClient.changePresence(detailsText, SONG.song + " (" + storyDifficultyText + ")", iconP2.getCharacter());
-		#end
 
 		if(!ClientPrefs.data.controllerMode)
 		{
@@ -1310,8 +1321,8 @@ class PlayState extends MusicBeatState
 						{
 							note.copyAlpha = false;
 							note.alpha = note.multAlpha;
-							if(ClientPrefs.data.middleScroll && !note.mustPress)
-								note.alpha *= 0.35;
+							if(StrumLine.middleScroll && !note.mustPress)
+								note.alpha *= StrumLine.opponentStrumAlpha;
 						}
 					});
 
@@ -1383,8 +1394,8 @@ class PlayState extends MusicBeatState
 			{
 				note.copyAlpha = false;
 				note.alpha = note.multAlpha;
-				if(ClientPrefs.data.middleScroll && !note.mustPress)
-					note.alpha *= 0.35;
+				if(StrumLine.middleScroll && !note.mustPress)
+					note.alpha *= StrumLine.opponentStrumAlpha;
 			}
 		});
 
@@ -1783,7 +1794,7 @@ class PlayState extends MusicBeatState
 						}
 
 						if (sustainNote.mustPress) sustainNote.x += FlxG.width / 2; // general offset
-						else if(ClientPrefs.data.middleScroll)
+						else if(StrumLine.middleScroll)
 						{
 							sustainNote.x += 310;
 							if(daNoteData > 1) //Up and Right
@@ -1798,7 +1809,7 @@ class PlayState extends MusicBeatState
 				{
 					swagNote.x += FlxG.width / 2; // general offset
 				}
-				else if(ClientPrefs.data.middleScroll)
+				else if(StrumLine.middleScroll)
 				{
 					swagNote.x += 310;
 					if(daNoteData > 1) //Up and Right
@@ -1909,10 +1920,10 @@ class PlayState extends MusicBeatState
 			if (player < 1)
 			{
 				if(!ClientPrefs.data.opponentStrums) targetAlpha = 0;
-				else if(ClientPrefs.data.middleScroll) targetAlpha = 0.35;
+				else if(StrumLine.middleScroll) targetAlpha = StrumLine.opponentStrumAlpha;
 			}
 
-			var babyArrow:StrumNote = new StrumNote(ClientPrefs.data.middleScroll ? STRUM_X_MIDDLESCROLL : STRUM_X, strumLine.y, i, player);
+			var babyArrow:StrumNote = new StrumNote(StrumLine.middleScroll ? STRUM_X_MIDDLESCROLL : STRUM_X, strumLine.y, i, player);
 			babyArrow.downScroll = downscroll;
 			if (!isStoryMode && !skipArrowStartTween)
 			{
@@ -1931,7 +1942,7 @@ class PlayState extends MusicBeatState
 			}
 			else
 			{
-				if(ClientPrefs.data.middleScroll)
+				if(StrumLine.middleScroll)
 				{
 					babyArrow.x += 310;
 					if(i > 1) { //Up and Right
@@ -1983,45 +1994,34 @@ class PlayState extends MusicBeatState
 
 			paused = false;
 			callOnScripts('onResume');
-
-			#if DISCORD_ALLOWED
-			if (startTimer != null && startTimer.finished)
-				DiscordClient.changePresence(detailsText, SONG.song + " (" + storyDifficultyText + ")", iconP2.getCharacter(), true, songLength - Conductor.songPosition - ClientPrefs.data.noteOffset);
-			else
-				DiscordClient.changePresence(detailsText, SONG.song + " (" + storyDifficultyText + ")", iconP2.getCharacter());
-			#end
+			resetRPC(startTimer != null && startTimer.finished);
 		}
 	}
 
 	override public function onFocus():Void
 	{
-		#if DISCORD_ALLOWED
-		if (health > 0 && !paused)
-		{
-			if (Conductor.songPosition > 0.0)
-			{
-				DiscordClient.changePresence(detailsText, SONG.song + " (" + storyDifficultyText + ")", iconP2.getCharacter(), true, songLength - Conductor.songPosition - ClientPrefs.data.noteOffset);
-			}
-			else
-			{
-				DiscordClient.changePresence(detailsText, SONG.song + " (" + storyDifficultyText + ")", iconP2.getCharacter());
-			}
-		}
-		#end
-
+		if (health > 0 && !paused) resetRPC(Conductor.songPosition > 0.0);
 		super.onFocus();
 	}
 
 	override public function onFocusLost():Void
 	{
 		#if DISCORD_ALLOWED
-		if (health > 0 && !paused)
-		{
-			DiscordClient.changePresence(detailsPausedText, SONG.song + " (" + storyDifficultyText + ")", iconP2.getCharacter());
-		}
+		if (health > 0 && !paused) DiscordClient.changePresence(detailsPausedText, SONG.song + " (" + storyDifficultyText + ")", iconP2.getCharacter());
 		#end
 
 		super.onFocusLost();
+	}
+
+	// Updating Discord Rich Presence.
+	function resetRPC(?cond:Bool = false)
+	{
+		#if DISCORD_ALLOWED
+		if (cond)
+			DiscordClient.changePresence(detailsText, SONG.song + " (" + storyDifficultyText + ")", iconP2.getCharacter(), true, songLength - Conductor.songPosition - ClientPrefs.data.noteOffset);
+		else
+			DiscordClient.changePresence(detailsText, SONG.song + " (" + storyDifficultyText + ")", iconP2.getCharacter());
+		#end
 	}
 
 	function resyncVocals():Void
@@ -2365,6 +2365,7 @@ class PlayState extends MusicBeatState
 
 		#if DISCORD_ALLOWED
 		DiscordClient.changePresence("Chart Editor", null, null, true);
+		DiscordClient.resetClientID();
 		#end
 	}
 
@@ -2713,13 +2714,37 @@ class PlayState extends MusicBeatState
 		if (gf != null && SONG.notes[sec].gfSection)
 		{
 			if (ClientPrefs.data.UseNewCamSystem || cameraMode == '0.7x')
-				camFollow.setPosition(gf.getMidpoint().x, gf.getMidpoint().y);
+			{
+				if (gf.isCodenameChar) {
+					var data:Character.CamPosData = gf.getCharacterCamPos();
+					if (data.amount > 0) {
+						var event = event("onCameraMove", EventManager.get(CamMoveEvent).recycle(data.pos, data.amount));
+						if (!event.cancelled)
+							camFollow.setPosition(event.position.x, event.position.y);
+					}
+					data.put();
+				}
+				else
+					camFollow.setPosition(gf.getMidpoint().x, gf.getMidpoint().y);
+			}
 			else if (!ClientPrefs.data.UseNewCamSystem || cameraMode == '0.6x')
-				camFollow.set(gf.getMidpoint().x, gf.getMidpoint().y);
+			{
+				if (gf.isCodenameChar) {
+					var data:Character.CamPosData = gf.getCharacterCamPos();
+					if (data.amount > 0) {
+						var event = event("onCameraMove", EventManager.get(CamMoveEvent).recycle(data.pos, data.amount));
+						if (!event.cancelled)
+							camFollow.set(event.position.x, event.position.y);
+					}
+					data.put();
+				}
+				else
+					camFollow.set(gf.getMidpoint().x, gf.getMidpoint().y);
+			}
 
 			if (gf.isCodenameChar) {
-				camFollow.x += gf.getCameraPositionAsPsych(true) + (gf.canUseStageCamOffset ? girlfriendCameraOffset[0] : 0);
-				camFollow.y += gf.getCameraPositionAsPsych(false) + (gf.canUseStageCamOffset ? girlfriendCameraOffset[1] : 0);
+				camFollow.x += (gf.canUseStageCamOffset ? girlfriendCameraOffset[0] : 0);
+				camFollow.y += (gf.canUseStageCamOffset ? girlfriendCameraOffset[1] : 0);
 			} else {
 				camFollow.x += gf.cameraPosition[0] + girlfriendCameraOffset[0];
 				camFollow.y += gf.cameraPosition[1] + girlfriendCameraOffset[1];
@@ -2748,13 +2773,37 @@ class PlayState extends MusicBeatState
 		if(isDad)
 		{
 			if (ClientPrefs.data.UseNewCamSystem || cameraMode == '0.7x')
-				camFollow.setPosition(dad.getMidpoint().x + 150, dad.getMidpoint().y - 100);
+			{
+				if (dad.isCodenameChar) {
+					var data:Character.CamPosData = dad.getCharacterCamPos();
+					if (data.amount > 0) {
+						var event = event("onCameraMove", EventManager.get(CamMoveEvent).recycle(data.pos, data.amount));
+						if (!event.cancelled)
+							camFollow.setPosition(event.position.x, event.position.y);
+					}
+					data.put();
+				}
+				else
+					camFollow.setPosition(dad.getMidpoint().x + 150, dad.getMidpoint().y - 100);
+			}
 			else if (!ClientPrefs.data.UseNewCamSystem || cameraMode == '0.6x')
-				camFollow.set(dad.getMidpoint().x + 150, dad.getMidpoint().y - 100);
+			{
+				if (dad.isCodenameChar) {
+					var data:Character.CamPosData = dad.getCharacterCamPos();
+					if (data.amount > 0) {
+						var event = event("onCameraMove", EventManager.get(CamMoveEvent).recycle(data.pos, data.amount));
+						if (!event.cancelled)
+							camFollow.set(event.position.x, event.position.y);
+					}
+					data.put();
+				}
+				else
+					camFollow.set(dad.getMidpoint().x + 150, dad.getMidpoint().y - 100);
+			}
 
 			if (dad.isCodenameChar) {
-				camFollow.x += dad.getCameraPositionAsPsych(true) + (dad.canUseStageCamOffset ? opponentCameraOffset[0] : 0);
-				camFollow.y += dad.getCameraPositionAsPsych(false) + (dad.canUseStageCamOffset ? opponentCameraOffset[1] : 0);
+				camFollow.x += (dad.canUseStageCamOffset ? opponentCameraOffset[0] : 0);
+				camFollow.y += (dad.canUseStageCamOffset ? opponentCameraOffset[1] : 0);
 			} else {
 				camFollow.x += dad.cameraPosition[0] + opponentCameraOffset[0];
 				camFollow.y += dad.cameraPosition[1] + opponentCameraOffset[1];
@@ -2765,16 +2814,39 @@ class PlayState extends MusicBeatState
 		}
 		else
 		{
-			if (ClientPrefs.data.UseNewCamSystem || cameraMode == '0.7x')
-				camFollow.setPosition(boyfriend.getMidpoint().x - 100, boyfriend.getMidpoint().y - 100);
+			if (ClientPrefs.data.UseNewCamSystem || cameraMode == '0.7x') {
+				if (boyfriend.isCodenameChar) {
+					var data:Character.CamPosData = boyfriend.getCharacterCamPos();
+					if (data.amount > 0) {
+						var event = event("onCameraMove", EventManager.get(CamMoveEvent).recycle(data.pos, data.amount));
+						if (!event.cancelled)
+							camFollow.setPosition(event.position.x, event.position.y);
+					}
+					data.put();
+				}
+				else
+					camFollow.setPosition(boyfriend.getMidpoint().x - 100, boyfriend.getMidpoint().y - 100);
+			}
 			else if (!ClientPrefs.data.UseNewCamSystem || cameraMode == '0.6x')
-				camFollow.set(boyfriend.getMidpoint().x - 100, boyfriend.getMidpoint().y - 100);
+			{
+				if (boyfriend.isCodenameChar) {
+					var data:Character.CamPosData = boyfriend.getCharacterCamPos();
+					if (data.amount > 0) {
+						var event = event("onCameraMove", EventManager.get(CamMoveEvent).recycle(data.pos, data.amount));
+						if (!event.cancelled)
+							camFollow.set(event.position.x, event.position.y);
+					}
+					data.put();
+				}
+				else
+					camFollow.set(boyfriend.getMidpoint().x - 100, boyfriend.getMidpoint().y - 100);
+			}
 
 			if (boyfriend.isCodenameChar) {
-				camFollow.x += boyfriend.getCameraPositionAsPsych(true) + (boyfriend.canUseStageCamOffset ? boyfriendCameraOffset[0] : 0);
-				camFollow.y += boyfriend.getCameraPositionAsPsych(false) + (boyfriend.canUseStageCamOffset ? boyfriendCameraOffset[1] : 0);
+				camFollow.x -= (boyfriend.canUseStageCamOffset ? boyfriendCameraOffset[0] : 0);
+				camFollow.y += (boyfriend.canUseStageCamOffset ? boyfriendCameraOffset[1] : 0);
 			} else {
-				camFollow.x += boyfriend.cameraPosition[0] - boyfriendCameraOffset[0];
+				camFollow.x -= boyfriend.cameraPosition[0] - boyfriendCameraOffset[0];
 				camFollow.y += boyfriend.cameraPosition[1] + boyfriendCameraOffset[1];
 			}
 

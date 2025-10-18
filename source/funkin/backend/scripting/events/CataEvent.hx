@@ -1,6 +1,6 @@
 package funkin.backend.scripting.events;
 
-import options.NovaFlareOptionsObjects.OptionCata;
+import options.packages.Objects.OptionCata;
 
 final class CataEvent extends CancellableEvent {
 	/**

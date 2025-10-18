@@ -8,7 +8,7 @@ import funkin.game.Character_CNE;
 import funkin.backend.FunkinSprite.XMLAnimType;
 import flixel.util.FlxColor;
 import haxe.xml.Access;
-import scripting.HScript;
+import funkin.backend.scripting.HScript;
 import flixel.util.typeLimit.OneOfTwo;
 import funkin.backend.system.interfaces.IOffsetCompatible;
 import haxe.xml.Access;

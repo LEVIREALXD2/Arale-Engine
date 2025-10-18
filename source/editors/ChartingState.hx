@@ -537,11 +537,14 @@ class ChartingState extends MusicBeatState
 			if(FileSystem.exists(directory)) {
 				for (file in Paths.readDirectory(directory)) {
 					var path = haxe.io.Path.join([directory, file]);
-					if (!FileSystem.isDirectory(path) && (file.endsWith('.json') || file.endsWith('.xml'))) {
-						var charToCheck:String = file.substr(0, file.length - 5);
-						if(charToCheck.trim().length > 0 && !charToCheck.endsWith('-dead') && !tempArray.contains(charToCheck)) {
-							tempArray.push(charToCheck);
-							characters.push(charToCheck);
+					var fileTypes:Array<String> = ['.json', '.xml']; //make this easier to change
+					for (fileType in fileTypes) {
+						if (!FileSystem.isDirectory(path) && file.endsWith(fileType)) {
+							var charToCheck:String = file.substr(0, file.length - fileType.length);
+							if(charToCheck.trim().length > 0 && !charToCheck.endsWith('-dead') && !tempArray.contains(charToCheck)) {
+								tempArray.push(charToCheck);
+								characters.push(charToCheck);
+							}
 						}
 					}
 				}

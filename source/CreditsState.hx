@@ -39,7 +39,7 @@ class CreditsState extends MusicBeatState
 		['KralOyuncu 2010X',	 'KralOyuncuV3',	'Owner of Psych Extended',					'https://youtube.com/@kraloyuncurbx',		'378FC7'],
 		[''],
 		['Code Credits'],
-		['beihu',		'beihu',		'Owner of NovaFlare Engine\n(I used some codes from NovaFlare)',	'https://youtube.com/@hoyou235',	'FFC0CB'],
+		['beihu',		'beihu',		'Owner of NovaFlare Engine\n(some codes used from NovaFlare Engine)',	'https://youtube.com/@hoyou235',	'FFC0CB'],
 		[''],
 		['Psych Engine Team'],
 		['Shadow Mario',		'shadowmario',		'Main Programmer of Psych Engine',				'https://twitter.com/Shadow_Mario_',	'444444'],

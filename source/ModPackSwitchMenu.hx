@@ -5,7 +5,7 @@ import sys.FileSystem;
 import flixel.tweens.FlxTween;
 
 #if SCRIPTING_ALLOWED
-import scripting.HScript.Script;
+import funkin.backend.scripting.HScript.Script;
 #end
 
 //Tooked from https://github.com/CodenameCrew/CodenameEngine/blob/main/source/funkin/menus/ModSwitchMenu.hx

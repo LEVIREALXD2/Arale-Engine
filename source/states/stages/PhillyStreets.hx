@@ -9,8 +9,6 @@ import flixel.graphics.frames.FlxAtlasFrames;
 
 import states.stages.objects.*;
 
-import cutscenes.CutsceneHandler;
-
 enum NeneState
 {
 	STATE_DEFAULT;
@@ -137,6 +135,7 @@ class PhillyStreets extends BaseStage
 			setupRainShader();
 
 		var _song = PlayState.SONG;
+		PauseSubState.forcedPauseSong = 'breakfast-pico';
 		if(_song.gameOverSound == null || _song.gameOverSound.trim().length < 1) GameOverSubstate.deathSoundName = 'fnf_loss_sfx-pico';
 		if(_song.gameOverLoop == null || _song.gameOverLoop.trim().length < 1) GameOverSubstate.loopSoundName = 'gameOver-pico';
 		if(_song.gameOverEnd == null || _song.gameOverEnd.trim().length < 1) GameOverSubstate.endSoundName = 'gameOverEnd-pico';
@@ -523,6 +522,11 @@ class PhillyStreets extends BaseStage
 	var animationFinished:Bool = false;
 	override function update(elapsed:Float)
 	{
+		if(game.health <= 0.0 && !game.practiceMode) {
+			FlxG.camera.setFilters([]); //remove rain shader when player died
+			rainShader = null;
+		}
+
 		if (game.inCutscene && camFollowPos != null && camFollowPos.x != camFollow.x) camFollowPos.x = camFollow.x; //fixes the camera issue
 		if(scrollingSky != null) scrollingSky.scrollX -= elapsed * 22;
 
@@ -533,7 +537,7 @@ class PhillyStreets extends BaseStage
 			rainShader.updateViewInfo(FlxG.width, FlxG.height, FlxG.camera);
 			rainShader.update(elapsed);
 		}
-		
+
 		if(gf == null || !game.startedCountdown) return;
 
 		animationFinished = gf.isAnimationFinished();

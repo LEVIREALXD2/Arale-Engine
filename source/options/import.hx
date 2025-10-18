@@ -6,7 +6,7 @@ import options.group.*;
 
 import options.ShapeEX; //Shapes
 
-import options.NovaFlareOptionsBackend;
-import options.NovaFlareOptionsNavi;
-import options.NovaFlareOptionsOthers;
-import options.NovaFlareOptionsObjects;
+import options.packages.Backend;
+import options.packages.Navi;
+import options.packages.Others;
+import options.packages.Objects;
