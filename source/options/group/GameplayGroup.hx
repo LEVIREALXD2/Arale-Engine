@@ -46,15 +46,6 @@ class GameplayGroup extends OptionCata
 		);
 		addOption(option);
 
-		var option:Option = new Option(this,
-			'Chart System',
-			"Choose Your Chart System",
-			'chartLoadSystem',
-			STRING,
-			['0.4-0.7x', '1.0x']
-		);
-		addOption(option);
-
 		#if HSC_ALLOWED
 		var option:Option = new Option(this,
 			'Codename Like Functions',

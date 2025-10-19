@@ -1725,7 +1725,7 @@ class PlayState extends MusicBeatState
 				{
 					gottaHitNote = (songNotes[1] < 4);
 				}
-				else if (Song.currentChartLoadSystem == 'psych_legacy')
+				else
 				{
 					gottaHitNote = section.mustHitSection;
 					if (songNotes[1] > 3)
@@ -1741,8 +1741,8 @@ class PlayState extends MusicBeatState
 				swagNote.mustPress = gottaHitNote;
 				swagNote.sustainLength = songNotes[2];
 				swagNote.gfNote = (section.gfSection && (songNotes[1]<4));
-				if (Song.currentChartLoadSystem == 'psych_v1')
-					if(section.altAnim && !swagNote.mustPress && !section.gfSection) swagNote.animSuffix = '-alt';
+					if(Song.currentChartLoadSystem == 'psych_v1' && section.altAnim && !swagNote.mustPress && !section.gfSection)
+						swagNote.animSuffix = '-alt';
 
 				swagNote.noteType = songNotes[3];
 				if(!Std.isOfType(songNotes[3], String) && Song.currentChartLoadSystem == 'psych_legacy')
@@ -1768,7 +1768,7 @@ class PlayState extends MusicBeatState
 							sustainNote.mustPress = swagNote.mustPress;
 							sustainNote.gfNote = swagNote.gfNote;
 						}
-						else if (Song.currentChartLoadSystem == 'psych_legacy')
+						else
 						{
 							sustainNote.mustPress = gottaHitNote;
 							sustainNote.gfNote = (section.gfSection && (songNotes[1]<4));
@@ -2071,7 +2071,7 @@ class PlayState extends MusicBeatState
 
 		if(!inCutscene) {
 			if (ClientPrefs.data.UseNewCamSystem || cameraMode == '0.7x')
-				FlxG.camera.followLerp = FlxMath.bound(elapsed * 2.4 * cameraSpeed * playbackRate, 0, 1);
+				FlxG.camera.followLerp = CoolUtil.boundTo(elapsed * 2.4 * cameraSpeed * playbackRate, 0, 1);
 			else if (!ClientPrefs.data.UseNewCamSystem || cameraMode == '0.6x')
 			{
 				lerpVal = CoolUtil.boundTo(elapsed * 2.4 * cameraSpeed * playbackRate, 0, 1);

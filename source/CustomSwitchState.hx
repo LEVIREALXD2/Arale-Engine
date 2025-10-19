@@ -27,8 +27,8 @@ class CustomSwitchState
 			{
 				case 'Charting':
 					//1.0 Chart Editor Support, Let's fucking gooooo
-					if (CP.chartLoadSystem == '1.0x') switchState(new ChartingStateNew());
-					else if(useLoadandSwitch && CP.chartLoadSystem == '1.0x') loadAndSwitchState(new ChartingStateNew(), false);
+					if (CP.chartEditor == '1.0x') switchState(new ChartingStateNew());
+					else if(useLoadandSwitch && CP.chartEditor == '1.0x') loadAndSwitchState(new ChartingStateNew(), false);
 					else if(useLoadandSwitch) loadAndSwitchState(new ChartingState());
 					else switchState(new ChartingState());
 				case 'Freeplay':

@@ -48,7 +48,10 @@ import TitleState;
 	public var KeyboardFixes:Bool = false;
 	public var realResolution:String = '1280/720';
 	public var UseNewCamSystem:Bool = false;
+	//We need this shit because engine will broke of this isn't found, I have no idea why is it happening
+	//this variable removed from everywhere but somehow it still work and this causes the problems
 	public var chartLoadSystem:String = '0.4-0.7x';
+	public var chartEditor:String = '0.4-0.7x';
 	public var hscriptversion:String = 'HScript Old';
 	#if MODPACK_ALLOWED
 	public var currentModPack:String = null; //it's more easier than using .txt shit

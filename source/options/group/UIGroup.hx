@@ -15,6 +15,7 @@ class UIGroup extends OptionCata
 
 		///////////////////////////////
 
+		var addedOptions:Int = 0; //Fix Option Positions
 		#if EXTRA_FREEPLAY
 		var option:Option = new Option(this,
 			'Freeplay Menu Style',
@@ -23,7 +24,8 @@ class UIGroup extends OptionCata
 			STRING,
 			['Psych', 'NovaFlare']
 		);
-		addOption(option);
+		addOption(option, addedOptions % 2 == 1 ? true : false);
+		addedOptions++;
 		#end
 
 		#if EXTRA_FPSCOUNTER
@@ -34,8 +36,9 @@ class UIGroup extends OptionCata
 			STRING,
 			['Psych', 'NovaFlare']
 		);
-		addOption(option #if EXTRA_FREEPLAY ,true #end);
+		addOption(option, addedOptions % 2 == 1 ? true : false);
 		//option.onChange = OptionsState.onChangeFPSCounterShit;
+		addedOptions++;
 		#end
 
 		#if EXTRA_TRANSITIONS
@@ -45,7 +48,8 @@ class UIGroup extends OptionCata
 			'TransitionStyle',
 			STRING,
 			['Psych', 'NovaFlare']);
-		addOption(option #if (!EXTRA_FREEPLAY && EXTRA_FPSCOUNTER) ,true #end);
+		addOption(option, addedOptions % 2 == 1 ? true : false);
+		addedOptions++;
 		#end
 
 		#if EXTRA_MAINMENU
@@ -55,7 +59,8 @@ class UIGroup extends OptionCata
 			'MainMenuStyle',
 			STRING,
 			['Psych', 'NovaFlare']);
-		addOption(option #if EXTRA_TRANSITIONS ,true #end);
+		addOption(option, addedOptions % 2 == 1 ? true : false);
+		addedOptions++;
 		#end
 
 		#if EXTRA_PAUSE
@@ -65,8 +70,19 @@ class UIGroup extends OptionCata
 			'PauseMenuStyle',
 			STRING,
 			['Psych', 'NovaFlare']);
-		addOption(option);
+		addOption(option, addedOptions % 2 == 1 ? true : false);
+		addedOptions++;
 		#end
+
+		var option:Option = new Option(this,
+			'Chart Editor',
+			"Choose Your Chart Editor\nPsychExtended now loads the 1.0x charts automatically",
+			'chartEditor',
+			STRING,
+			['0.4-0.7x', '1.0x']
+		);
+		addOption(option, addedOptions % 2 == 1 ? true : false);
+		addedOptions++;
 
 		var option:Option = new Option(this,
 			'Note Splashes',

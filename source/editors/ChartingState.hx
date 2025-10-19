@@ -471,7 +471,7 @@ class ChartingState extends MusicBeatState
 			#end
 			{
 				clearEvents();
-				var events:SwagSong = Song.loadFromJson('events', songName);
+				var events:SwagSong = Song.loadFromJson('events', songName, true);
 				_song.events = events.events;
 				changeSection(curSec);
 			}
@@ -3221,12 +3221,12 @@ class ChartingState extends MusicBeatState
 		try {
 			if (Difficulty.getString() != Difficulty.getDefault()) {
 				if(Difficulty.getString() == null){
-					PlayState.SONG = Song.loadFromJson(song.toLowerCase(), song.toLowerCase());
+					PlayState.SONG = Song.loadFromJson(song.toLowerCase(), song.toLowerCase(), true);
 				}else{
-					PlayState.SONG = Song.loadFromJson(song.toLowerCase() + "-" + Difficulty.getString(), song.toLowerCase());
+					PlayState.SONG = Song.loadFromJson(song.toLowerCase() + "-" + Difficulty.getString(), song.toLowerCase(), true);
 				}
 			}
-			else PlayState.SONG = Song.loadFromJson(song.toLowerCase(), song.toLowerCase());
+			else PlayState.SONG = Song.loadFromJson(song.toLowerCase(), song.toLowerCase(), true);
 			MusicBeatState.resetState();
 		}
 		catch(e)

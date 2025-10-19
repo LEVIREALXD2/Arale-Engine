@@ -124,7 +124,7 @@ class Song
 		return swagShit;
 	}
 
-	public static function loadFromJson(jsonInput:String, ?folder:String):SwagSong
+	public static function loadFromJson(jsonInput:String, ?folder:String, ?isEditor:Bool):SwagSong
 	{
 		currentChartLoadSystem = null;
 		PlayState.cameraMode = null;
@@ -144,11 +144,8 @@ class Song
 		if(Paths.formatToSongPath(diffString) == Paths.formatToSongPath(Difficulty.defaultDifficulty))
 			diffString == Difficulty.defaultDifficulty;
 
-		//trace('bruhName: ${songName}, bruhDiff: ${diffString}');
-
 		//check songs folder for cne charts
 		var isCneExists:Bool = Paths.fileExists('songs/${songName}/charts/${diffString}.json', TEXT, false);
-		//trace('songName: ${songName} DiffStr: ${diffString}');
 
 		if (isCneExists && songName != null && diffString != null) {
 			trace('CNE Chart Exists, Chart Conversion is Starting!');
@@ -158,17 +155,22 @@ class Song
 		else trace('CNE Chart Not Exists, Using PsychEngine Chart Instead!');
 		#end
 
+		var chartData:Dynamic = '';
+		if (ClientPrefs.data.chartEditor == '1.0x' && isEditor) currentChartLoadSystem = 'psych_v1';
+		else if (isEditor) currentChartLoadSystem = 'psych_legacy';
+		else chartData = getChart(jsonInput, folder, 'psych_legacy', cneChartExists, convertedChart);
+
 		if (currentChartLoadSystem == 'psych_v1')
 		{
 			trace('Current Chart System: 1.0');
 			if(folder == null) folder = jsonInput;
-			PlayState.SONG = getChart(jsonInput, folder, cneChartExists, convertedChart);
+			PlayState.SONG = getChart(jsonInput, folder, 'psych_v1', cneChartExists, convertedChart);
 			loadedSongName = folder;
 			chartPath = _lastPath.replace('/', '\\');
 			if(jsonInput != 'events') StageData.loadDirectory(PlayState.SONG);
-			return PlayState.SONG;
+			return getChart(jsonInput, folder, 'psych_v1', cneChartExists, convertedChart);
 		}
-		else if (currentChartLoadSystem == 'psych_legacy')
+		else
 		{
 			trace('Current Chart System: 0.4-0.7x');
 			var rawJson = null;
@@ -207,38 +209,22 @@ class Song
 			loadedSongName = folder;
 			if(jsonInput != 'events') StageData.loadDirectory(songJson);
 			onLoadJson(songJson);
-			if (ClientPrefs.data.chartLoadSystem == '1.0x')
+			if (ClientPrefs.data.chartEditor == '1.0x' && isEditor)
 				PlayState.SONG = songJson; //1.0 option fix
 			return songJson;
 		}
-		else
-			return null;
 	}
 
 	public static function getExtraChartOptions(folder:String) {
-		var chartOption = ClientPrefs.data.chartLoadSystem;
 		var loadedSongFolder = 'data/' + Paths.formatToSongPath(folder) + '/extraOptions.json';
 		var extraChartOptions:ExtraChartOptionsMain;
-		trace('getExtraChartOptions: Started');
 
 		if (Paths.fileExists(loadedSongFolder, TEXT, false)) {
-			//trace('getExtraChartOptions: File Found');
 			var customChartOption = Paths.getPath(loadedSongFolder, TEXT, true);
 			extraChartOptions = cast Json.parse(File.getContent(customChartOption));
 
 			for (option in extraChartOptions.options) {
-				//trace('getExtraChartOptions: Options Loading');
 				if (option.forcedCamera != null) PlayState.cameraMode = option.forcedCamera;
-
-				switch (option.forcedChart) {
-					case 'psych_v1':
-						currentChartLoadSystem = 'psych_v1';
-					case 'psych_legacy':
-						currentChartLoadSystem = 'psych_legacy';
-					default:
-						if (ClientPrefs.data.chartLoadSystem == '1.0x') currentChartLoadSystem = 'psych_v1';
-						else currentChartLoadSystem = 'psych_legacy';
-				}
 			}
 		}
 	}
@@ -298,7 +284,7 @@ class Song
 	}
 
 	static var _lastPath:String;
-	public static function getChart(jsonInput:String, ?folder:String, ?cneExists:Bool, ?convertedChart:String):SwagSong
+	public static function getChart(jsonInput:String, ?folder:String, ?convertTo:String = 'psych_v1', ?cneExists:Bool, ?convertedChart:String):SwagSong
 	{
 		if(folder == null) folder = jsonInput;
 		var rawData:String = null;
@@ -326,12 +312,23 @@ class Song
 				rawData = Assets.getText(_lastPath);
 		}
 
-		return rawData != null ? parseJSON(rawData, jsonInput) : null;
+		return rawData != null ? parseJSON(rawData, jsonInput, convertTo) : null;
 	}
 
 	public static function parseJSON(rawData:String, ?nameForError:String = null, ?convertTo:String = 'psych_v1'):SwagSong
 	{
 		var songJson:SwagSong = cast Json.parse(rawData);
+		//Auto Detect 1.0x Charts & set the loading mode 1.0x
+		if (songJson.song != null && convertTo == 'psych_legacy')
+		{
+			if (Std.isOfType(songJson.song, String))
+			{
+				currentChartLoadSystem = 'psych_v1';
+				songJson.validScore = true;
+				return songJson;
+			}
+		}
+
 		if(Reflect.hasField(songJson, 'song'))
 		{
 			var subSong:SwagSong = Reflect.field(songJson, 'song');
