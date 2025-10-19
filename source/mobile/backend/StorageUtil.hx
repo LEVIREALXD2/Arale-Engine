@@ -20,7 +20,7 @@ class StorageUtil
 	public static final rootDir:String = LimeSystem.applicationStorageDirectory;
 
 	// package name, I know I can app's package name but I really don't want to do it for now
-	public static var packageName:String = 'com.kraloyuncu.psychextendedrebase' #if termux + 'debug' #end;
+	public static var packageName:String = 'com.kraloyuncu.psychextendedrebase' #if debugBuild + 'debug' #end;
 
 	public static function getStorageDirectory():String
 		return #if android haxe.io.Path.addTrailingSlash(AndroidContext.getExternalFilesDir()) #elseif ios lime.system.System.documentsDirectory #else Sys.getCwd() #end;
