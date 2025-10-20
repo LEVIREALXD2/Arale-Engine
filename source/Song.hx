@@ -155,10 +155,10 @@ class Song
 		else trace('CNE Chart Not Exists, Using PsychEngine Chart Instead!');
 		#end
 
-		var chartData:Dynamic = '';
 		if (ClientPrefs.data.chartEditor == '1.0x' && isEditor) currentChartLoadSystem = 'psych_v1';
 		else if (isEditor) currentChartLoadSystem = 'psych_legacy';
-		else chartData = getChart(jsonInput, folder, 'psych_legacy', cneChartExists, convertedChart);
+		else getChartVersion(jsonInput, folder, 'psych_legacy', cneChartExists, convertedChart);
+		trace(currentChartLoadSystem);
 
 		if (currentChartLoadSystem == 'psych_v1')
 		{
@@ -315,18 +315,58 @@ class Song
 		return rawData != null ? parseJSON(rawData, jsonInput, convertTo) : null;
 	}
 
+	public static function getChartVersion(jsonInput:String, ?folder:String, ?convertTo:String = 'psych_v1', ?cneExists:Bool, ?convertedChart:String):Void
+	{
+		if(folder == null) folder = jsonInput;
+		var rawData:String = null;
+
+		var formattedFolder:String = Paths.formatToSongPath(folder);
+		var formattedSong:String = Paths.formatToSongPath(jsonInput);
+
+		#if MODS_ALLOWED
+		_lastPath = Paths.modsJson('$formattedFolder/$formattedSong');
+		if (cneExists)
+			rawData = convertedChart;
+		else if(FileSystem.exists(_lastPath))
+			rawData = File.getContent(_lastPath);
+		#end
+
+		//Base Songs
+		if(rawData == null)
+		{
+			_lastPath = Paths.json('$formattedFolder/$formattedSong');
+			#if sys
+			if(FileSystem.exists(_lastPath))
+				rawData = File.getContent(_lastPath);
+			else
+			#end
+				rawData = Assets.getText(_lastPath);
+		}
+
+		trace("ParseJson is Started");
+		parseJSON(rawData, jsonInput, convertTo);
+	}
+
 	public static function parseJSON(rawData:String, ?nameForError:String = null, ?convertTo:String = 'psych_v1'):SwagSong
 	{
 		var songJson:SwagSong = cast Json.parse(rawData);
-		//Auto Detect 1.0x Charts & set the loading mode 1.0x
 		if (songJson.song != null && convertTo == 'psych_legacy')
 		{
-			if (Std.isOfType(songJson.song, String))
+			var subSong:SwagSong = Reflect.field(songJson, 'song');
+			trace(subSong);
+			trace(subSong.format);
+			trace(songJson.format);
+			if (songJson.format.startsWith('psych_v1') || subSong.format.startsWith('psych_v1')) //use this shit
 			{
+				trace("Foudj bitch");
 				currentChartLoadSystem = 'psych_v1';
 				songJson.validScore = true;
 				return songJson;
 			}
+
+			currentChartLoadSystem = 'psych_legacy';
+			songJson.validScore = true;
+			return songJson;
 		}
 
 		if(Reflect.hasField(songJson, 'song'))
