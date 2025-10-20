@@ -1,5 +1,6 @@
 package;
 
+import sys.thread.Thread;
 import flixel.graphics.FlxGraphic;
 import Section.SwagSection;
 import Song.SwagSong;
@@ -1625,6 +1626,8 @@ class PlayState extends MusicBeatState
 		setOnScripts('songLength', songLength);
 		callOnScripts('onSongStart');
 		#if HSC_ALLOWED scripts.call("onStartSong"); #end
+
+		if (ClientPrefs.data.betterSync) runSongSyncThread();
 	}
 
 	var debugNum:Int = 0;
@@ -1741,8 +1744,8 @@ class PlayState extends MusicBeatState
 				swagNote.mustPress = gottaHitNote;
 				swagNote.sustainLength = songNotes[2];
 				swagNote.gfNote = (section.gfSection && (songNotes[1]<4));
-					if(Song.currentChartLoadSystem == 'psych_v1' && section.altAnim && !swagNote.mustPress && !section.gfSection)
-						swagNote.animSuffix = '-alt';
+				if(Song.currentChartLoadSystem == 'psych_v1')
+					if(section.altAnim && !swagNote.mustPress && !section.gfSection) swagNote.animSuffix = '-alt';
 
 				swagNote.noteType = songNotes[3];
 				if(!Std.isOfType(songNotes[3], String) && Song.currentChartLoadSystem == 'psych_legacy')
@@ -1994,12 +1997,17 @@ class PlayState extends MusicBeatState
 			paused = false;
 			callOnScripts('onResume');
 			resetRPC(startTimer != null && startTimer.finished);
+			if (ClientPrefs.data.betterSync) runSongSyncThread();
 		}
 	}
 
 	override public function onFocus():Void
 	{
 		if (health > 0 && !paused) resetRPC(Conductor.songPosition > 0.0);
+		if (ClientPrefs.data.betterSync) {
+			shutdownThread = false;
+			runSongSyncThread();
+		}
 		super.onFocus();
 	}
 
@@ -2009,6 +2017,7 @@ class PlayState extends MusicBeatState
 		if (health > 0 && !paused) DiscordClient.changePresence(detailsPausedText, SONG.song + " (" + storyDifficultyText + ")", iconP2.getCharacter());
 		#end
 
+		if (ClientPrefs.data.betterSync) shutdownThread = true;
 		super.onFocusLost();
 	}
 
@@ -3782,6 +3791,11 @@ class PlayState extends MusicBeatState
 		#if DISCORD_ALLOWED
 		DiscordClient.resetClientID();
 		#end
+		if (ClientPrefs.data.betterSync) {
+			instance = null;
+			shutdownThread = true;
+			FlxG.signals.preUpdate.remove(checkForResync);
+		}
 		super.destroy();
 	}
 
@@ -4455,5 +4469,48 @@ class PlayState extends MusicBeatState
 	{
 		baseString = baseString.trim();
 		return baseString;
+	}
+
+	private var shutdownThread:Bool = false;
+	private var gameFroze:Bool = false;
+	private var requiresSyncing:Bool = false;
+	private var lastCorrectSongPos:Float = -1.0;
+	function checkForResync()
+	{
+		if (!startedCountdown && endingSong || paused || shutdownThread)
+			return;
+
+		if (requiresSyncing)
+		{
+			requiresSyncing = false;
+			setSongTime(lastCorrectSongPos);
+		}
+
+		gameFroze = false;
+	}
+
+	public function runSongSyncThread()
+	{
+		Thread.create(function()
+		{
+			while (startedCountdown && !endingSong && !paused && !shutdownThread) //add `startedCountdown` for cutscenes
+			{
+				if (requiresSyncing)
+					continue;
+
+				if (gameFroze)
+				{
+					lastCorrectSongPos = Conductor.songPosition;
+					requiresSyncing = true;
+					continue;
+				}
+				gameFroze = true;
+
+				Sys.sleep(0.25);
+			}
+		});
+
+		if (!FlxG.signals.preUpdate.has(checkForResync))
+			FlxG.signals.preUpdate.add(checkForResync);
 	}
 }

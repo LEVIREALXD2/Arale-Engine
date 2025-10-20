@@ -242,6 +242,7 @@ class Option extends FlxSpriteGroup
 		baseBGAdd(true);
 
 		valueText = new FlxText(0, 0, 0, defaultValue + ' ' + extraDisplay, Std.int(baseBG.width / 20 / 2));
+		if (type == PERCENT) valueText.text = Std.string(defaultValue * 100) + ' ' + extraDisplay;
 		valueText.setFormat(Paths.font('montserrat.ttf'), Std.int(baseBG.width / 30 / 2), 0xffffff, RIGHT, FlxTextBorderStyle.OUTLINE, 0xFFFFFFFF);
 		valueText.antialiasing = ClientPrefs.data.antialiasing;
 		valueText.borderStyle = NONE;

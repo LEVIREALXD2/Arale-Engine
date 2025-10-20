@@ -84,6 +84,16 @@ class UIGroup extends OptionCata
 		addOption(option, addedOptions % 2 == 1 ? true : false);
 		addedOptions++;
 
+		#if DISCORD_ALLOWED
+		var option:Option = new Option(this,
+			'Discord Rich Presence',
+			"Uncheck this to prevent accidental leaks, it will hide the Application from your \"Playing\" box on Discord",
+			'discordRPC',
+			BOOL
+		);
+		addOption(option);
+		#end
+
 		var option:Option = new Option(this,
 			'Note Splashes',
 			"If unchecked, hitting \"Sick!\" notes won't show particles.",

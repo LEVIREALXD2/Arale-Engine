@@ -45,10 +45,10 @@ import TitleState;
 
 	/* Psych Extended */
 	public var useRGB:Bool = false;
+	public var betterSync:Bool = false;
 	public var KeyboardFixes:Bool = false;
 	public var realResolution:String = '1280/720';
 	public var UseNewCamSystem:Bool = false;
-	public var chartLoadSystem:String = '0.4-0.7x';
 	public var chartEditor:String = '0.4-0.7x';
 	public var hscriptversion:String = 'HScript Old';
 	#if MODPACK_ALLOWED

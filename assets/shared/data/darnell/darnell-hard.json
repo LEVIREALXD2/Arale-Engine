@@ -4133,7 +4133,7 @@
 		"needsVoices": true,
 		"artist": "Kawai Sprite",
 		"speed": 2.4,
-		"format": "psych_v1_convert",
+		"format": "psych_legacy",
 		"bpm": 155
 	}
 }

@@ -164,11 +164,11 @@ class Song
 		{
 			trace('Current Chart System: 1.0');
 			if(folder == null) folder = jsonInput;
-			PlayState.SONG = getChart(jsonInput, folder, 'psych_v1', cneChartExists, convertedChart);
+			PlayState.SONG = getChart(jsonInput, folder, cneChartExists, convertedChart);
 			loadedSongName = folder;
 			chartPath = _lastPath.replace('/', '\\');
 			if(jsonInput != 'events') StageData.loadDirectory(PlayState.SONG);
-			return getChart(jsonInput, folder, 'psych_v1', cneChartExists, convertedChart);
+			return PlayState.SONG;
 		}
 		else
 		{
@@ -180,17 +180,14 @@ class Song
 
 			#if MODS_ALLOWED
 			var moddyFile:String = Paths.modsJson('$formattedFolder/$formattedSong');
-			if (cneChartExists) {
+			if (cneChartExists)
 				rawJson = convertedChart.trim();
-			}
-			else if(FileSystem.exists(moddyFile)) {
+			else if(FileSystem.exists(moddyFile))
 				rawJson = File.getContent(moddyFile).trim();
-			}
 			#end
 
 			if(rawJson == null) {
 				var path:String = Paths.json('$formattedFolder/$formattedSong');
-				
 				#if sys
 				if(FileSystem.exists(path))
 					rawJson = File.getContent(path);
@@ -284,39 +281,32 @@ class Song
 	}
 
 	static var _lastPath:String;
-	public static function getChart(jsonInput:String, ?folder:String, ?convertTo:String = 'psych_v1', ?cneExists:Bool, ?convertedChart:String):SwagSong
+	public static function getChart(jsonInput:String, ?folder:String, ?cneExists:Bool, ?convertedChart:String):SwagSong
 	{
-		if(folder == null) folder = jsonInput;
-		var rawData:String = null;
-
-		var formattedFolder:String = Paths.formatToSongPath(folder);
-		var formattedSong:String = Paths.formatToSongPath(jsonInput);
-
-		#if MODS_ALLOWED
-		_lastPath = Paths.modsJson('$formattedFolder/$formattedSong');
-		if (cneExists)
-			rawData = convertedChart;
-		else if(FileSystem.exists(_lastPath))
-			rawData = File.getContent(_lastPath);
-		#end
-
-		//Base Songs
-		if(rawData == null)
-		{
-			_lastPath = Paths.json('$formattedFolder/$formattedSong');
-			#if sys
-			if(FileSystem.exists(_lastPath))
-				rawData = File.getContent(_lastPath);
-			else
-			#end
-				rawData = Assets.getText(_lastPath);
-		}
-
-		return rawData != null ? parseJSON(rawData, jsonInput, convertTo) : null;
+		var rawData:String = loadJson(jsonInput, folder, cneExists, convertedChart);
+		return rawData != null ? parseJSON(rawData, jsonInput) : null;
 	}
 
 	public static function getChartVersion(jsonInput:String, ?folder:String, ?convertTo:String = 'psych_v1', ?cneExists:Bool, ?convertedChart:String):Void
 	{
+		var rawData:String = loadJson(jsonInput, folder, cneExists, convertedChart);
+
+		var songJson:SwagSong = cast Json.parse(rawData);
+		if (songJson.song != null && convertTo == 'psych_legacy')
+		{
+			var subSong:SwagSong = Reflect.field(songJson, 'song');
+			if (songJson.format.startsWith('psych_v1') || subSong.format.startsWith('psych_v1'))
+				currentChartLoadSystem = 'psych_v1';
+			else
+			{
+				currentChartLoadSystem = 'psych_legacy';
+				songJson.validScore = true;
+			}
+		}
+	}
+	
+	public static function loadJson(jsonInput:String, ?folder:String, ?cneExists:Bool, ?convertedChart:String)
+	{
 		if(folder == null) folder = jsonInput;
 		var rawData:String = null;
 
@@ -342,32 +332,12 @@ class Song
 			#end
 				rawData = Assets.getText(_lastPath);
 		}
-
-		trace("ParseJson is Started");
-		parseJSON(rawData, jsonInput, convertTo);
+		return rawData;
 	}
 
 	public static function parseJSON(rawData:String, ?nameForError:String = null, ?convertTo:String = 'psych_v1'):SwagSong
 	{
 		var songJson:SwagSong = cast Json.parse(rawData);
-		if (songJson.song != null && convertTo == 'psych_legacy')
-		{
-			var subSong:SwagSong = Reflect.field(songJson, 'song');
-			trace(subSong);
-			trace(subSong.format);
-			trace(songJson.format);
-			if (songJson.format.startsWith('psych_v1') || subSong.format.startsWith('psych_v1')) //use this shit
-			{
-				trace("Foudj bitch");
-				currentChartLoadSystem = 'psych_v1';
-				songJson.validScore = true;
-				return songJson;
-			}
-
-			currentChartLoadSystem = 'psych_legacy';
-			songJson.validScore = true;
-			return songJson;
-		}
 
 		if(Reflect.hasField(songJson, 'song'))
 		{

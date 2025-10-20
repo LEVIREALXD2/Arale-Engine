@@ -38,6 +38,14 @@ class GameplayGroup extends OptionCata
 		addOption(option);
 
 		var option:Option = new Option(this,
+			'Better Sync',
+			"If checked, game continues where it freezes",
+			'betterSync',
+			BOOL
+		);
+		addOption(option);
+
+		var option:Option = new Option(this,
 			'HScript Version',
 			'If You Have A Any Problem With Mods Change This',
 			'hscriptversion',

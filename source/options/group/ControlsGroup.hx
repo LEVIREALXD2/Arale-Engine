@@ -142,8 +142,8 @@ class ControlsGroup extends OptionCata
 			'Hitbox Opacity',
 			'Changes hitbox opacity',
 			'hitboxalpha',
-			FLOAT,
-			[0.0, 1, 1]
+			PERCENT,
+			[0, 1, 1]
 		);
 		addOption(option);
 		#end
