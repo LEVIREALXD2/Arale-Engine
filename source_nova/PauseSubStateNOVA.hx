@@ -17,6 +17,7 @@ import openfl.utils.Assets;
 
 class PauseSubStateNOVA extends MusicBeatSubstate
 {
+	public static var forcedPauseSong:String = null;
 	var filePath:String = 'menuExtend/PauseState/';
 	var font:String = Assets.getFont("assets/fonts/montserrat.ttf").fontName;
 
@@ -117,7 +118,9 @@ class PauseSubStateNOVA extends MusicBeatSubstate
 				if(songName == null)
 				{
 					var path:String = Paths.formatToSongPath(ClientPrefs.data.pauseMusic);
-					if(path.toLowerCase() != 'none')
+					if (forcedPauseSong != null)
+						pauseMusic.loadEmbedded(Paths.music(forcedPauseSong), true, true);
+					else if(path.toLowerCase() != 'none')
 						pauseMusic.loadEmbedded(Paths.music(Paths.formatToSongPath(ClientPrefs.data.pauseMusic)), true, true);
 				}
 				else pauseMusic.loadEmbedded(Paths.music(songName), true, true);
@@ -622,7 +625,7 @@ class PauseSubStateNOVA extends MusicBeatSubstate
 						function(trm:FlxTimer) restartSong()
 					);
 					PlayState.chartingMode = false;
-					if (ClientPrefs.data.chartLoadSystem == '1.0x') ChartingStateNew.curSec = 0;
+					if (Song.currentChartLoadSystem == 'psych_v1') ChartingStateNew.curSec = 0;
 					else ChartingState.curSec = 0;
 				case 'Back':
 					for (i in debugBars)
@@ -668,8 +671,7 @@ class PauseSubStateNOVA extends MusicBeatSubstate
 				try{
 					var name:String = PlayState.SONG.song;
 					var poop = Highscore.formatSong(name, difficultyCurSelected);
-					if (ClientPrefs.data.chartLoadSystem == '1.0x') Song.loadFromJson(poop, name);
-					else PlayState.SONG = Song.loadFromJson(poop, name);
+					PlayState.SONG = Song.loadFromJson(poop, name);
 					PlayState.storyDifficulty = difficultyCurSelected;
 					MusicBeatState.resetState();
 					FlxG.sound.music.volume = 0;

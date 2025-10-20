@@ -260,6 +260,7 @@ class Option extends FlxSpriteGroup
 
 	public function updateDisText() {
 		valueText.text = defaultValue + ' ' + extraDisplay;
+		if (type == PERCENT) valueText.text = Std.string(defaultValue * 100) + ' ' + extraDisplay;
 		valueText.x = followX + innerX + baseBG.width - valueText.textField.textWidth - baseBG.mainRound;
 	}
 

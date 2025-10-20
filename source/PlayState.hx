@@ -357,6 +357,7 @@ class PlayState extends MusicBeatState
 		StrumLine.opponentStrumAlpha = 0.35; //Reset to default
 		StrumLine.middleScroll = ClientPrefs.data.middleScroll; //Reset to default
 		PauseSubState.forcedPauseSong = null; //Reset to default
+		#if EXTRA_PAUSE PauseSubStateNOVA.forcedPauseSong = null; #end //Reset to default
 		debugKeysChart = ClientPrefs.copyKey(ClientPrefs.keyBinds.get('debug_1'));
 		debugKeysCharacter = ClientPrefs.copyKey(ClientPrefs.keyBinds.get('debug_2'));
 		PauseSubState.songName = null; //Reset to default

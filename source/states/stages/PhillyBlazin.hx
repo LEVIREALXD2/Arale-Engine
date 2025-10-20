@@ -84,6 +84,7 @@ class PhillyBlazin extends BaseStage
 
 		var _song = PlayState.SONG;
 		PauseSubState.forcedPauseSong = 'breakfast-pico';
+		#if EXTRA_PAUSE PauseSubStateNOVA.forcedPauseSong = 'breakfast-pico'; #end
 		if(_song.gameOverSound == null || _song.gameOverSound.trim().length < 1) GameOverSubstate.deathSoundName = 'fnf_loss_sfx-pico-gutpunch';
 		if(_song.gameOverLoop == null || _song.gameOverLoop.trim().length < 1) GameOverSubstate.loopSoundName = 'gameOver-pico';
 		if(_song.gameOverEnd == null || _song.gameOverEnd.trim().length < 1) GameOverSubstate.endSoundName = 'gameOverEnd-pico';
