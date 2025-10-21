@@ -181,7 +181,7 @@ class FunkinLua {
 		return FlxEase.linear;
 	}
 
-	public function new(script:String) {
+	public function new(scriptName:String) {
 		#if LUA_ALLOWED
 		lua = LuaL.newstate();
 		LuaL.openlibs(lua);
@@ -201,7 +201,7 @@ class FunkinLua {
 			this.modFolder = myFolder[1];
 		#end
 
-		trace('lua file loaded succesfully:' + script);
+		trace('lua file loaded succesfully:' + scriptName);
 
 		// Lua shit
 		set('Function_StopLua', Function_StopLua);
@@ -389,11 +389,13 @@ class FunkinLua {
 			var foundScript:String = findScript(luaFile);
 			if(foundScript != null)
 				for (luaInstance in game.luaArray)
+				{
 					if(luaInstance.scriptName == foundScript)
 					{
 						luaInstance.call(funcName, args);
 						return;
 					}
+				}
 		});
 
 		Lua_helper.add_callback(lua, "isRunning", function(scriptFile:String) {
@@ -2960,7 +2962,7 @@ class FunkinLua {
 		}
 
 		try{
-			var result:Dynamic = LuaL.dofile(lua, script);
+			var result:Dynamic = LuaL.dofile(lua, scriptName);
 			var resultStr:String = Lua.tostring(lua, result);
 			if(resultStr != null && result != 0) {
 				trace('Error on lua script! ' + resultStr);
@@ -2970,7 +2972,7 @@ class FunkinLua {
 				CoolUtil.showPopUp(resultStr, "Error on .LUA script!");
 				trace("ErrorBitch: " + resultStr);
 				#else
-				luaTrace('Error loading lua script: "$script"\n' + resultStr, true, false, FlxColor.RED);
+				luaTrace('Error loading lua script: "$scriptName"\n' + resultStr, true, false, FlxColor.RED);
 				#end
 				lua = null;
 				return;
