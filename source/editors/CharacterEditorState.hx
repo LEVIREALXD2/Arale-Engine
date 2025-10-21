@@ -1122,6 +1122,7 @@ class CharacterEditorState extends MusicBeatState implements PsychUIEventHandler
 
 		if((FlxG.keys.justPressed.F1 #if TOUCH_CONTROLS || mobilePad.buttonF.justPressed #end) || (helpBg.visible && FlxG.keys.justPressed.ESCAPE))
 		{
+			#if TOUCH_CONTROLS 
 			if (!useDesktopThings)
 			{
 				mobilePad.forEachAlive(function(button:MobileButton){
@@ -1129,6 +1130,7 @@ class CharacterEditorState extends MusicBeatState implements PsychUIEventHandler
 						button.visible = !button.visible;
 				});
 			}
+			#end
 			helpBg.visible = !helpBg.visible;
 			helpTexts.visible = helpBg.visible;
 		}
