@@ -4418,9 +4418,9 @@ class PlayState extends MusicBeatState
 	public function characterBopper(beat:Int):Void
 	{
 		//Cne chars
-		if (boyfriend.isCodenameChar) boyfriend.beatHit(beat);
-		if (dad.isCodenameChar) dad.beatHit(beat);
-		if (gf.isCodenameChar) gf.beatHit(beat);
+		if (boyfriend != null && boyfriend.isCodenameChar) boyfriend.beatHit(beat);
+		if (dad != null && dad.isCodenameChar) dad.beatHit(beat);
+		if (gf != null && gf.isCodenameChar) gf.beatHit(beat);
 
 		if (gf != null && beat % Math.round(gfSpeed * gf.danceEveryNumBeats) == 0 && !gf.getAnimationName().startsWith('sing') && !gf.stunned && !gf.isCodenameChar)
 			gf.dance();

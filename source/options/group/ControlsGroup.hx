@@ -49,7 +49,7 @@ class ControlsGroup extends OptionCata
 		#end
 
 		#if TOUCH_CONTROLS
-		/* Goodbye In-game MobilePad Controls, I never miss them
+		/* Goodbye In-game MobilePad Controls, I never miss you
 		var option:Option = new Option(this,
 			'Open Mobile Control Selector',
 			'Select Your In-game Control (MobilePad Controls will be removed soon for better modding)',
