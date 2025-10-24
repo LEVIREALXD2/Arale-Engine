@@ -1,5 +1,5 @@
 name: Build PsychExtended + Release
-run-name: PsychExtended v1.0.2 Update
+run-name: PsychExtended v1.0.2 Beta 2
 on: workflow_dispatch
 
 permissions:
@@ -52,13 +52,13 @@ jobs:
            path: /home/runner
 
       - name: Move Android File
-        run: mv /home/runner/${{ env.PROJECT_NAME }}-release.apk /home/runner/PsychExtended-v102-Update.apk
+        run: mv /home/runner/${{ env.PROJECT_NAME }}-release.apk /home/runner/PsychExtended-v102-Beta2-Update.apk
 
       - name: Publish The Release
         uses: softprops/action-gh-release@v2
         with:
           name: "DevBuild"
-          tag_name: "1.0.2-prerelease"
+          tag_name: "1.0.2-beta2"
           prerelease: true
           files: |
             /home/runner/*.apk
