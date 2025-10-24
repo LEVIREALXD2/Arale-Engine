@@ -54,10 +54,21 @@ jobs:
       - name: Move Android File
         run: mv /home/runner/${{ env.PROJECT_NAME }}-release.apk /home/runner/PsychExtended-v102-Beta2-Update.apk
 
+      - name: Download Windows x86_64 Build
+        uses: actions/download-artifact@main
+        with:
+          name: windowsBuild-x86_64
+          path: /home/runner/windowsBuild-x86_64
+
+      - name: Zip Windows x86_64 Build For Release
+        run: |
+          cd /home/runner/windowsBuild-x86_64
+          zip -r "/home/runner/${{ env.PROJECT_NAME }}-windows-x86_64.zip" .
+
       - name: Publish The Release
         uses: softprops/action-gh-release@v2
         with:
-          name: "DevBuild"
+          name: "V1.0.2 Beta 2"
           tag_name: "1.0.2-beta2"
           prerelease: true
           files: |

@@ -95,7 +95,7 @@ class StageData {
 		if(Assets.exists(path))
 			rawJson = Assets.getText(path);
 		#end
-		else return null;
+		else return dummy();
 
 		return cast Json.parse(rawJson);
 	}
