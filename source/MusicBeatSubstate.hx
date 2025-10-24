@@ -44,12 +44,6 @@ class MusicBeatSubstate extends FlxSubState
 	}
 
 	public function addMobileControls(?customControllerValue:Int, ?mode:String) {
-		//Put this here bc control system is changed
-		if (ClientPrefs.data.hitboxhint){
-			var hitbox_hint:FlxSprite = new FlxSprite(0, (ClientPrefs.data.hitboxLocation == 'Bottom' && ClientPrefs.data.extraKeys != 0) ? -150 : 0).loadGraphic(Paths.image('mobile/Hitbox/hitbox_hint'));
-			add(hitbox_hint);
-		}
-
 		if(ClientPrefs.data.hitboxmode == 'Classic') {
 			mobilec = new HitboxOld();
 		} else {
@@ -61,6 +55,13 @@ class MusicBeatSubstate extends FlxSubState
 		FlxG.cameras.add(camcontrol, false);
 		camcontrol.bgColor.alpha = 0;
 		mobilec.instance.cameras = [camcontrol];
+
+		//Put this here bc control system is changed
+		if (ClientPrefs.data.hitboxhint){
+			var hitbox_hint:FlxSprite = new FlxSprite(0, (ClientPrefs.data.hitboxLocation == 'Bottom' && ClientPrefs.data.extraKeys != 0) ? -150 : 0).loadGraphic(Paths.image('mobile/Hitbox/hitbox_hint'));
+			add(hitbox_hint);
+			hitbox_hint.cameras = [camcontrol];
+		}
 
 		add(mobilec.instance);
 	}
