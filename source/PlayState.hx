@@ -778,8 +778,8 @@ class PlayState extends MusicBeatState
 
 		#if TOUCH_CONTROLS
 		addMobileControls();
-		MusicBeatState.mobilec.visible = false;
-		if (ClientPrefs.data.hitboxmode != 'Classic' && !ClientPrefs.data.hitboxhint) MusicBeatState.mobilec.alpha = 0.000001;
+		mobilec.instance.visible = false;
+		if (ClientPrefs.data.hitboxmode != 'Classic' && !ClientPrefs.data.hitboxhint) mobilec.instance.alpha = 0.000001;
 		#end
 
 		// if (SONG.song == 'South')
@@ -1233,8 +1233,7 @@ class PlayState extends MusicBeatState
 		if(ret != FunkinLua.Function_Stop) {
 			if (skipCountdown || startOnTime > 0) skipArrowStartTween = true;
 			#if TOUCH_CONTROLS
-			MusicBeatState.mobilec.visible = true;
-			if (MusicBeatState.checkHitbox != true) MusicBeatState.mobilec.alpha = ClientPrefs.data.mobilePadAlpha;
+			mobilec.instance.visible = true;
 			#end
 			generateStaticArrows(0);
 			generateStaticArrows(1);
@@ -1451,8 +1450,8 @@ class PlayState extends MusicBeatState
 		}
 		//use More Resulation Friendly one
 		PlayState.instance.reloadControls(4, "V Slice"); //I'm lazy to write removeMobileControls, so I'll keep it the same
-		MusicBeatState.mobilec.cameras = [camHUD]; //Visual Fix (Honestly not needed because you can't see hitboxes)
-		MusicBeatState.mobilec.visible = false; //hides the hitbox (better visuality, bitch)
+		mobilec.instance.cameras = [camHUD]; //Visual Fix (Honestly not needed because you can't see hitboxes)
+		mobilec.instance.visible = false; //hides the hitbox (better visuality, bitch)
 	}
 	#end
 
@@ -2932,7 +2931,7 @@ class PlayState extends MusicBeatState
 			}
 		}
 
-		#if TOUCH_CONTROLS MusicBeatState.mobilec.visible = false; #end
+		#if TOUCH_CONTROLS mobilec.instance.visible = false; #end
 		timeBarBG.visible = false;
 		timeBar.visible = false;
 		timeTxt.visible = false;
@@ -3438,7 +3437,11 @@ class PlayState extends MusicBeatState
 				for (i in 0...parsedArray.length)
 				{
 					if(parsedArray[i] && strumsBlocked[i] != true)
-						onKeyPress(new KeyboardEvent(KeyboardEvent.KEY_DOWN, true, true, -1, keysArray[i][0]));
+					{
+						try {
+							onKeyPress(new KeyboardEvent(KeyboardEvent.KEY_DOWN, true, true, -1, keysArray[i][0]));
+						} catch(e:Dynamic) {}
+					}
 				}
 			}
 		}
@@ -3473,7 +3476,11 @@ class PlayState extends MusicBeatState
 				for (i in 0...parsedArray.length)
 				{
 					if(parsedArray[i] || strumsBlocked[i] == true)
-						onKeyRelease(new KeyboardEvent(KeyboardEvent.KEY_UP, true, true, -1, keysArray[i][0]));
+					{
+						try {
+							onKeyRelease(new KeyboardEvent(KeyboardEvent.KEY_UP, true, true, -1, keysArray[i][0]));
+						} catch(e:Dynamic) {}
+					}
 				}
 			}
 		}
@@ -4391,8 +4398,7 @@ class PlayState extends MusicBeatState
 
 	//I don't need this anymore because Hitboxes can returnable to any keys
 	public static function checkHBoxPress(button:String, type = 'justPressed') {
-		if (MusicBeatState.mobilec.newhbox != null) button = Reflect.getProperty(MusicBeatState.mobilec.newhbox, button);
-		else button = Reflect.getProperty(MusicBeatState.mobilec.hbox, button);
+		if (MusicBeatState.getState().mobilec != null) button = Reflect.getProperty(MusicBeatState.getState().mobilec.instance, button);
 		if (button != null) return Reflect.getProperty(button, type);
 		return false;
 	}
@@ -4402,13 +4408,13 @@ class PlayState extends MusicBeatState
 	{
 		removeMobileControls();
 		addMobileControls(customControllerValue, mode);
-		if (customControllerValue <= 3 && customControllerValue >= 0) MusicBeatState.mobilec.alpha = ClientPrefs.data.mobilePadAlpha;
+		if (customControllerValue <= 3 && customControllerValue >= 0) mobilec.instance.alpha = ClientPrefs.data.mobilePadAlpha;
 	}
 
 	public function addControls(?customControllerValue:Int, ?mode:String)
 	{
 		addMobileControls(customControllerValue, mode);
-		if (customControllerValue <= 3 && customControllerValue >= 0) MusicBeatState.mobilec.alpha = ClientPrefs.data.mobilePadAlpha;
+		if (customControllerValue <= 3 && customControllerValue >= 0) mobilec.instance.alpha = ClientPrefs.data.mobilePadAlpha;
 	}
 
 	public function removeControls()

@@ -13,6 +13,7 @@ import funkin.backend.scripting.HScript;
 
 class MusicBeatSubstate extends FlxSubState
 {
+	public static var instance:MusicBeatSubstate;
 	private var curSection:Int = 0;
 	private var stepsToDo:Int = 0;
 
@@ -31,45 +32,55 @@ class MusicBeatSubstate extends FlxSubState
 
 	inline function get_controls():Controls
 		return PlayerSettings.player1.controls;
-		
+
 	#if TOUCH_CONTROLS
-	public var mobilePad:MobilePad; //this will be changed later
-	public static var mobilec:MobileControls;
-	var trackedinputsUI:Array<FlxActionInput> = [];
-	var trackedinputsNOTES:Array<FlxActionInput> = [];
+	public var mobilePad:MobilePad;
+	public var mobilec:IMobileControls;
 
 	public function addMobilePad(?DPad:String, ?Action:String) {
 		mobilePad = new MobilePad(DPad, Action);
 		add(mobilePad);
-		controls.setMobilePadUI(mobilePad, DPad, Action);
-		trackedinputsUI = controls.trackedInputsUI;
-		controls.trackedInputsUI = [];
 		mobilePad.alpha = ClientPrefs.data.mobilePadAlpha;
 	}
 
 	public function addMobileControls(?customControllerValue:Int, ?mode:String) {
-		mobilec = new MobileControls(customControllerValue, mode);
+		//Put this here bc control system is changed
+		if (ClientPrefs.data.hitboxhint){
+			var hitbox_hint:FlxSprite = new FlxSprite(0, (ClientPrefs.data.hitboxLocation == 'Bottom' && ClientPrefs.data.extraKeys != 0) ? -150 : 0).loadGraphic(Paths.image('mobile/Hitbox/hitbox_hint'));
+			add(hitbox_hint);
+		}
 
-		controls.setHitBox(mobilec.newhbox, mobilec.hbox);
-		MusicBeatState.checkHitbox = true;
-
-		trackedinputsNOTES = controls.trackedInputsNOTES;
-		controls.trackedInputsNOTES = [];
+		if(ClientPrefs.data.hitboxmode == 'Classic') {
+			mobilec = new HitboxOld();
+		} else {
+			if (mode != null || mode != "NONE") mobilec = new Hitbox(mode);
+			else mobilec = new Hitbox();
+		}
 
 		var camcontrol = new flixel.FlxCamera();
 		FlxG.cameras.add(camcontrol, false);
 		camcontrol.bgColor.alpha = 0;
-		mobilec.cameras = [camcontrol];
+		mobilec.instance.cameras = [camcontrol];
 
-		add(mobilec);
+		add(mobilec.instance);
 	}
 
 	public function removeMobilePad() {
-		if (trackedinputsUI.length > 0)
-			controls.removeVirtualControlsInput(trackedinputsUI);
-
 		if (mobilePad != null)
 			remove(mobilePad);
+	}
+
+	//removes mobilePad & clears the trackedButtons
+	public function removeMobilePadUnsafe() {
+		if (mobilePad != null)
+			remove(mobilePad);
+		mobilePad.instance.trackedButtons.clear();
+	}
+
+	public function reAddMobilePad(?DPad:String, ?Action:String) {
+		removeMobilePad();
+		addMobilePad(DPad, Action);
+		addMobilePadCamera();
 	}
 
 	public function addMobilePadCamera() {
@@ -80,12 +91,6 @@ class MusicBeatSubstate extends FlxSubState
 	}
 
 	override function destroy() {
-		if (trackedinputsNOTES.length > 0)
-			controls.removeVirtualControlsInput(trackedinputsNOTES);
-
-		if (trackedinputsUI.length > 0)
-			controls.removeVirtualControlsInput(trackedinputsUI);
-
 		super.destroy();
 		call("destroy");
 		stateScripts = FlxDestroyUtil.destroy(stateScripts);
@@ -94,7 +99,7 @@ class MusicBeatSubstate extends FlxSubState
 			mobilePad = FlxDestroyUtil.destroy(mobilePad);
 			
 		if (mobilec != null)
-			mobilec = FlxDestroyUtil.destroy(mobilec);
+			mobilec.instance = FlxDestroyUtil.destroy(mobilec.instance);
 	}
 	#end
 
@@ -129,6 +134,21 @@ class MusicBeatSubstate extends FlxSubState
 		var curSubState:Dynamic = FlxG.state.subState;
 		var leState:MusicBeatSubstate = curSubState;
 		return leState;
+	}
+
+	//Gets the second substate (FlxG.state.subState.subState)
+	public static function getExtraSubState():MusicBeatSubstate {
+		if (FlxG.state.subState != null) {
+			if (FlxG.state.subState.subState != null) {
+				var curSubState:Dynamic = FlxG.state.subState.subState;
+				var leState:MusicBeatSubstate = curSubState;
+				return leState;
+			}
+			else
+				return null;
+		}
+		else
+			return null;
 	}
 
 	private function updateSection():Void
@@ -225,6 +245,7 @@ class MusicBeatSubstate extends FlxSubState
 	public var scriptName:String = null;
 
 	public function new(scriptsAllowed:Bool = true, ?scriptName:String) {
+		instance = this;
 		super();
 		this.scriptName = scriptName;
 	}

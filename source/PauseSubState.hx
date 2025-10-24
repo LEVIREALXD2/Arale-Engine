@@ -162,10 +162,7 @@ class PauseSubState extends MusicBeatSubstate
 		cameras = [FlxG.cameras.list[FlxG.cameras.list.length - 1]];
 
 		#if TOUCH_CONTROLS
-		if (PlayState.chartingMode)
-			addMobilePad("FULL", "A");
-		else
-			addMobilePad("FULL", "A");
+		addMobilePad("FULL", "A");
 		addMobilePadCamera();
 		#end
 	}
@@ -338,8 +335,8 @@ class PauseSubState extends MusicBeatSubstate
 						FlxG.sound.music.time = pauseMusic.time;
 					}
 				case "Change Gameplay Settings":
+					#if TOUCH_CONTROLS removeMobilePadUnsafe(); #end
 					persistentUpdate = false;
-					#if TOUCH_CONTROLS removeMobilePad(); #end
 					GameplayChangersSubstate.inThePauseMenu = true;
 					openSubState(new GameplayChangersSubstate());
 				case "Exit to menu":
@@ -387,9 +384,7 @@ class PauseSubState extends MusicBeatSubstate
 		persistentUpdate = true;
 		super.closeSubState();
 		#if TOUCH_CONTROLS
-		removeMobilePad();
-		addMobilePad("FULL", "A");
-		addMobilePadCamera();
+		reAddMobilePad("FULL", "A");
 		#end
 	}
 

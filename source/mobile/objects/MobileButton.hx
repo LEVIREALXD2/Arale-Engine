@@ -36,6 +36,11 @@ class MobileButton extends TypedMobileButton<FlxSprite>
 	public var tag:String;
 
 	/**
+	 * The `MobileInputID` that are assigned to this button.
+	**/
+	public var IDs:Array<MobileInputID> = [];
+
+	/**
 	 * A Small invisible bounds used for colision
 	**/
 	public var bounds:FlxSprite = new FlxSprite();
@@ -46,10 +51,13 @@ class MobileButton extends TypedMobileButton<FlxSprite>
 	 *
 	 * @param   X		 The x position of the button.
 	 * @param   Y		 The y position of the button.
+	 * @param   IDs        The button's IDs(used for input handling so be careful).
 	 */
-	public function new(X:Float = 0, Y:Float = 0):Void
+	public function new(X:Float = 0, Y:Float = 0, ?IDs:Array<MobileInputID> = null):Void
 	{
 		super(X, Y);
+
+		this.IDs = IDs == null ? [] : IDs;
 	}
 
 	public inline function centerInBounds()

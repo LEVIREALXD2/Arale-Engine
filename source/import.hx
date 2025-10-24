@@ -66,6 +66,7 @@ import objects.AchievementPopup;
 
 // Mobile Things
 #if TOUCH_CONTROLS
+import mobile.input.*;
 import mobile.flixel.*;
 import mobile.states.*;
 import mobile.objects.*;

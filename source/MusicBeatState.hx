@@ -47,12 +47,8 @@ class MusicBeatState extends FlxUIState
 		return getState().variables;
 
 	#if TOUCH_CONTROLS
-	public static var checkHitbox:Bool = false;
 	public var mobilePad:MobilePad;
-	public static var mobilec:MobileControls;
-
-	var trackedinputsUI:Array<FlxActionInput> = [];
-	var trackedinputsNOTES:Array<FlxActionInput> = [];
+	public var mobilec:IMobileControls;
 
 	public function checkMobileControlVisible(selectedButton:String) {
 		var buttonsVisible:Bool = false;
@@ -72,57 +68,55 @@ class MusicBeatState extends FlxUIState
 	}
 
 	public function addMobilePad(?DPad:String, ?Action:String) {
-		if (mobilePad != null)
-			removeMobilePad();
-
+		if (mobilePad != null) removeMobilePad();
 		mobilePad = new MobilePad(DPad, Action);
 		add(mobilePad);
-
-		controls.setMobilePadUI(mobilePad, DPad, Action);
-		trackedinputsUI = controls.trackedInputsUI;
-		controls.trackedInputsUI = [];
 		mobilePad.alpha = ClientPrefs.data.mobilePadAlpha;
 	}
 
 	public function removeMobilePad() {
-		if (trackedinputsUI.length > 0)
-			controls.removeVirtualControlsInput(trackedinputsUI);
-
 		if (mobilePad != null)
 			remove(mobilePad);
 	}
 
-	/*
-	public function addVirtualPad(?DPad:String, ?Action:String)
-		return addMobilePad(DPad, Action);
-
-	public function removeVirtualPad()
-		return removeMobilePad();
-	*/
-
 	public function removeMobileControls() {
-		if (trackedinputsNOTES.length > 0)
-			controls.removeVirtualControlsInput(trackedinputsNOTES);
-
 		if (mobilec != null)
-			remove(mobilec);
+			remove(mobilec.instance);
+	}
+
+	//removes mobilePad & clears the trackedButtons
+	public function removeMobilePadUnsafe() {
+		if (mobilePad != null)
+			remove(mobilePad);
+		mobilePad.instance.trackedButtons.clear();
+	}
+
+	public function reAddMobilePad(?DPad:String, ?Action:String) {
+		removeMobilePad();
+		addMobilePad(DPad, Action);
+		addMobilePadCamera();
 	}
 
 	public function addMobileControls(?customControllerValue:Int, ?mode:String) {
-		mobilec = new MobileControls(customControllerValue, mode);
+		//Put this here bc control system is changed
+		if (ClientPrefs.data.hitboxhint){
+			var hitbox_hint:FlxSprite = new FlxSprite(0, (ClientPrefs.data.hitboxLocation == 'Bottom' && ClientPrefs.data.extraKeys != 0) ? -150 : 0).loadGraphic(Paths.image('mobile/Hitbox/hitbox_hint'));
+			add(hitbox_hint);
+		}
 
-		controls.setHitBox(mobilec.newhbox, mobilec.hbox);
-		MusicBeatState.checkHitbox = true;
-
-		trackedinputsNOTES = controls.trackedInputsNOTES;
-		controls.trackedInputsNOTES = [];
+		if(ClientPrefs.data.hitboxmode == 'Classic') {
+			mobilec = new HitboxOld();
+		} else {
+			if (mode != null || mode != "NONE") mobilec = new Hitbox(mode);
+			else mobilec = new Hitbox();
+		}
 
 		var camcontrol = new flixel.FlxCamera();
 		FlxG.cameras.add(camcontrol, false);
 		camcontrol.bgColor.alpha = 0;
-		mobilec.cameras = [camcontrol];
+		mobilec.instance.cameras = [camcontrol];
 
-		add(mobilec);
+		add(mobilec.instance);
 	}
 
 	public function addMobilePadCamera() {
@@ -138,17 +132,11 @@ class MusicBeatState extends FlxUIState
 	*/
 
 	override function destroy() {
-		if (trackedinputsNOTES.length > 0)
-			controls.removeVirtualControlsInput(trackedinputsNOTES);
-
-		if (trackedinputsUI.length > 0)
-			controls.removeVirtualControlsInput(trackedinputsUI);
-
 		if (mobilePad != null)
 			mobilePad = FlxDestroyUtil.destroy(mobilePad);
 
 		if (mobilec != null)
-			mobilec = FlxDestroyUtil.destroy(mobilec);
+			mobilec.instance = FlxDestroyUtil.destroy(mobilec.instance);
 
 		#if SCRIPTING_ALLOWED
 		call("destroy");

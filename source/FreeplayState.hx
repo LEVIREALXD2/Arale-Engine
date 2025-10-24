@@ -206,7 +206,6 @@ class FreeplayState extends MusicBeatState
 		updateTexts();
 
 		#if TOUCH_CONTROLS addMobilePad("FULL", "A_B_C_X_Y_Z"); #end
-		
 		super.create();
 	}
 
@@ -215,8 +214,7 @@ class FreeplayState extends MusicBeatState
 		changeSelection(0, false);
 		persistentUpdate = true;
 		#if TOUCH_CONTROLS
-		removeMobilePad();
-		addMobilePad("FULL", "A_B_C_X_Y_Z");
+		reAddMobilePad("FULL", "A_B_C_X_Y_Z");
 		#end
 		super.closeSubState();
 	}
@@ -349,7 +347,6 @@ class FreeplayState extends MusicBeatState
 		{
 			persistentUpdate = false;
 			openSubState(new GameplayChangersSubstate());
-			#if TOUCH_CONTROLS removeMobilePad(); #end
 		}
 		else if(FlxG.keys.justPressed.SPACE #if TOUCH_CONTROLS || mobilePad.buttonX.justPressed #end)
 		{
@@ -426,10 +423,6 @@ class FreeplayState extends MusicBeatState
 				missingText.visible = true;
 				missingTextBG.visible = true;
 				FlxG.sound.play(Paths.sound('cancelMenu'));
-				#if TOUCH_CONTROLS
-				removeMobilePad();
-				addMobilePad("FULL", "A_B_C_X_Y_Z");
-				#end
 
 				updateTexts(elapsed);
 				return;
@@ -453,7 +446,6 @@ class FreeplayState extends MusicBeatState
 		{
 			persistentUpdate = false;
 			openSubState(new ResetScoreSubState(songs[curSelected].songName, curDifficulty, songs[curSelected].songCharacter));
-			#if TOUCH_CONTROLS removeMobilePad(); #end
 			FlxG.sound.play(Paths.sound('scrollMenu'));
 		}
 

@@ -1,5 +1,7 @@
 package mobile.objects;
 
+//I'm keeping this because Idk
+
 import flixel.util.FlxSave;
 
 #if TOUCH_CONTROLS
@@ -10,6 +12,12 @@ class MobileControls extends FlxSpriteGroup {
 
 	public function new(?customControllerValue:Int, ?CustomMode:String) {
 		super();
+
+		//Put this here bc control system is changed
+		if (ClientPrefs.data.hitboxhint){
+			var hitbox_hint:FlxSprite = new FlxSprite(0, (ClientPrefs.data.hitboxLocation == 'Bottom' && ClientPrefs.data.extraKeys != 0) ? -150 : 0).loadGraphic(Paths.image('mobile/Hitbox/hitbox_hint'));
+			add(hitbox_hint);
+		}
 
 		if(ClientPrefs.data.hitboxmode == 'Classic') {
 			hbox = new HitboxOld(0.75, ClientPrefs.data.antialiasing);

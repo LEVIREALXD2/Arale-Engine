@@ -4,6 +4,7 @@ package mobile.objects;
 import hscript.Parser;
 import hscript.Interp;
 #end
+import flixel.util.FlxSignal.FlxTypedSignal;
 import flixel.graphics.FlxGraphic;
 import openfl.display.BitmapData;
 import openfl.display.Shape;
@@ -17,29 +18,43 @@ import openfl.geom.Matrix;
  * @modifier KralOyuncu 2010x (ArkoseLabs)
  */
 @:build(mobile.macros.ButtonMacro.createExtraButtons(30)) //I think 30 is enough
-class Hitbox extends FlxSpriteGroup
+class Hitbox extends MobileInputManager implements IMobileControls
 {
-	public var buttonLeft:MobileButton = new MobileButton(0, 0);
-	public var buttonDown:MobileButton = new MobileButton(0, 0);
-	public var buttonUp:MobileButton = new MobileButton(0, 0);
-	public var buttonRight:MobileButton = new MobileButton(0, 0);
+	public var buttonLeft:MobileButton = new MobileButton(0, 0, [MobileInputID.HITBOX_LEFT, MobileInputID.NOTE_LEFT]);
+	public var buttonDown:MobileButton = new MobileButton(0, 0, [MobileInputID.HITBOX_DOWN, MobileInputID.NOTE_DOWN]);
+	public var buttonUp:MobileButton = new MobileButton(0, 0, [MobileInputID.HITBOX_UP, MobileInputID.NOTE_UP]);
+	public var buttonRight:MobileButton = new MobileButton(0, 0, [MobileInputID.HITBOX_RIGHT, MobileInputID.NOTE_RIGHT]);
 	public var extraKey1 = ClientPrefs.data.extraKeyReturn1.toUpperCase();
 	public var extraKey2 = ClientPrefs.data.extraKeyReturn2.toUpperCase();
 	public var extraKey3 = ClientPrefs.data.extraKeyReturn3.toUpperCase();
 	public var extraKey4 = ClientPrefs.data.extraKeyReturn4.toUpperCase();
 
-	public static var hitbox_hint:FlxSprite;
+	public var instance:MobileInputManager;
+	public var onButtonDown:FlxTypedSignal<MobileButton->Void> = new FlxTypedSignal<MobileButton->Void>();
+	public var onButtonUp:FlxTypedSignal<MobileButton->Void> = new FlxTypedSignal<MobileButton->Void>();
+
+	var storedButtonsIDs:Map<String, Array<MobileInputID>> = new Map<String, Array<MobileInputID>>();
 
 	/**
 	 * Create the zone.
 	 */
 	public function new(?CustomMode:String):Void
 	{
+		instance = this;
 		super();
+		for (button in Reflect.fields(this))
+		{
+			var field = Reflect.field(this, button);
+			if (Std.isOfType(field, MobileButton))
+				storedButtonsIDs.set(button, Reflect.getProperty(field, 'IDs'));
+		}
+
+		/*
 		if (ClientPrefs.data.hitboxhint){
-			hitbox_hint = new FlxSprite(0, (ClientPrefs.data.hitboxLocation == 'Bottom' && ClientPrefs.data.extraKeys != 0) ? -150 : 0).loadGraphic(Paths.image('mobile/Hitbox/hitbox_hint'));
+			var hitbox_hint:FlxSprite = new FlxSprite(0, (ClientPrefs.data.hitboxLocation == 'Bottom' && ClientPrefs.data.extraKeys != 0) ? -150 : 0).loadGraphic(Paths.image('mobile/Hitbox/hitbox_hint'));
 			add(hitbox_hint);
 		}
+		*/
 		if ((ClientPrefs.data.hitboxmode == 'V Slice' && CustomMode == null) || CustomMode == 'V Slice'){
 			add(buttonLeft = createHint(PlayState.playerNotePositionsFixedStatic[0], 0, 140, Std.int(FlxG.height * 1), 0xFFC24B99));
 			add(buttonDown = createHint(PlayState.playerNotePositionsFixedStatic[1], 0, 140, Std.int(FlxG.height * 1), 0xFF00FFFF));
@@ -184,7 +199,17 @@ class Hitbox extends FlxSpriteGroup
 				}
 			}
 		}
+		for (button in Reflect.fields(this))
+		{
+			if (Std.isOfType(Reflect.field(this, button), MobileButton))
+				Reflect.setProperty(Reflect.getProperty(this, button), 'IDs', storedButtonsIDs.get(button));
+		}
+
+		storedButtonsIDs.clear();
 		scrollFactor.set();
+		updateTrackedButtons();
+
+		instance = this;
 	}
 
 	/**
@@ -250,13 +275,15 @@ class Hitbox extends FlxSpriteGroup
 		hint.immovable = true;
 		hint.scrollFactor.set();
 		hint.alpha = 0.00001;
-		hint.onDown.callback = hint.onOver.callback = function()
+		hint.onDown.callback = function()
 		{
+			onButtonDown.dispatch(hint);
 			if (hint.alpha != ClientPrefs.data.hitboxalpha)
 				hint.alpha = ClientPrefs.data.hitboxalpha;
 		}
-		hint.onUp.callback = hint.onOut.callback = function()
+		hint.onOut.callback = hint.onUp.callback = function()
 		{
+			onButtonUp.dispatch(hint);
 			if (hint.alpha != 0.00001)
 				hint.alpha = 0.00001;
 		}
@@ -268,82 +295,76 @@ class Hitbox extends FlxSpriteGroup
 	}
 }
 
-class HitboxOld extends FlxSpriteGroup {
-	public var hitbox:FlxSpriteGroup;
+class HitboxOld extends MobileInputManager implements IMobileControls {
+	public var buttonLeft:MobileButton = new MobileButton(0, 0, [MobileInputID.HITBOX_LEFT, MobileInputID.NOTE_LEFT]);
+	public var buttonDown:MobileButton = new MobileButton(0, 0, [MobileInputID.HITBOX_DOWN, MobileInputID.NOTE_DOWN]);
+	public var buttonUp:MobileButton = new MobileButton(0, 0, [MobileInputID.HITBOX_UP, MobileInputID.NOTE_UP]);
+	public var buttonRight:MobileButton = new MobileButton(0, 0, [MobileInputID.HITBOX_RIGHT, MobileInputID.NOTE_RIGHT]);
+	public var buttonExtra1:MobileButton = new MobileButton(0, 0);
+	public var buttonExtra2:MobileButton = new MobileButton(0, 0);
 
-	public var buttonLeft:MobileButton;
-	public var buttonDown:MobileButton;
-	public var buttonUp:MobileButton;
-	public var buttonRight:MobileButton;
-	public var buttonExtra1:MobileButton;
-	public var buttonExtra2:MobileButton;
+	public var instance:MobileInputManager;
+	public var onButtonDown:FlxTypedSignal<MobileButton->Void> = new FlxTypedSignal<MobileButton->Void>();
+	public var onButtonUp:FlxTypedSignal<MobileButton->Void> = new FlxTypedSignal<MobileButton->Void>();
 
-	public var orgAlpha:Float = 0.75;
-	public var orgAntialiasing:Bool = true;
-	
-	public function new(?alphaAlt:Float = 0.75, ?antialiasingAlt:Bool = true) {
+	var storedButtonsIDs:Map<String, Array<MobileInputID>> = new Map<String, Array<MobileInputID>>();
+
+	public function new() {
+		instance = this;
 		super();
 
-		orgAlpha = alphaAlt;
-		orgAntialiasing = antialiasingAlt;
-
-		buttonLeft = new MobileButton(0, 0);
-		buttonDown = new MobileButton(0, 0);
-		buttonUp = new MobileButton(0, 0);
-		buttonRight = new MobileButton(0, 0);
-		buttonExtra1 = new MobileButton(0, 0);
-		buttonExtra2 = new MobileButton(0, 0);
-
-		hitbox = new FlxSpriteGroup();
-		
 		if (ClientPrefs.data.extraKeys == 0){
-			hitbox.add(add(buttonLeft = createhitbox(0, 0, "left", "mobile/Hitbox/hitbox")));
-			hitbox.add(add(buttonDown = createhitbox(320, 0, "down", "mobile/Hitbox/hitbox")));
-			hitbox.add(add(buttonUp = createhitbox(640, 0, "up", "mobile/Hitbox/hitbox")));
-			hitbox.add(add(buttonRight = createhitbox(960, 0, "right", "mobile/Hitbox/hitbox")));
+			add(buttonLeft = createhitbox(0, 0, "left", "mobile/Hitbox/hitbox"));
+			add(buttonDown = createhitbox(320, 0, "down", "mobile/Hitbox/hitbox"));
+			add(buttonUp = createhitbox(640, 0, "up", "mobile/Hitbox/hitbox"));
+			add(buttonRight = createhitbox(960, 0, "right", "mobile/Hitbox/hitbox"));
 		}else{
 			if (ClientPrefs.data.hitboxLocation == 'Bottom') {
 				switch (ClientPrefs.data.extraKeys) {
 					case 2:
-						hitbox.add(add(buttonLeft = createhitbox(0, 0, "left", "mobile/Hitbox/hitboxBottom-2")));
-						hitbox.add(add(buttonDown = createhitbox(320, 0, "down", "mobile/Hitbox/hitboxBottom-2")));
-						hitbox.add(add(buttonUp = createhitbox(640, 0, "up", "mobile/Hitbox/hitboxBottom-2")));
-						hitbox.add(add(buttonRight = createhitbox(960, 0, "right", "mobile/Hitbox/hitboxBottom-2")));
-						hitbox.add(add(buttonExtra1 = createhitbox(0, 580, "extra1", "mobile/Hitbox/hitboxBottom-2", ClientPrefs.data.extraKeyReturn1.toUpperCase())));
-						hitbox.add(add(buttonExtra2 = createhitbox(640, 580, "extra2", "mobile/Hitbox/hitboxBottom-2", ClientPrefs.data.extraKeyReturn2.toUpperCase())));
+						add(buttonLeft = createhitbox(0, 0, "left", "mobile/Hitbox/hitboxBottom-2"));
+						add(buttonDown = createhitbox(320, 0, "down", "mobile/Hitbox/hitboxBottom-2"));
+						add(buttonUp = createhitbox(640, 0, "up", "mobile/Hitbox/hitboxBottom-2"));
+						add(buttonRight = createhitbox(960, 0, "right", "mobile/Hitbox/hitboxBottom-2"));
+						add(buttonExtra1 = createhitbox(0, 580, "extra1", "mobile/Hitbox/hitboxBottom-2", ClientPrefs.data.extraKeyReturn1.toUpperCase()));
+						add(buttonExtra2 = createhitbox(640, 580, "extra2", "mobile/Hitbox/hitboxBottom-2", ClientPrefs.data.extraKeyReturn2.toUpperCase()));
 				}
 			}
 			else if (ClientPrefs.data.hitboxLocation == 'Top') {
 				switch (ClientPrefs.data.extraKeys) {
 					case 2:
-						hitbox.add(add(buttonLeft = createhitbox(0, 144, "left", "mobile/Hitbox/hitboxBottom-2")));
-						hitbox.add(add(buttonDown = createhitbox(320, 144, "down", "mobile/Hitbox/hitboxBottom-2")));
-						hitbox.add(add(buttonUp = createhitbox(640, 144, "up", "mobile/Hitbox/hitboxBottom-2")));
-						hitbox.add(add(buttonRight = createhitbox(960, 144, "right", "mobile/Hitbox/hitboxBottom-2")));
-						hitbox.add(add(buttonExtra1 = createhitbox(0, 0, "extra1", "mobile/Hitbox/hitboxBottom-2", ClientPrefs.data.extraKeyReturn1.toUpperCase())));
-						hitbox.add(add(buttonExtra2 = createhitbox(640, 0, "extra2", "mobile/Hitbox/hitboxBottom-2", ClientPrefs.data.extraKeyReturn2.toUpperCase())));
+						add(buttonLeft = createhitbox(0, 144, "left", "mobile/Hitbox/hitboxBottom-2"));
+						add(buttonDown = createhitbox(320, 144, "down", "mobile/Hitbox/hitboxBottom-2"));
+						add(buttonUp = createhitbox(640, 144, "up", "mobile/Hitbox/hitboxBottom-2"));
+						add(buttonRight = createhitbox(960, 144, "right", "mobile/Hitbox/hitboxBottom-2"));
+						add(buttonExtra1 = createhitbox(0, 0, "extra1", "mobile/Hitbox/hitboxBottom-2", ClientPrefs.data.extraKeyReturn1.toUpperCase()));
+						add(buttonExtra2 = createhitbox(640, 0, "extra2", "mobile/Hitbox/hitboxBottom-2", ClientPrefs.data.extraKeyReturn2.toUpperCase()));
 				}
 			}
 		}
 
+		/*
 		var hitbox_hint:FlxSprite = new FlxSprite(0, (ClientPrefs.data.hitboxLocation == 'Bottom' && ClientPrefs.data.extraKeys != 0) ? -150 : 0).loadGraphic(Paths.image('mobile/Hitbox/hitbox_hint'));
-		hitbox_hint.antialiasing = orgAntialiasing;
-		hitbox_hint.alpha = orgAlpha;
+		hitbox_hint.antialiasing = ClientPrefs.data.antialiasing;
+		hitbox_hint.alpha = 0.75;
 		add(hitbox_hint);
+		*/
 	}
 
 	public function createhitbox(x:Float = 0, y:Float = 0, frames:String, ?texture:String, ?customReturn:String) {
 		var button = new MobileButton(x, y);
 		button.loadGraphic(FlxGraphic.fromFrame(getFrames(texture).getByName(frames)));
-		button.antialiasing = orgAntialiasing;
+		button.antialiasing = ClientPrefs.data.antialiasing;
 		button.alpha = 0.00001;
-		button.onDown.callback = button.onOver.callback = function()
+		button.onDown.callback = function()
 		{
+			onButtonDown.dispatch(button);
 			if (button.alpha != 0.75)
 				button.alpha = 0.75;
 		}
-		button.onUp.callback = button.onOut.callback = function()
+		button.onOut.callback = button.onUp.callback = function()
 		{
+			onButtonUp.dispatch(button);
 			if (button.alpha != 0.00001)
 				button.alpha = 0.00001;
 		}

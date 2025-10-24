@@ -1032,7 +1032,7 @@ class FunkinLua {
 			#end
 			var killMe:Array<String> = variable.split('.');
 			#if TOUCH_CONTROLS
-			if (MusicBeatState.mobilec != null && myClass == 'flixel.FlxG' && variableplus.indexOf('key') != -1){
+			if (MusicBeatState.getState().mobilec != null && myClass == 'flixel.FlxG' && variableplus.indexOf('key') != -1){
 				var check:Dynamic;
 				check = specialKeyCheck(variableplus); //fuck you old lua 🙃
 				if (check != null) return check;
@@ -3685,9 +3685,9 @@ class FunkinLua {
 
 		//Custom return thing
 		for (num in 1...31) {
-			if (MusicBeatState.mobilec.newhbox != null) {
+			if (MusicBeatState.getState().mobilec.instance != null) {
 				//trace("Current Mode: Hitbox");
-				var hitbox:Dynamic = Reflect.getProperty(MusicBeatState.mobilec.newhbox, 'buttonExtra' + num);
+				var hitbox:Dynamic = Reflect.getProperty(MusicBeatState.getState().mobilec.instance, 'buttonExtra' + num);
 				if (key == Reflect.field(hitbox, 'returnedButton')) {
 					//trace('button ${num} returned to ' + Reflect.field(hitbox, 'returnedButton'));
 					if (Reflect.getProperty(hitbox, type)) {
@@ -3697,12 +3697,20 @@ class FunkinLua {
 			}
 		}
 
+		for (num in 1...31) {
+			if (MusicBeatState.getState().mobilePad != null) {
+				var hitbox:Dynamic = Reflect.getProperty(MusicBeatState.getState().mobilePad, 'buttonExtra' + num);
+				if (key == Reflect.field(hitbox, 'returnedButton')) {
+					if (Reflect.getProperty(hitbox, type)) {
+						return true;
+					}
+				}
+			}
+		}
+
 		for (num in 1...9){
 			if (ClientPrefs.data.extraKeys >= num && key == Reflect.field(ClientPrefs.data, 'extraKeyReturn' + num)){
-				if (MusicBeatState.mobilec.hbox != null)
-					extraControl = Reflect.getProperty(MusicBeatState.mobilec.hbox, 'buttonExtra' + num);
-				else
-					extraControl = Reflect.getProperty(MusicBeatState.mobilec.newhbox, 'buttonExtra' + num);
+				extraControl = Reflect.getProperty(MusicBeatState.getState().mobilec.instance, 'buttonExtra' + num);
 				if (Reflect.getProperty(extraControl, type))
 					return true;
 			}
@@ -3715,11 +3723,22 @@ class FunkinLua {
 	{
 		//Custom return thing
 		for (num in 1...31) {
-			if (MusicBeatState.mobilec.newhbox != null) {
+			if (MusicBeatState.getState().mobilec.instance != null) {
 				//trace("Current Mode: Hitbox");
-				var hitbox:Dynamic = Reflect.getProperty(MusicBeatState.mobilec.newhbox, 'buttonExtra' + num);
+				var hitbox:Dynamic = Reflect.getProperty(MusicBeatState.getState().mobilec.instance, 'buttonExtra' + num);
 				if (key.toUpperCase() == Reflect.field(hitbox, 'returnedButton')) {
 					//trace('button ${num} returned to ' + Reflect.field(hitbox, 'returnedButton'));
+					if (Reflect.getProperty(hitbox, type)) {
+						return true;
+					}
+				}
+			}
+		}
+
+		for (num in 1...31) {
+			if (MusicBeatState.getState().mobilePad != null) {
+				var hitbox:Dynamic = Reflect.getProperty(MusicBeatState.getState().mobilePad, 'buttonExtra' + num);
+				if (key.toUpperCase() == Reflect.field(hitbox, 'returnedButton')) {
 					if (Reflect.getProperty(hitbox, type)) {
 						return true;
 					}

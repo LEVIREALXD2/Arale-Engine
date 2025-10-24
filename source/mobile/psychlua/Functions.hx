@@ -86,7 +86,7 @@ class MobileFunctions
 		#if TOUCH_CONTROLS
 		Lua_helper.add_callback(lua, "MobileC", function(enabled:Bool = false):Void
 		{
-			MusicBeatState.mobilec.visible = enabled;
+			MusicBeatState.getState().mobilec.instance.visible = enabled;
 		});
 
 		Lua_helper.add_callback(lua, "switchMobileControls", function(?cValue:Int):Void
@@ -110,9 +110,9 @@ class MobileFunctions
 
 		Lua_helper.add_callback(lua, "setMobileControlPosition", function(?x:Float, ?y:Float):Void
 		{
-			if (MusicBeatState.mobilec != null) {
-				if (x != null) MusicBeatState.mobilec.x = x;
-				if (y != null) MusicBeatState.mobilec.y = y;
+			if (MusicBeatState.getState().mobilec != null) {
+				if (x != null) MusicBeatState.getState().mobilec.instance.x = x;
+				if (y != null) MusicBeatState.getState().mobilec.instance.y = y;
 			}
 		});
 

@@ -35,12 +35,13 @@ class ButtonMacro {
 
 		for (letter in letters) {
 			var varName = "button" + letter.toUpperCase();
+			var upperLatter = letter.toUpperCase();
 			fields.push({
 				name: varName,
 				access: [APublic],
 				kind: FVar(
 					typePath,
-					macro new MobileButton(0, 0)
+					macro new MobileButton(0, 0, [MobileInputID.$upperLatter])
 				),
 				pos: Context.currentPos()
 			});

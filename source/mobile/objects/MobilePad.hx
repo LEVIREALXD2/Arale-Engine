@@ -1,5 +1,6 @@
 package mobile.objects;
 
+import flixel.util.FlxSignal.FlxTypedSignal;
 import flixel.graphics.frames.FlxTileFrames;
 import flixel.graphics.FlxGraphic;
 import openfl.display.BitmapData;
@@ -8,22 +9,28 @@ import openfl.utils.Assets;
 //More button support (Some buttons doesn't have a texture)
 @:build(mobile.macros.ButtonMacro.createButtons(["A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z","SELECTOR"]))
 @:build(mobile.macros.ButtonMacro.createExtraButtons(30)) //Psych Extended Allows to Create 30 Extra Button with Json for now
-class MobilePad extends FlxTypedSpriteGroup<MobileButton> {
+
+@:access(mobile.objects.MobileButton)
+class MobilePad extends MobileInputManager implements IMobileControls {
 	//DPad
-	public var buttonLeft:MobileButton = new MobileButton(0, 0);
-	public var buttonUp:MobileButton = new MobileButton(0, 0);
-	public var buttonRight:MobileButton = new MobileButton(0, 0);
-	public var buttonDown:MobileButton = new MobileButton(0, 0);
+	public var buttonLeft:MobileButton = new MobileButton(0, 0, [MobileInputID.LEFT, MobileInputID.NOTE_LEFT]);
+	public var buttonUp:MobileButton = new MobileButton(0, 0, [MobileInputID.UP, MobileInputID.NOTE_UP]);
+	public var buttonRight:MobileButton = new MobileButton(0, 0, [MobileInputID.RIGHT, MobileInputID.NOTE_RIGHT]);
+	public var buttonDown:MobileButton = new MobileButton(0, 0, [MobileInputID.DOWN, MobileInputID.NOTE_DOWN]);
 
 	//PAD DUO MODE
-	public var buttonLeft2:MobileButton = new MobileButton(0, 0);
-	public var buttonUp2:MobileButton = new MobileButton(0, 0);
-	public var buttonRight2:MobileButton = new MobileButton(0, 0);
-	public var buttonDown2:MobileButton = new MobileButton(0, 0);
+	public var buttonLeft2:MobileButton = new MobileButton(0, 0, [MobileInputID.LEFT2, MobileInputID.NOTE_LEFT]);
+	public var buttonUp2:MobileButton = new MobileButton(0, 0, [MobileInputID.UP2, MobileInputID.NOTE_UP]);
+	public var buttonRight2:MobileButton = new MobileButton(0, 0, [MobileInputID.RIGHT2, MobileInputID.NOTE_RIGHT]);
+	public var buttonDown2:MobileButton = new MobileButton(0, 0, [MobileInputID.DOWN2, MobileInputID.NOTE_DOWN]);
 
 	public var dPad:FlxTypedSpriteGroup<MobileButton>;
 	public var actions:FlxTypedSpriteGroup<MobileButton>;
 	public var createdButtons:Array<String> = ["A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z","SELECTOR","Left","Up","Right","Down","Left2","Up2","Right2","Down2"];
+
+	public var instance:MobileInputManager;
+	public var onButtonDown:FlxTypedSignal<MobileButton->Void> = new FlxTypedSignal<MobileButton->Void>();
+	public var onButtonUp:FlxTypedSignal<MobileButton->Void> = new FlxTypedSignal<MobileButton->Void>();
 	
 	/**
 	 * Create a gamepad.
@@ -35,12 +42,6 @@ class MobilePad extends FlxTypedSpriteGroup<MobileButton> {
 	public function new(DPad:String, Action:String) {
 		super();
 
-		dPad = new FlxTypedSpriteGroup<MobileButton>();
-		dPad.scrollFactor.set();
-
-		actions = new FlxTypedSpriteGroup<MobileButton>();
-		actions.scrollFactor.set();
-
 		if (DPad != "NONE")
 		{
 			if (!MobileData.dpadModes.exists(DPad))
@@ -48,9 +49,11 @@ class MobilePad extends FlxTypedSpriteGroup<MobileButton> {
 
 			for (buttonData in MobileData.dpadModes.get(DPad).buttons)
 			{
+				var buttonID:Array<MobileInputID> = Reflect.getProperty(this, buttonData.button).IDs; //Get ID With variable because otherwise it returns the null
 				Reflect.setField(this, buttonData.button,
-					createMobileButton(buttonData.x, buttonData.y, buttonData.graphic, CoolUtil.colorFromString(buttonData.color)));
-				dPad.add(add(Reflect.field(this, buttonData.button)));
+					createMobileButton(buttonData.x, buttonData.y, buttonData.graphic, CoolUtil.colorFromString(buttonData.color),
+						buttonID));
+				add(Reflect.field(this, buttonData.button));
 			}
 		}
 
@@ -61,33 +64,31 @@ class MobilePad extends FlxTypedSpriteGroup<MobileButton> {
 
 			for (buttonData in MobileData.actionModes.get(Action).buttons)
 			{
+				var buttonID:Array<MobileInputID> = Reflect.getProperty(this, buttonData.button).IDs; //Get ID With variable because otherwise it returns the null
 				Reflect.setField(this, buttonData.button,
-					createMobileButton(buttonData.x, buttonData.y, buttonData.graphic, CoolUtil.colorFromString(buttonData.color), buttonData.bg));
-				actions.add(add(Reflect.field(this, buttonData.button)));
+					createMobileButton(buttonData.x, buttonData.y, buttonData.graphic, CoolUtil.colorFromString(buttonData.color),
+						buttonID));
+				add(Reflect.field(this, buttonData.button));
 			}
 		}
 
-		switch (Action){
-			case "controlExtend":
-				if (Type.getClass(FlxG.state) != PlayState || Type.getClass(FlxG.state) == PlayState && ClientPrefs.data.extraKeys >= 1) actions.add(add(buttonExtra1 = createMobileButton(FlxG.width * 0.5 - 44, FlxG.height * 0.5 - 127 * 0.5, "f", 0xFF0000)));
-				if (Type.getClass(FlxG.state) != PlayState || Type.getClass(FlxG.state) == PlayState && ClientPrefs.data.extraKeys >= 2) actions.add(add(buttonExtra2 = createMobileButton(FlxG.width * 0.5 - 44, FlxG.height * 0.5 - 127 * 0.5, "g", 0xFFFF00)));
-				if (Type.getClass(FlxG.state) != PlayState || Type.getClass(FlxG.state) == PlayState && ClientPrefs.data.extraKeys >= 3) actions.add(add(buttonExtra3 = createMobileButton(FlxG.width * 0.5 - 44, FlxG.height * 0.5 - 127 * 0.5, "x", 0x99062D)));
-				if (Type.getClass(FlxG.state) != PlayState || Type.getClass(FlxG.state) == PlayState && ClientPrefs.data.extraKeys >= 4) actions.add(add(buttonExtra4 = createMobileButton(FlxG.width * 0.5 - 44, FlxG.height * 0.5 - 127 * 0.5, "y", 0x4A35B9)));
-			case "NONE":
-		}
+		scrollFactor.set();
+		updateTrackedButtons();
+
+		instance = this;
 	}
 
-	public function createMobileButton(x:Float, y:Float, Frames:String, ColorS:Int, ?bg:String):Dynamic
+	public function createMobileButton(x:Float, y:Float, Frames:String, ColorS:Int, ?bg:String, ?IDs:Array<MobileInputID>):Dynamic
 	{
-		return createVirtualButton(x, y, Frames, ColorS);
+		return createVirtualButton(x, y, Frames, ColorS, IDs);
 	}
 
-	public function createVirtualButton(x:Float, y:Float, Frames:String, ?ColorS:Int = 0xFFFFFF):MobileButton {
+	public function createVirtualButton(x:Float, y:Float, Frames:String, ?ColorS:Int = 0xFFFFFF, ?IDs:Array<MobileInputID>):MobileButton {
 		var frames:FlxGraphic;
 
 		final path:String = Paths.getSharedPath() + 'mobile/MobileButton/VirtualPad/original/$Frames.png';
 		#if MODS_ALLOWED
-		final modsPath:String = Paths.modFolders('mobile/MobileButton/VirtualPad/original/$Frames');
+		final modsPath:String = Paths.modFolders('mobile/MobileButton/VirtualPad/original/$Frames.png');
 		if(sys.FileSystem.exists(modsPath))
 			frames = FlxGraphic.fromBitmapData(BitmapData.fromFile(modsPath));
 		else #end if(Assets.exists(path))
@@ -95,7 +96,7 @@ class MobilePad extends FlxTypedSpriteGroup<MobileButton> {
 		else
 			frames = FlxGraphic.fromBitmapData(Assets.getBitmapData(Paths.getSharedPath() + 'mobile/MobileButton/VirtualPad/original/default.png'));
 
-		var button = new MobileButton(x, y);
+		var button = new MobileButton(x, y, IDs);
 		button.frames = FlxTileFrames.fromGraphic(frames, FlxPoint.get(Std.int(frames.width / 2), frames.height));
 
 		button.updateHitbox();
@@ -111,14 +112,22 @@ class MobilePad extends FlxTypedSpriteGroup<MobileButton> {
 
 		if (ColorS != -1) button.color = ColorS;
 
+		button.onDown.callback = () -> onButtonDown.dispatch(button);
+		button.onOut.callback = button.onUp.callback = () -> onButtonUp.dispatch(button);
 		return button;
 	}
 
 	override public function destroy():Void
 	{
 		super.destroy();
-		for (field in Reflect.fields(this))
-			if (Std.isOfType(Reflect.field(this, field), MobileButton))
-				Reflect.setField(this, field, FlxDestroyUtil.destroy(Reflect.field(this, field)));
+		onButtonUp.destroy();
+		onButtonDown.destroy();
+
+		for (fieldName in Reflect.fields(this))
+		{
+			var field = Reflect.field(this, fieldName);
+			if (Std.isOfType(field, MobileButton))
+				Reflect.setField(this, fieldName, FlxDestroyUtil.destroy(field));
+		}
 	}
 }

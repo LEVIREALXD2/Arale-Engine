@@ -1406,7 +1406,7 @@ class CharacterEditorState extends MusicBeatState implements PsychUIEventHandler
 	function onMouseEvent(e:MouseEvent):Void
 	{
 		#if TOUCH_CONTROLS
-		if (mobilePad != null /* && !mobilePad.anyPressed([ANY]) */)
+		if (mobilePad != null && !mobilePad.anyPressed([ANY]))
 			switch (e.type)
 			{
 				case MouseEvent.MOUSE_DOWN:

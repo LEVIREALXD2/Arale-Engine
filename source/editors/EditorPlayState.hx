@@ -177,7 +177,7 @@ class EditorPlayState extends MusicBeatSubstate
 
 		#if TOUCH_CONTROLS
 		addMobileControls();
-		MusicBeatSubstate.mobilec.visible = true;
+		mobilec.instance.visible = true;
 		#end
 		
 		generateSong(PlayState.SONG.song);
@@ -198,7 +198,7 @@ class EditorPlayState extends MusicBeatSubstate
 	{
 		if(#if android FlxG.android.justReleased.BACK || #end controls.BACK || FlxG.keys.justPressed.ESCAPE)
 		{
-			#if TOUCH_CONTROLS MusicBeatSubstate.mobilec.visible = false; #end
+			#if TOUCH_CONTROLS mobilec.instance.visible = false; #end
 			endSong();
 			super.update(elapsed);
 			return;
