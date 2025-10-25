@@ -35,10 +35,11 @@ class CreditsState extends MusicBeatState
 	var offsetThing:Float = -75;
 
 	var mainCredits:Array<Array<String>> = [ //Name - Icon name - Description - Link - BG Color
-		['Psych Extended'],
-		['KralOyuncu 2010X',	 'KralOyuncuV3',	'Owner of Psych Extended',					'https://youtube.com/@kraloyuncurbx',		'378FC7'],
+		['Arale Engine'],
+		['LG64',	 'levi',	'Owner of Arale Engine',					'https://youtube.com/@takuruky64?si=Wb4uC96IkUROMnLm',		'378FC7'],
 		[''],
 		['Code Credits'],
+		['KralOyuncu 2010X',	 'KralOyuncuV3',	'Owner of Psych Extended',					'https://youtube.com/@kraloyuncurbx',		'378FC7'],
 		['beihu',		'beihu',		'Owner of NovaFlare Engine\n(some codes used from NovaFlare Engine)',	'https://youtube.com/@hoyou235',	'FFC0CB'],
 		[''],
 		['Psych Engine Team'],

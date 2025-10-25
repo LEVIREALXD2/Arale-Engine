@@ -131,7 +131,7 @@ class MainMenuState extends MusicBeatState
 
 		FlxG.camera.follow(camFollowPos, null, 1);
 
-		psychextendedVersionShit = new FlxText(12, FlxG.height - 64, 0, "Psych Extended v" + psychExtendedVersion, 12);
+		psychextendedVersionShit = new FlxText(12, FlxG.height - 64, 0, "Arale Engine v" + psychExtendedVersion, 12);
 		psychextendedVersionShit.scrollFactor.set();
 		psychextendedVersionShit.setFormat("VCR OSD Mono", 16, FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		add(psychextendedVersionShit);
