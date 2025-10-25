@@ -780,6 +780,13 @@ class PlayState extends MusicBeatState
 		addMobileControls();
 		mobilec.instance.visible = false;
 		if (ClientPrefs.data.hitboxmode != 'Classic' && !ClientPrefs.data.hitboxhint) mobilec.instance.alpha = 0.000001;
+		if (ClientPrefs.data.pauseButton) {
+			addMobilePad("NONE", "PAUSE");
+			addMobilePadCamera();
+			mobilePad.buttonP.scale.set(0.8, 0.8);
+			mobilePad.x += 10;
+			mobilePad.y -= 10;
+		}
 		#end
 
 		// if (SONG.song == 'South')
@@ -2105,7 +2112,8 @@ class PlayState extends MusicBeatState
 			botplayTxt.alpha = 1 - Math.sin((Math.PI * botplaySine) / 180);
 		}
 
-		if ((controls.PAUSE #if android || FlxG.android.justReleased.BACK #end) && startedCountdown && canPause)
+		if ((controls.PAUSE #if android || FlxG.android.justReleased.BACK #end #if TOUCH_CONTROLS ||
+		(ClientPrefs.data.pauseButton && mobilePad.buttonP.justPressed) #end) && startedCountdown && canPause)
 		{
 			var ret:Dynamic = callOnScripts('onPause', null, true);
 			if(ret != FunkinLua.Function_Stop) {

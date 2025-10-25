@@ -18,6 +18,7 @@ import TitleState;
 	/* Mobile Controls */
 	#if TOUCH_CONTROLS
 	/* Bool Options */
+	public var pauseButton:Bool = true;
 	public var hitboxhint:Bool = false;
 	public var coloredvpad:Bool = true;
 

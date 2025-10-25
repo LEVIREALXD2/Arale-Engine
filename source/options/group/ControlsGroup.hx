@@ -76,6 +76,14 @@ class ControlsGroup extends OptionCata
 		addOption(option);
 
 		var option:Option = new Option(this,
+			'Pause Button',
+			'Its just a pause button, no need to explain',
+			'pauseButton',
+			BOOL
+		);
+		addOption(option);
+
+		var option:Option = new Option(this,
 			'MobilePad Alpha',
 			'Changes MobilePad Alpha',
 			'mobilePadAlpha',
