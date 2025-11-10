@@ -1,4 +1,4 @@
-name: Build Arale Engine
+name: Build Psych Extended
 
 on: workflow_dispatch
 
