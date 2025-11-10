@@ -83,8 +83,8 @@ class FPSCounter extends TextField
 	{
     	text = 
     	'FPS: $currentFPS' + 
-    	'\nPsychExtended v${MainMenuState.psychExtendedVersion}' + //This might make it easier to find those who use my port
-    	'\nMemory: ${flixel.util.FlxStringUtil.formatBytes(memoryMegas)}' +
+    	'\nAraleEngine v${MainMenuState.psychExtendedVersion}' + //This might make it easier to find those who use my port
+    	'\nRAM: ${flixel.util.FlxStringUtil.formatBytes(memoryMegas)}' +
     	os;
 
 		textColor = 0xFFFFFFFF;
